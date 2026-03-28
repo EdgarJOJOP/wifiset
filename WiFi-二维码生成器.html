@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级 WiFi 二维码生成器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { text-align: center; color: #1a73e8; }
+        .field { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .checkbox-row { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .checkbox-row input { width: auto; }
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #1557b0; }
+        #qr-result { margin-top: 25px; display: none; text-align: center; border-top: 1px dashed #ccc; padding-top: 20px; }
+        #canvas-wrapper { background: white; padding: 15px; display: inline-block; border: 1px solid #eee; }
+        .download-btn { background: #34a853; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>WiFi 扫码连接</h2>
+    
+    <div class="field">
+        <label>WiFi 名称 (SSID)</label>
+        <input type="text" id="ssid" placeholder="请输入 WiFi 名称">
+    </div>
+
+    <div class="field">
+        <label>WiFi 密码</label>
+        <input type="text" id="password" placeholder="请输入密码 (无密码请留空)">
+    </div>
+
+    <div class="field">
+        <label>加密类型</label>
+        <select id="encType">
+            <option value="WPA">WPA / WPA2 (最常用)</option>
+            <option value="SAE">WPA3 (最新标准)</option>
+            <option value="WEP">WEP (老旧网络)</option>
+            <option value="nopass">无加密 (Open)</option>
+        </select>
+    </div>
+
+    <div class="field">
+        <label class="checkbox-row">
+            <input type="checkbox" id="hiddenSsid"> 这是一个隐藏的 WiFi (不广播 SSID)
+        </label>
+    </div>
+
+    <button onclick="makeCode()">生成二维码</button>
+
+    <div id="qr-result">
+        <div id="canvas-wrapper">
+            <div id="qrcode"></div>
+        </div>
+        <p style="font-size: 12px; color: #666;">请使用手机相机扫码</p>
+        <button class="download-btn" onclick="downloadImage()">保存到相册</button>
+    </div>
+</div>
+
+<script>
+    var qrcode = new QRCode(document.getElementById("qrcode"), {
+        width: 200,
+        height: 200,
+        correctLevel : QRCode.CorrectLevel.H
+    });
+
+    function makeCode() {
+        const ssid = document.getElementById('ssid').value;
+        const pass = document.getElementById('password').value;
+        const type = document.getElementById('encType').value;
+        const isHidden = document.getElementById('hiddenSsid').checked;
+
+        if (!ssid) {
+            alert("请填写 WiFi 名称");
+            return;
+        }
+
+        // 核心逻辑：
+        // 虽然 UI 区分了 WPA 和 SAE(WPA3)，
+        // 但为了兼容性，大多数手机依然识别 T:WPA。
+        // 对于 WPA3，部分设备支持 T:SAE，但 T:WPA 通常也能自动握手。
+        
+        let qrString = `WIFI:S:${ssid};T:${type};P:${pass};H:${isHidden ? 'true' : 'false'};;`;
+        
+        // 特殊处理：如果选择无密码
+        if (type === 'nopass') {
+            qrString = `WIFI:S:${ssid};T:nopass;P:;H:${isHidden ? 'true' : 'false'};;`;
+        }
+
+        qrcode.clear();
+        qrcode.makeCode(qrString);
+        document.getElementById('qr-result').style.display = 'block';
+    }
+
+    function downloadImage() {
+        const img = document.querySelector('#qrcode img');
+        if(!img) return;
+        const link = document.createElement('a');
+        link.href = img.src;
+        link.download = 'wifi-qr-code.png';
+        link.click();
+    }
+</script>
+
+</body>
+</html>
