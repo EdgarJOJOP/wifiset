@@ -143,6 +143,26 @@
             background-size: 16px;
         }
         
+        .doh-settings {
+            display: none;
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .doh-row {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .doh-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
         .btn {
             display: block;
             width: 100%;
@@ -275,6 +295,11 @@
                 border-left: none;
                 border-top: 1px solid #eee;
             }
+            
+            .doh-row {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -292,7 +317,7 @@
                 <div class="form-group">
                     <label for="dnsDomain">DNS服务器域名</label>
                     <div class="input-group">
-                        <input type="text" id="dnsDomain" placeholder="例如：dns.example.com" value="dns.y57.top">
+                        <input type="text" id="dnsDomain" placeholder="例如：dns.alidns.com" value="dns.alidns.com">
                     </div>
                 </div>
                 
@@ -303,6 +328,22 @@
                             <option value="TLS">DNS over TLS (DoT)</option>
                             <option value="HTTPS">DNS over HTTPS (DoH)</option>
                         </select>
+                    </div>
+                    
+                    <div id="dohSettings" class="doh-settings">
+                        <div class="doh-row">
+                            <div class="form-group">
+                                <label for="dohPort">端口号</label>
+                                <input type="number" id="dohPort" placeholder="例如：443" min="1" max="65535" value="443">
+                            </div>
+                            <div class="form-group">
+                                <label for="dohPath">URL路径</label>
+                                <input type="text" id="dohPath" placeholder="例如：/dns-query" value="/dns-query">
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">
+                            <i class="fas fa-info-circle"></i> 默认端口443可省略，其他端口需要指定
+                        </p>
                     </div>
                 </div>
                 
@@ -348,8 +389,9 @@
                     
                     <div class="example">
                         <div class="example-title">配置示例：</div>
-                        <p>• DNS服务器: <span class="highlight">dns.y57.top</span></p>
+                        <p>• DNS服务器: <span class="highlight">dns.alidns.com</span></p>
                         <p>• 协议: <span class="highlight">TLS (DoT)</span></p>
+                        <p>• DoH设置: <span class="highlight">端口: 443, 路径: /dns-query</span></p>
                     </div>
                 </div>
                 
@@ -367,6 +409,7 @@
         
         <div class="footer">
             <p>此工具仅生成配置文件，请确保您信任所使用的DNS服务提供商</p>
+            <p>支持自定义端口号的DoH配置 | 默认使用阿里公共DNS</p>
         </div>
     </div>
 
@@ -374,10 +417,23 @@
         document.addEventListener('DOMContentLoaded', function() {
             const dnsDomain = document.getElementById('dnsDomain');
             const protocol = document.getElementById('protocol');
+            const dohSettings = document.getElementById('dohSettings');
+            const dohPort = document.getElementById('dohPort');
+            const dohPath = document.getElementById('dohPath');
             const generateBtn = document.getElementById('generateBtn');
             const successMessage = document.getElementById('successMessage');
             const configPreview = document.getElementById('configPreview');
             const previewStatus = document.getElementById('previewStatus');
+            
+            // 显示/隐藏DoH设置
+            protocol.addEventListener('change', function() {
+                if (this.value === 'HTTPS') {
+                    dohSettings.style.display = 'block';
+                } else {
+                    dohSettings.style.display = 'none';
+                }
+                updatePreview();
+            });
             
             // 生成UUID的函数
             function generateUUID() {
@@ -390,13 +446,33 @@
             
             // 更新预览
             function updatePreview() {
-                const domain = dnsDomain.value || 'dns.example.com';
+                const domain = dnsDomain.value || 'dns.alidns.com';
                 const protocolType = protocol.value;
                 
                 const protocolDisplay = protocolType === 'TLS' ? 'DoT' : 'DoH';
                 const displayName = `${domain} ${protocolDisplay}`;
                 
                 previewStatus.textContent = "已更新";
+                
+                let dnsSettings = '';
+                if (protocolType === 'TLS') {
+                    dnsSettings = `
+                &lt;key&gt;DNSProtocol&lt;/key&gt;
+                &lt;string&gt;TLS&lt;/string&gt;
+                &lt;key&gt;ServerName&lt;/key&gt;
+                &lt;string&gt;${domain}&lt;/string&gt;`;
+                } else {
+                    const port = dohPort.value || '443';
+                    const path = dohPath.value || '/dns-query';
+                    const portDisplay = port === '443' ? '' : `:${port}`;
+                    const serverURL = `https://${domain}${portDisplay}${path}`;
+                    
+                    dnsSettings = `
+                &lt;key&gt;DNSProtocol&lt;/key&gt;
+                &lt;string&gt;HTTPS&lt;/string&gt;
+                &lt;key&gt;ServerURL&lt;/key&gt;
+                &lt;string&gt;${serverURL}&lt;/string&gt;`;
+                }
                 
                 configPreview.innerHTML = `
 &lt;plist version="1.0"&gt;
@@ -405,14 +481,8 @@
     &lt;array&gt;
         &lt;dict&gt;
             &lt;key&gt;DNSSettings&lt;/key&gt;
-            &lt;dict&gt;
-                &lt;key&gt;DNSProtocol&lt;/key&gt;
-                &lt;string&gt;${protocolType}&lt;/string&gt;
-                &lt;key&gt;ServerName&lt;/key&gt;
-                &lt;string&gt;${domain}&lt;/string&gt;
+            &lt;dict&gt;${dnsSettings}
             &lt;/dict&gt;
-            &lt;key&gt;PayloadDescription&lt;/key&gt;
-            &lt;string&gt;配置设备使用加密DNS解析&lt;/string&gt;
             &lt;key&gt;PayloadDisplayName&lt;/key&gt;
             &lt;string&gt;${displayName}&lt;/string&gt;
         &lt;/dict&gt;
@@ -429,6 +499,8 @@
             // 当输入变化时更新预览
             dnsDomain.addEventListener('input', updatePreview);
             protocol.addEventListener('change', updatePreview);
+            dohPort.addEventListener('input', updatePreview);
+            dohPath.addEventListener('input', updatePreview);
             
             // 生成并下载配置文件
             generateBtn.addEventListener('click', function() {
@@ -449,6 +521,34 @@
                 const protocolDisplay = protocolType === 'TLS' ? 'DoT' : 'DoH';
                 const displayName = `${domain} ${protocolDisplay}`;
                 
+                // 创建DNSSettings部分
+                let dnsSettings = '';
+                let displayNameWithPort = displayName;
+                
+                if (protocolType === 'TLS') {
+                    dnsSettings = `
+                    <key>DNSProtocol</key>
+                    <string>TLS</string>
+                    <key>ServerName</key>
+                    <string>${domain}</string>`;
+                } else {
+                    const port = dohPort.value || '443';
+                    const path = dohPath.value || '/dns-query';
+                    const portDisplay = port === '443' ? '' : `:${port}`;
+                    const serverURL = `https://${domain}${portDisplay}${path}`;
+                    
+                    // 在显示名称中包含端口信息
+                    if (port !== '443') {
+                        displayNameWithPort = `${domain}:${port} ${protocolDisplay}`;
+                    }
+                    
+                    dnsSettings = `
+                    <key>DNSProtocol</key>
+                    <string>HTTPS</string>
+                    <key>ServerURL</key>
+                    <string>${serverURL}</string>`;
+                }
+                
                 // 创建配置文件内容
                 const configContent = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -459,10 +559,7 @@
             <dict>
                 <key>DNSSettings</key>
                 <dict>
-                    <key>DNSProtocol</key>
-                    <string>${protocolType}</string>
-                    <key>ServerName</key>
-                    <string>${domain}</string>
+                    ${dnsSettings}
                 </dict>
                 <key>OnDemandEnabled</key>
                 <integer>1</integer>
@@ -476,7 +573,7 @@
                 <key>PayloadDescription</key>
                 <string>配置设备使用加密DNS解析</string>
                 <key>PayloadDisplayName</key>
-                <string>${displayName}</string>
+                <string>${displayNameWithPort}</string>
                 <key>PayloadIdentifier</key>
                 <string>${innerPayloadIdentifier}</string>
                 <key>PayloadType</key>
@@ -490,7 +587,7 @@
         <key>PayloadDescription</key>
         <string>为macOS和iOS系统添加加密DNS配置</string>
         <key>PayloadDisplayName</key>
-        <string>${displayName}</string>
+        <string>${displayNameWithPort}</string>
         <key>PayloadIdentifier</key>
         <string>${outerPayloadIdentifier}</string>
         <key>PayloadRemovalDisallowed</key>
