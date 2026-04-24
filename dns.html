@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>苹果 DNS 描述文件生成器</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; padding: 20px; line-height: 1.6; max-width: 500px; margin: 0 auto; background: #f4f4f9; }
+        .card { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; color: #333; font-size: 1.2rem; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 12px; background-color: #007aff; color: white; border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background 0.3s; }
+        button:hover { background-color: #0056b3; }
+        .hint { font-size: 0.8rem; color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>生成 DNS 描述文件</h2>
+    
+    <div class="form-group">
+        <label>加密协议</label>
+        <select id="protocol" onchange="togglePlaceholder()">
+            <option value="TLS">DNS over TLS (DoT)</option>
+            <option value="HTTPS">DNS over HTTPS (DoH)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label id="labelAddress">服务器域名</label>
+        <input type="text" id="address" placeholder="例如: dns.y57.top" value="dns.y57.top">
+    </div>
+
+    <button onclick="generateAndDownload()">下载描述文件</button>
+
+    <div class="hint">
+        * 下载后请前往“设置 -> 已下载描述文件”进行安装。<br>
+        * iOS 14+ / macOS Big Sur+ 支持。
+    </div>
+</div>
+
+<script>
+    function togglePlaceholder() {
+        const protocol = document.getElementById('protocol').value;
+        const addressInput = document.getElementById('address');
+        const labelAddress = document.getElementById('labelAddress');
+        
+        if (protocol === 'HTTPS') {
+            labelAddress.innerText = '服务器 URL (DoH)';
+            addressInput.placeholder = '例如: https://dns.y57.top/dns-query';
+            if(addressInput.value === 'dns.y57.top') addressInput.value = 'https://dns.y57.top/dns-query';
+        } else {
+            labelAddress.innerText = '服务器域名 (DoT)';
+            addressInput.placeholder = '例如: dns.y57.top';
+            if(addressInput.value.includes('https://')) addressInput.value = 'dns.y57.top';
+        }
+    }
+
+    function generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16).toUpperCase();
+        });
+    }
+
+    function generateAndDownload() {
+        const protocol = document.getElementById('protocol').value;
+        const address = document.getElementById('address').value.trim();
+
+        if (!address) {
+            alert('请输入域名或URL');
+            return;
+        }
+
+        // 动态生成的 UUID
+        const payloadUUID = generateUUID();
+        const topUUID = generateUUID();
+        const identifier = "com.apple.dnsSettings.managed." + generateUUID();
+
+        // 根据协议决定使用 ServerName 还是 ServerURL
+        let dnsSettingXml = '';
+        if (protocol === 'TLS') {
+            dnsSettingXml = `
+                <key>DNSSettings</key>
+                <dict>
+                    <key>DNSProtocol</key>
+                    <string>TLS</string>
+                    <key>ServerName</key>
+                    <string>${address}</string>
+                </dict>`;
+        } else {
+            dnsSettingXml = `
+                <key>DNSSettings</key>
+                <dict>
+                    <key>DNSProtocol</key>
+                    <string>HTTPS</string>
+                    <key>ServerURL</key>
+                    <string>${address}</string>
+                </dict>`;
+        }
+
+        // 完整的 XML 模板
+        const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            ${dnsSettingXml}
+            <key>OnDemandEnabled</key>
+            <integer>1</integer>
+            <key>OnDemandRules</key>
+            <array>
+                <dict>
+                    <key>Action</key>
+                    <string>Connect</string>
+                </dict>
+            </array>
+            <key>PayloadDescription</key>
+            <string>配置加密 DNS 服务器</string>
+            <key>PayloadDisplayName</key>
+            <string>${address} (${protocol})</string>
+            <key>PayloadIdentifier</key>
+            <string>${identifier}</string>
+            <key>PayloadType</key>
+            <string>com.apple.dnsSettings.managed</string>
+            <key>PayloadUUID</key>
+            <string>${payloadUUID}</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>由网页生成器配置的 DNS 加密</string>
+    <key>PayloadDisplayName</key>
+    <string>DNS: ${address}</string>
+    <key>PayloadIdentifier</key>
+    <string>${generateUUID()}</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadScope</key>
+    <string>System</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>${topUUID}</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>`;
+
+        // 创建 Blob 并触发下载
+        const blob = new Blob
