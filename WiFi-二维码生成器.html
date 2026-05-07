@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高级 WiFi 二维码生成器</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+    <title>WiFi 二维码生成器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js">
     </script>
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(145deg, #e8ecf1 0%, #f0f2f5 100%);
@@ -25,7 +23,7 @@
             backdrop-filter: blur(6px);
             padding: 30px 28px 28px;
             border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12), 0 4px 16px rgba(0,0,0,0.04);
             width: 100%;
             max-width: 420px;
             transition: transform 0.2s ease;
@@ -43,14 +41,9 @@
             justify-content: center;
             gap: 8px;
         }
-        h2::before {
-            content: "📶";
-            font-size: 26px;
-        }
+        h2::before { content: "📶"; font-size: 26px; }
 
-        .field {
-            margin-bottom: 18px;
-        }
+        .field { margin-bottom: 18px; }
         label {
             display: block;
             margin-bottom: 6px;
@@ -59,23 +52,18 @@
             color: #2c3e50;
         }
 
-        /* ---------- 密码包装器 ---------- */
         .password-wrapper {
             position: relative;
             display: flex;
             align-items: center;
         }
-        .password-wrapper input {
-            flex: 1;
-            padding-right: 68px;
-            /* 给按钮让位 */;
-        }
+        .password-wrapper input { flex: 1; padding-right: 68px; }
         .toggle-pwd {
             position: absolute;
             right: 6px;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(26, 115, 232, 0.08);
+            background: rgba(26,115,232,0.08);
             border: none;
             color: #1a73e8;
             cursor: pointer;
@@ -90,16 +78,10 @@
             line-height: 1.4;
             letter-spacing: 0.3px;
         }
-        .toggle-pwd:hover {
-            background: rgba(26, 115, 232, 0.18);
-            color: #1557b0;
-        }
-        .toggle-pwd:active {
-            transform: translateY(-50%) scale(0.96);
-        }
+        .toggle-pwd:hover { background: rgba(26,115,232,0.18); color: #1557b0; }
+        .toggle-pwd:active { transform: translateY(-50%) scale(0.96); }
 
-        input,
-        select {
+        input, select {
             width: 100%;
             padding: 12px 16px;
             border: 1.5px solid #e2e6ea;
@@ -111,16 +93,12 @@
             outline: none;
             color: #1a2533;
         }
-        input:focus,
-        select:focus {
+        input:focus, select:focus {
             border-color: #1a73e8;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+            box-shadow: 0 0 0 3px rgba(26,115,232,0.12);
             background: #ffffff;
         }
-        input::placeholder {
-            color: #aab3c0;
-            font-weight: 400;
-        }
+        input::placeholder { color: #aab3c0; font-weight: 400; }
 
         .checkbox-row {
             display: flex;
@@ -136,13 +114,15 @@
             margin: 0;
             flex-shrink: 0;
         }
-        .checkbox-row label {
-            margin: 0;
-            cursor: pointer;
-            font-weight: 500;
+        .checkbox-row label { margin: 0; cursor: pointer; font-weight: 500; }
+
+        .enc-note {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+            padding-left: 4px;
         }
 
-        /* ---------- 按钮 ---------- */
         .btn-primary {
             width: 100%;
             padding: 14px 20px;
@@ -155,27 +135,18 @@
             cursor: pointer;
             margin-top: 6px;
             transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.25);
+            box-shadow: 0 4px 12px rgba(26,115,232,0.25);
             letter-spacing: 0.4px;
         }
-        .btn-primary:hover {
-            background: #1557b0;
-            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.35);
-        }
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
+        .btn-primary:hover { background: #1557b0; box-shadow: 0 6px 20px rgba(26,115,232,0.35); }
+        .btn-primary:active { transform: scale(0.98); }
 
         .btn-success {
             background: #34a853;
-            box-shadow: 0 4px 12px rgba(52, 168, 83, 0.25);
+            box-shadow: 0 4px 12px rgba(52,168,83,0.25);
         }
-        .btn-success:hover {
-            background: #2d8f47;
-            box-shadow: 0 6px 20px rgba(52, 168, 83, 0.35);
-        }
+        .btn-success:hover { background: #2d8f47; box-shadow: 0 6px 20px rgba(52,168,83,0.35); }
 
-        /* ---------- 二维码结果区 ---------- */
         #qr-result {
             margin-top: 28px;
             display: none;
@@ -185,14 +156,8 @@
             animation: fadeIn 0.35s ease;
         }
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         #canvas-wrapper {
@@ -200,27 +165,22 @@
             padding: 16px;
             display: inline-block;
             border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
             border: 1px solid #f0f2f5;
         }
         #canvas-wrapper #qrcode {
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 200px;
         }
-        #canvas-wrapper #qrcode canvas,
         #canvas-wrapper #qrcode img {
             border-radius: 8px;
             max-width: 100%;
             height: auto;
         }
 
-        .hint {
-            font-size: 13px;
-            color: #7a8799;
-            margin: 14px 0 10px;
-            letter-spacing: 0.2px;
-        }
+        .hint { font-size: 13px; color: #7a8799; margin: 14px 0 10px; letter-spacing: 0.2px; }
 
         .error-tip {
             font-size: 13px;
@@ -232,244 +192,230 @@
             display: none;
         }
 
-        /* ---------- 响应式 ---------- */
+        #length-warning {
+            font-size: 13px;
+            color: #e37400;
+            background: #fff3e0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none;
+        }
+
         @media (max-width: 480px) {
-            .card {
-                padding: 20px 16px 18px;
-            }
-            h2 {
-                font-size: 19px;
-            }
-            input,
-            select {
-                padding: 10px 14px;
-                font-size: 14px;
-            }
-            .btn-primary {
-                padding: 12px 16px;
-                font-size: 15px;
-            }
-            .toggle-pwd {
-                padding: 4px 10px;
-                font-size: 12px;
-                right: 4px;
-            }
-            .password-wrapper input {
-                padding-right: 56px;
-            }
+            .card { padding: 20px 16px 18px; }
+            h2 { font-size: 19px; }
+            input, select { padding: 10px 14px; font-size: 14px; }
+            .btn-primary { padding: 12px 16px; font-size: 15px; }
+            .toggle-pwd { padding: 4px 10px; font-size: 12px; right: 4px; }
+            .password-wrapper input { padding-right: 56px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h2>WiFi 扫码连接</h2>
+<div class="card">
+    <h2>WiFi 扫码连接</h2>
 
-        <!-- SSID -->
-        <div class="field">
-            <label for="ssid">WiFi 名称 (SSID)</label>
-            <input type="text" id="ssid" placeholder="请输入 WiFi 名称">
-        </div>
+    <div class="field">
+        <label for="ssid">WiFi 名称 (SSID)</label>
+        <input type="text" id="ssid" placeholder="例如：MyWiFi_5G">
+    </div>
 
-        <!-- 密码 + 显示/隐藏按钮 -->
-        <div class="field">
-            <label for="password">WiFi 密码</label>
-            <div class="password-wrapper">
-                <input type="password" id="password" placeholder="请输入密码 (无密码请留空)" autocomplete="off">
-                <button type="button" class="toggle-pwd" id="togglePwdBtn" onclick="togglePasswordVisibility()">显示</button>
-            </div>
-        </div>
-
-        <!-- 加密类型 -->
-        <div class="field">
-            <label for="encType">加密类型</label>
-            <select id="encType">
-                <option value="SAE">WPA3 (最新加密)</option>
-                <option value="WPA">WPA / WPA2 (最容易被监听)</option>
-                <option value="WEP">WEP (垃圾)</option>
-                <option value="nopass">无加密 (裸奔)</option>
-            </select>
-        </div>
-
-        <!-- 隐藏 SSID -->
-        <div class="field">
-            <div class="checkbox-row">
-                <input type="checkbox" id="hiddenSsid">
-                <label for="hiddenSsid">这是一个隐藏的 WiFi (不广播 SSID)</label>
-            </div>
-        </div>
-
-        <!-- 生成按钮 -->
-        <button class="btn-primary" onclick="makeCode()">✨ 生成二维码</button>
-
-        <!-- 二维码结果 -->
-        <div id="qr-result">
-            <div id="canvas-wrapper">
-                <div id="qrcode"></div>
-            </div>
-            <p class="hint">📱 请使用手机相机扫码连接</p>
-            <button class="btn-primary btn-success" onclick="downloadImage()">💾 保存到相册</button>
-            <div id="errorDisplay" class="error-tip"></div>
+    <div class="field">
+        <label for="password">WiFi 密码</label>
+        <div class="password-wrapper">
+            <input type="password" id="password" placeholder="无密码请留空" autocomplete="off">
+            <button type="button" class="toggle-pwd" id="togglePwdBtn" onclick="togglePasswordVisibility()">显示</button>
         </div>
     </div>
 
-    <script>
-        /* ==================================================
-           1. 检查 QRCode 库是否加载成功
-           ================================================== */
-        if (typeof QRCode === 'undefined') {
-            document.body.innerHTML =
-                '<div style="max-width:500px;margin:40px auto;padding:30px;background:#fff;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.1);text-align:center;font-family:sans-serif;">' +
-                '<h2 style="color:#d93025;">⚠️ 库加载失败</h2>' +
-                '<p style="color:#555;font-size:16px;">二维码库 (qrcodejs) 未能加载，请检查网络连接或刷新重试。</p>' +
-                '<p style="color:#888;font-size:14px;">也可尝试更换 CDN 源。</p>' +
-                '</div>';
-            throw new Error('QRCode library not loaded');
+    <div class="field">
+        <label for="encType">加密类型</label>
+        <select id="encType">
+            <option value="SAE">WPA3 个人版 (SAE，非常推荐)</option>
+            <option value="WPA">WPA2 个人版 (容易被监听)</option>
+            <option value="WPA">WPA2/WPA3 混合 (WPA2容易被监听)</option>
+            <option value="WEP">WEP (垃圾)</option>
+            <option value="nopass">无加密 (裸奔)</option>
+        </select>
+        <div class="enc-note">
+            💡 WPA2及以下别再使用非常容易被监听网络流量！！！！！！！
+        </div>
+    </div>
+
+    <div class="field">
+        <div class="checkbox-row">
+            <input type="checkbox" id="hiddenSsid">
+            <label for="hiddenSsid">隐藏 WiFi（不广播 SSID）</label>
+        </div>
+    </div>
+
+    <div id="length-warning"></div>
+
+    <button class="btn-primary" onclick="makeCode()">✨ 生成二维码</button>
+
+    <div id="qr-result">
+        <div id="canvas-wrapper">
+            <div id="qrcode"></div>
+        </div>
+        <p class="hint">📱 请使用手机系统相机扫码连接</p>
+        <button class="btn-primary btn-success" onclick="downloadImage()">💾 保存到相册</button>
+        <div id="errorDisplay" class="error-tip"></div>
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       1. 库加载检查
+       ========================================= */
+    if (typeof qrcode === 'undefined') {
+        document.body.innerHTML =
+            '<div style="max-width:500px;margin:40px auto;padding:30px;background:#fff;border-radius:16px;text-align:center;font-family:sans-serif;">' +
+            '<h2 style="color:#d93025;">⚠️ 库加载失败</h2>' +
+            '<p style="color:#555;">请检查网络连接后刷新重试。</p></div>';
+        throw new Error('qrcode-generator not loaded');
+    }
+
+    /* =========================================
+       2. 密码显示/隐藏
+       ========================================= */
+    function togglePasswordVisibility() {
+        var input = document.getElementById('password');
+        var btn = document.getElementById('togglePwdBtn');
+        if (!input || !btn) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.textContent = '隐藏';
+        } else {
+            input.type = 'password';
+            btn.textContent = '显示';
         }
+    }
 
-        /* ==================================================
-           2. 初始化 QRCode 实例
-           ================================================== */
-        var qrcode = new QRCode(document.getElementById("qrcode"), {
-            width: 200,
-            height: 200,
-            correctLevel: QRCode.CorrectLevel.H // 高纠错
-        });
+    /* =========================================
+       3. ✅ 正确转义函数（严格按规范）
+       ========================================= */
+    function escapeWifiValue(str) {
+        if (!str) return '';
+        return str
+            .replace(/\\/g, '\\\\')   // \ → \\
+            .replace(/;/g, '\\;')     // ; → \;
+            .replace(/,/g, '\\,')     // , → \,
+            .replace(/:/g, '\\:')     // : → \:
+            .replace(/"/g, '\\"');    // " → \"
+    }
 
-        /* ==================================================
-           3. 密码显示 / 隐藏
-           ================================================== */
-        function togglePasswordVisibility() {
-            var input = document.getElementById('password');
-            var btn = document.getElementById('togglePwdBtn');
-            if (!input || !btn) return;
-            if (input.type === 'password') {
-                input.type = 'text';
-                btn.textContent = '隐藏';
+    /* =========================================
+       4. 生成二维码（自动版本 + 高纠错）
+       ========================================= */
+    function makeCode() {
+        var errorDisplay = document.getElementById('errorDisplay');
+        var resultDiv = document.getElementById('qr-result');
+        var qrContainer = document.getElementById('qrcode');
+        var warning = document.getElementById('length-warning');
+
+        if (errorDisplay) errorDisplay.style.display = 'none';
+        if (warning) warning.style.display = 'none';
+        if (resultDiv) resultDiv.style.display = 'none';
+
+        try {
+            var ssid = document.getElementById('ssid').value;
+            var pass = document.getElementById('password').value;
+            var encSelect = document.getElementById('encType');
+            var type = encSelect.value;       // 实际 value
+            var isHidden = document.getElementById('hiddenSsid').checked;
+
+            if (!ssid.trim()) {
+                alert('请填写 WiFi 名称 (SSID)');
+                return;
+            }
+
+            // 构建 WiFi QR 字符串
+            var qrString = 'WIFI:S:' + escapeWifiValue(ssid) +
+                           ';T:' + type +
+                           ';P:' + (type === 'nopass' ? '' : escapeWifiValue(pass)) +
+                           ';H:' + (isHidden ? 'true' : 'false') + ';;';
+
+            // 检查数据长度
+            var encoder = new TextEncoder();
+            var dataLen = encoder.encode(qrString).length;
+            if (dataLen > 12500) {
+                throw new Error('数据过长 (' + dataLen + ' 字节)，请缩短 WiFi 名称或密码');
+            }
+            if (dataLen > 200 && warning) {
+                warning.textContent = '⚠️ 数据较长 (' + dataLen + ' 字节)，仍可正常使用';
+                warning.style.display = 'block';
+            }
+
+            // 使用 qrcode-generator：参数 0 = 自动版本，'H' = 高纠错
+            var qr = qrcode(0, 'H');
+            qr.addData(qrString);
+            qr.make();
+
+            qrContainer.innerHTML = '';
+
+            var img = document.createElement('img');
+            img.src = qr.createDataURL(4, 4);
+            img.alt = 'WiFi 二维码';
+            img.style.width = '200px';
+            img.style.height = '200px';
+            img.style.borderRadius = '8px';
+            img._dataUrl = img.src;
+
+            qrContainer.appendChild(img);
+            if (resultDiv) resultDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error('生成失败:', error);
+            var msg = error.message || '未知错误';
+            if (errorDisplay) {
+                errorDisplay.textContent = '⚠️ ' + msg;
+                errorDisplay.style.display = 'block';
             } else {
-                input.type = 'password';
-                btn.textContent = '显示';
+                alert(msg);
             }
+            if (resultDiv) resultDiv.style.display = 'block';
         }
+    }
 
-        /* ==================================================
-           4. 生成二维码（带错误处理）
-           ================================================== */
-        function makeCode() {
-            var errorDisplay = document.getElementById('errorDisplay');
-            // 隐藏上次错误
-            if (errorDisplay) errorDisplay.style.display = 'none';
-
-            try {
-                var ssid = document.getElementById('ssid').value.trim();
-                var pass = document.getElementById('password').value;
-                var type = document.getElementById('encType').value;
-                var isHidden = document.getElementById('hiddenSsid').checked;
-
-                if (!ssid) {
-                    alert('请填写 WiFi 名称 (SSID)');
-                    return;
-                }
-
-                // 构建 WiFi 二维码规范字符串
-                var qrString;
-                if (type === 'nopass') {
-                    // 无加密：密码字段留空，T 为 nopass
-                    qrString = 'WIFI:S:' + escapeWifiValue(ssid) + ';T:nopass;P:;H:' + (isHidden ? 'true' : 'false') + ';;';
-                } else {
-                    qrString = 'WIFI:S:' + escapeWifiValue(ssid) + ';T:' + type + ';P:' + escapeWifiValue(pass) + ';H:' + (isHidden ?
-                        'true' : 'false') + ';;';
-                }
-
-                // 调用 qrcodejs API
-                qrcode.clear();
-                qrcode.makeCode(qrString);
-
-                // 显示结果区
-                var resultDiv = document.getElementById('qr-result');
-                if (resultDiv) {
-                    resultDiv.style.display = 'block';
-                }
-
-            } catch (error) {
-                console.error('二维码生成失败:', error);
-                var msg = '生成二维码失败：' + (error.message || '未知错误，请检查控制台');
-                if (errorDisplay) {
-                    errorDisplay.textContent = '⚠️ ' + msg;
-                    errorDisplay.style.display = 'block';
-                } else {
-                    alert(msg);
-                }
-                // 确保结果区可见以便看到错误
-                var resultDiv = document.getElementById('qr-result');
-                if (resultDiv) resultDiv.style.display = 'block';
-            }
-        }
-
-        /**
-         * 转义 WiFi 值中的特殊字符（; : , " \）
-         * 符合 WiFi 二维码规范 ISO/IEC 18004
-         */
-        function escapeWifiValue(str) {
-            if (!str) return '';
-            return str
-                .replace(/\\/g, '\\\\')
-                .replace(/;/g, '\\;')
-                .replace(/,/g, '\\,')
-                .replace(/:/g, '\\:')
-                .replace(/"/g, '\\"');
-        }
-
-        /* ==================================================
-           5. 下载二维码图片（从 canvas 导出）
-           ================================================== */
-        function downloadImage() {
-            try {
-                // qrcodejs 默认生成 canvas
-                var canvas = document.querySelector('#qrcode canvas');
-                if (!canvas) {
-                    // 降级：尝试找 img
-                    var img = document.querySelector('#qrcode img');
-                    if (img) {
-                        // 如果只有 img，直接用 src 下载
-                        var link = document.createElement('a');
-                        link.href = img.src;
-                        link.download = 'wifi-qr-code.png';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        return;
-                    }
-                    alert('请先生成二维码');
-                    return;
-                }
+    /* =========================================
+       5. 下载二维码图片
+       ========================================= */
+    function downloadImage() {
+        try {
+            var qrContainer = document.getElementById('qrcode');
+            var img = qrContainer.querySelector('img');
+            if (img) {
                 var link = document.createElement('a');
-                link.href = canvas.toDataURL('image/png');
+                link.href = img._dataUrl || img.src;
                 link.download = 'wifi-qr-code.png';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            } catch (err) {
-                console.error('下载失败:', err);
-                alert('下载图片失败：' + (err.message || '未知错误'));
+                return;
+            }
+            alert('请先生成二维码');
+        } catch (err) {
+            console.error('下载失败:', err);
+            alert('下载失败：' + (err.message || '未知错误'));
+        }
+    }
+
+    /* =========================================
+       6. 回车键触发生成
+       ========================================= */
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            var active = document.activeElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
+                makeCode();
             }
         }
+    });
 
-        /* ==================================================
-           6. 回车键触发生成
-           ================================================== */
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                var active = document.activeElement;
-                if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
-                    makeCode();
-                }
-            }
-        });
-
-        console.log('✅ WiFi 二维码生成器已就绪');
-        console.log('ℹ️  密码输入框已默认密文显示，点击右侧“显示”按钮可明文查看。');
-    </script>
+    console.log('✅ WiFi 生成器已就绪，加密类型已细化');
+</script>
 
 </body>
 </html>
