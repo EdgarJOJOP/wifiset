@@ -219,7 +219,7 @@
 
     <div class="field">
         <label for="ssid">WiFi 名称 (SSID)</label>
-        <input type="text" id="ssid" placeholder="例如：MyWiFi_5G">
+        <input type="text" id="ssid" placeholder="例如：我家WiFi_5G">
     </div>
 
     <div class="field">
@@ -307,7 +307,29 @@
     }
 
     /* =========================================
-       4. 生成二维码（自动版本 + 高纠错）
+       4. ✅ 核心修复：将字符串转为 UTF-8 编码（解决中文乱码）
+       ========================================= */
+    function toUtf8(str) {
+        var out = '', i, len, c;
+        len = str.length;
+        for (i = 0; i < len; i++) {
+            c = str.charCodeAt(i);
+            if (c >= 0x0001 && c <= 0x007F) {
+                out += str.charAt(i);
+            } else if (c > 0x07FF) {
+                out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
+                out += String.fromCharCode(0x80 | ((c >> 6) & 0x3F));
+                out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+            } else {
+                out += String.fromCharCode(0xC0 | ((c >> 6) & 0x1F));
+                out += String.fromCharCode(0x80 | ((c >> 0) & 0x3F));
+            }
+        }
+        return out;
+    }
+
+    /* =========================================
+       5. 生成二维码（自动版本 + 高纠错）
        ========================================= */
     function makeCode() {
         var errorDisplay = document.getElementById('errorDisplay');
@@ -323,7 +345,7 @@
             var ssid = document.getElementById('ssid').value;
             var pass = document.getElementById('password').value;
             var encSelect = document.getElementById('encType');
-            var type = encSelect.value;       // 实际 value
+            var type = encSelect.value;
             var isHidden = document.getElementById('hiddenSsid').checked;
 
             if (!ssid.trim()) {
@@ -331,15 +353,18 @@
                 return;
             }
 
-            // 构建 WiFi QR 字符串
+            // 构建 WiFi QR 字符串（转义后的）
             var qrString = 'WIFI:S:' + escapeWifiValue(ssid) +
                            ';T:' + type +
                            ';P:' + (type === 'nopass' ? '' : escapeWifiValue(pass)) +
                            ';H:' + (isHidden ? 'true' : 'false') + ';;';
 
-            // 检查数据长度
+            // ✅ 关键修复：将整个字符串转为 UTF-8 编码（每个字符代表一个字节）
+            var utf8Data = toUtf8(qrString);
+
+            // 检查数据长度（用 UTF-8 字节长度）
             var encoder = new TextEncoder();
-            var dataLen = encoder.encode(qrString).length;
+            var dataLen = encoder.encode(utf8Data).length;
             if (dataLen > 12500) {
                 throw new Error('数据过长 (' + dataLen + ' 字节)，请缩短 WiFi 名称或密码');
             }
@@ -350,7 +375,7 @@
 
             // 使用 qrcode-generator：参数 0 = 自动版本，'H' = 高纠错
             var qr = qrcode(0, 'H');
-            qr.addData(qrString);
+            qr.addData(utf8Data);
             qr.make();
 
             qrContainer.innerHTML = '';
@@ -380,7 +405,7 @@
     }
 
     /* =========================================
-       5. 下载二维码图片
+       6. 下载二维码图片
        ========================================= */
     function downloadImage() {
         try {
@@ -403,7 +428,7 @@
     }
 
     /* =========================================
-       6. 回车键触发生成
+       7. 回车键触发生成
        ========================================= */
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
@@ -414,7 +439,7 @@
         }
     });
 
-    console.log('✅ WiFi 生成器已就绪，加密类型已细化');
+    console.log('✅ WiFi 生成器已就绪，中文 SSID 已修正');
 </script>
 
 </body>
