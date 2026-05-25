@@ -147,7 +147,6 @@
             margin-bottom: 0;
         }
         
-        /* 引导解析器 IP 输入框 - 始终显示 */
         .bootstrap-ips {
             margin-top: 20px;
             padding: 18px;
@@ -383,11 +382,11 @@
                     </div>
                 </div>
                 
-                <!-- 通用端口号输入框（根据协议动态默认值） -->
+                <!-- 通用端口号输入框，根据协议强制设置默认值 -->
                 <div class="form-group" id="portGroup">
-                    <label for="port" id="portLabel">端口号（DoT默认853，DoH默认443）</label>
+                    <label for="port" id="portLabel">端口号</label>
                     <div class="input-group">
-                        <input type="number" id="port" placeholder="端口号" min="1" max="65535" value="853">
+                        <input type="number" id="port" placeholder="端口号" min="1" max="65535" value="443">
                     </div>
                 </div>
                 
@@ -501,17 +500,13 @@
             const configPreview = document.getElementById('configPreview');
             const previewStatus = document.getElementById('previewStatus');
             
-            // 根据协议更新端口默认值和标签、显示/隐藏DoH设置
+            // 根据协议更新端口默认值（强制重置）、标签和显示/隐藏DoH设置
             function updateProtocolUI() {
                 const isDoH = protocol.value === 'HTTPS';
-                // 更新端口标签和默认值（仅当用户未自定义时）
-                if (isDoH) {
-                    portLabel.textContent = '端口号（DoH默认443）';
-                    if (portInput.value === '') portInput.value = '443';
-                } else {
-                    portLabel.textContent = '端口号（DoT默认853）';
-                    if (portInput.value === '') portInput.value = '853';
-                }
+                // 强制设置端口默认值（协议切换时覆盖用户输入）
+                portInput.value = isDoH ? '443' : '853';
+                // 更新标签
+                portLabel.textContent = isDoH ? '端口号（DoH默认443）' : '端口号（DoT默认853）';
                 // 显示/隐藏DoH设置面板
                 dohSettings.style.display = isDoH ? 'block' : 'none';
                 updatePreview();
@@ -557,7 +552,6 @@
                 
                 let dnsSettings = '';
                 if (protocolType === 'TLS') {
-                    // DoT: ServerName 可以包含端口
                     const serverName = port === '853' ? domain : `${domain}:${port}`;
                     dnsSettings = `
                 &lt;key&gt;DNSProtocol&lt;/key&gt;
@@ -565,7 +559,6 @@
                 &lt;key&gt;ServerName&lt;/key&gt;
                 &lt;string&gt;${escapeXml(serverName)}&lt;/string&gt;`;
                 } else {
-                    // DoH: ServerURL 包含端口和路径
                     const path = dohPath.value || '/dns-query';
                     const serverURL = port === '443' ? `https://${domain}${path}` : `https://${domain}:${port}${path}`;
                     dnsSettings = `
