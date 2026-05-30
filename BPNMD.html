@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>宽带噪声掩蔽器 · 全频段 · 粉红噪声 · 动态</title>
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
+            background: #0b0e18;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #e8edf5;
+        }
+
+        .app-container {
+            max-width: 880px;
+            width: 100%;
+            background: rgba(22, 28, 46, 0.80);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 36px 40px 44px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.2s;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-left .icon {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        .header-left h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            background: linear-gradient(135deg, #bdd3ff, #7aa2f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-left .sub {
+            font-size: 13px;
+            color: #8892b0;
+            font-weight: 400;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px 12px;
+            border-radius: 20px;
+            -webkit-text-fill-color: #8892b0;
+        }
+
+        .status-badge {
+            font-size: 13px;
+            padding: 6px 18px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #8892b0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .status-badge .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #3b4260;
+            transition: background 0.3s;
+        }
+
+        .status-badge.active .dot {
+            background: #5de4c7;
+            box-shadow: 0 0 12px rgba(93, 228, 199, 0.35);
+        }
+
+        .status-badge.active {
+            color: #c8d6e5;
+            border-color: rgba(93, 228, 199, 0.25);
+        }
+
+        /* ===== 控制区 ===== */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px 28px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 780px) {
+            .controls-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .app-container {
+                padding: 24px 20px 30px;
+            }
+        }
+        @media (max-width: 520px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-left h1 {
+                font-size: 20px;
+            }
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            padding: 16px 18px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.2s;
+        }
+
+        .control-group:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 500;
+            color: #9aa4c8;
+            margin-bottom: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .control-label .unit {
+            font-weight: 400;
+            color: #5e6a8a;
+            font-size: 12px;
+        }
+
+        /* ===== 输入框样式 ===== */
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .input-row input[type="number"] {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 12px;
+            color: #e8edf5;
+            font-size: 16px;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+            width: 80px;
+            outline: none;
+            transition: border 0.2s, box-shadow 0.2s;
+            -moz-appearance: textfield;
+        }
+
+        .input-row input[type="number"]::-webkit-inner-spin-button,
+        .input-row input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-row input[type="number"]:focus {
+            border-color: #7aa2f7;
+            box-shadow: 0 0 0 3px rgba(122, 162, 247, 0.15);
+        }
+
+        .input-row .range-sep {
+            color: #5e6a8a;
+            font-size: 18px;
+            font-weight: 300;
+        }
+
+        .input-row .unit-label {
+            font-size: 14px;
+            color: #6a7a9a;
+            font-weight: 400;
+            min-width: 28px;
+        }
+
+        .input-row .speed-desc {
+            font-size: 13px;
+            color: #6a7a9a;
+            font-weight: 400;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* 双输入框（音量范围）特殊处理 */
+        .vol-range-wrap {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+        .vol-range-wrap input[type="number"] {
+            flex: 1;
+            min-width: 50px;
+        }
+        .vol-range-wrap .range-sep {
+            flex-shrink: 0;
+        }
+
+        /* ===== 选择器 ===== */
+        .choose-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 6px;
+        }
+        .choose-row button {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #aab4d0;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+        }
+        .choose-row button.active {
+            background: #4a6bc7;
+            border-color: #7aa2f7;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(74, 107, 199, 0.30);
+        }
+        .choose-row button:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        /* ===== 显示区 ===== */
+        .display-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px 28px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .display-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .meter-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 14px 20px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .meter-card .meter-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #7a8aaa;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .meter-card .meter-value {
+            font-size: 34px;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.5px;
+            line-height: 1.2;
+        }
+
+        .meter-card .meter-value .unit-pct {
+            font-size: 18px;
+            font-weight: 400;
+            color: #6a7a9a;
+            margin-left: 2px;
+        }
+
+        .meter-card .meter-bar-bg {
+            margin-top: 8px;
+            height: 6px;
+            background: #1a2338;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .meter-card .meter-bar {
+            height: 100%;
+            width: 0%;
+            border-radius: 6px;
+            background: linear-gradient(90deg, #5de4c7, #7aa2f7);
+            transition: width 0.10s ease-out;
+        }
+
+        .meter-card.vol .meter-value {
+            color: #5de4c7;
+        }
+        .meter-card.highpass .meter-value {
+            color: #7aa2f7;
+        }
+
+        /* ===== 可视化 ===== */
+        .visual-wrap {
+            background: rgba(0, 0, 0, 0.30);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .visual-wrap canvas {
+            display: block;
+            width: 100%;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.20);
+        }
+
+        .visual-wrap .vis-label {
+            position: absolute;
+            top: 12px;
+            left: 18px;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.20);
+            letter-spacing: 0.8px;
+            pointer-events: none;
+        }
+
+        /* ===== 按钮区 ===== */
+        .action-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 36px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #aab4d0;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.10);
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a6bc7, #6a4fc7);
+            color: #fff;
+            border: none;
+            box-shadow: 0 6px 24px rgba(74, 107, 199, 0.30);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 32px rgba(74, 107, 199, 0.45);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #5678d8, #7a5fd8);
+        }
+
+        .btn-primary.active {
+            background: linear-gradient(135deg, #e74c6f, #d43f5e);
+            box-shadow: 0 6px 24px rgba(231, 76, 111, 0.30);
+        }
+
+        .btn-primary.active:hover {
+            box-shadow: 0 8px 32px rgba(231, 76, 111, 0.45);
+            background: linear-gradient(135deg, #f05a7a, #e04868);
+        }
+
+        .btn .icon-btn {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: #8892b0;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #c8d6e5;
+        }
+
+        .action-info {
+            font-size: 13px;
+            color: #5e6a8a;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .action-info span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-info .fade {
+            color: #3b4668;
+        }
+
+        @media (max-width: 600px) {
+            .btn {
+                padding: 10px 24px;
+                font-size: 14px;
+            }
+            .meter-card .meter-value {
+                font-size: 26px;
+            }
+            .header-left h1 {
+                font-size: 18px;
+            }
+            .app-container {
+                padding: 18px 14px 24px;
+                border-radius: 32px;
+            }
+            .control-group {
+                padding: 12px 14px 14px;
+            }
+            .input-row input[type="number"] {
+                width: 64px;
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+            .vol-range-wrap input[type="number"] {
+                min-width: 40px;
+            }
+        }
+
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container no-select">
+
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <div class="header-left">
+                <span class="icon">🧠</span>
+                <h1>人声带噪声掩蔽器</h1>
+                <span class="sub">· 粉红 · 高通 · 动态 ·</span>
+            </div>
+            <div class="status-badge" id="statusBadge">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">就绪</span>
+            </div>
+        </div>
+
+        <!-- ===== 控制区 ===== -->
+        <div class="controls-grid">
+
+            <!-- 噪声类型 & 高通截止 -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>🎛️ 噪声类型</span>
+                    <span class="unit">—</span>
+                </div>
+                <div class="choose-row" id="noiseTypeSelector">
+                    <button data-type="white">白噪声</button>
+                    <button data-type="pink" class="active">粉红噪声</button>
+                </div>
+                <div style="margin-top:14px;">
+                    <div class="control-label" style="margin-bottom:6px;">
+                        <span>🔽 高通截止(20-30HZ)</span>
+                        <span class="unit">Hz</span>
+                    </div>
+                    <div class="input-row">
+                        <input type="number" id="highpassFreq" min="10" max="500" value="20" step="1" />
+                        <span class="unit-label">Hz</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 音量范围 -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>🔊 音量范围</span>
+                    <span class="unit">%</span>
+                </div>
+                <div class="input-row vol-range-wrap">
+                    <input type="number" id="volMin" min="0" max="100" value="30" step="1" />
+                    <span class="range-sep">—</span>
+                    <input type="number" id="volMax" min="0" max="100" value="80" step="1" />
+                    <span class="unit-label" style="min-width:20px;">%</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#4a5a7a;padding:4px 2px 0;">
+                    <span>安静</span>
+                    <span>响亮</span>
+                </div>
+            </div>
+
+            <!-- 变化速度 -->
+            <div class="control-group">
+                <div class="control-label">
+                    <span>⏱️ 音量变化快慢</span>
+                    <span class="unit">(1=慢, 10=快)</span>
+                </div>
+                <div class="input-row">
+                    <input type="number" id="speedCtrl" min="1" max="10" value="7" step="1" />
+                    <span class="speed-desc" id="speedHint">较快</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:#4a5a7a;padding:4px 2px 0;">
+                    <span>舒缓</span>
+                    <span>急促</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 显示区 ===== -->
+        <div class="display-area">
+            <div class="meter-card vol">
+                <div class="meter-label">📢 当前音量</div>
+                <div class="meter-value" id="volDisplay">
+                    55 <span class="unit-pct">%</span>
+                </div>
+                <div class="meter-bar-bg">
+                    <div class="meter-bar" id="volBar" style="width:55%;"></div>
+                </div>
+            </div>
+            <div class="meter-card highpass">
+                <div class="meter-label">🎚️ 高通截止频率</div>
+                <div class="meter-value" id="highpassDisplay">
+                    20 <span class="unit-pct">Hz</span>
+                </div>
+                <div class="meter-bar-bg">
+                    <div class="meter-bar" id="highpassBar" style="width:2%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 可视化 ===== -->
+        <div class="visual-wrap">
+            <canvas id="waveCanvas" height="120"></canvas>
+            <div class="vis-label">⏤ 噪声波形</div>
+        </div>
+
+        <!-- ===== 操作按钮 ===== -->
+        <div class="action-row">
+            <button class="btn btn-primary" id="mainToggle">
+                <span class="icon-btn">▶</span>
+                <span id="toggleLabel">开始掩蔽</span>
+            </button>
+            <button class="btn btn-secondary" id="resetBtn">
+                <span class="icon-btn">↺</span>
+                重置
+            </button>
+            <div class="action-info">
+                <span id="qualityInfo">📊 粉红噪声</span>
+                <span class="fade" id="statusDetail">等待启动 …</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ================================================================
+            //  DOM 引用
+            // ================================================================
+            const $ = id => document.getElementById(id);
+
+            const noiseTypeBtns = document.querySelectorAll('#noiseTypeSelector button');
+            const highpassInp = $('highpassFreq');
+            const volMinInp = $('volMin');
+            const volMaxInp = $('volMax');
+            const speedInp = $('speedCtrl');
+            const speedHint = $('speedHint');
+
+            const volDisplay = $('volDisplay');
+            const volBar = $('volBar');
+            const highpassDisplay = $('highpassDisplay');
+            const highpassBar = $('highpassBar');
+
+            const statusBadge = $('statusBadge');
+            const statusText = $('statusText');
+            const statusDetail = $('statusDetail');
+
+            const mainToggle = $('mainToggle');
+            const toggleLabel = $('toggleLabel');
+            const resetBtn = $('resetBtn');
+
+            const canvas = $('waveCanvas');
+            const ctx = canvas.getContext('2d');
+
+            const qualityInfo = $('qualityInfo');
+
+            // ================================================================
+            //  状态
+            // ================================================================
+            let isPlaying = false;
+            let audioCtx = null;
+            let masterGain = null;
+            let analyser = null;
+            let dataArray = null;
+            let noiseSource = null;
+            let highpassFilter = null;
+            let isInitialized = false;
+
+            let targetVol = 55;
+            let currentVol = 55;
+
+            let params = {
+                volMin: 30,
+                volMax: 80,
+                speed: 7,
+                highpassFreq: 20,
+                noiseType: 'pink'
+            };
+
+            let updateTimer = null;
+            let animFrameId = null;
+            let prevSpeed = 7;
+
+            // ================================================================
+            //  工具函数
+            // ================================================================
+            function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
+
+            function lerp(a, b, t) { return a + (b - a) * t; }
+
+            function randBetween(min, max) { return min + Math.random() * (max - min); }
+
+            // ================================================================
+            //  生成噪声 buffer
+            // ================================================================
+            function generateNoiseBuffer(ctx, type, lengthInSec = 4) {
+                const sampleRate = ctx.sampleRate;
+                const length = sampleRate * lengthInSec;
+                const buffer = ctx.createBuffer(1, length, sampleRate);
+                const data = buffer.getChannelData(0);
+
+                if (type === 'white') {
+                    for (let i = 0; i < length; i++) {
+                        data[i] = Math.random() * 2 - 1;
+                    }
+                } else {
+                    // 粉红噪声 (Paul Kellet 算法)
+                    let b0 = 0,
+                        b1 = 0,
+                        b2 = 0,
+                        b3 = 0,
+                        b4 = 0,
+                        b5 = 0,
+                        b6 = 0;
+                    for (let i = 0; i < length; i++) {
+                        const white = Math.random() * 2 - 1;
+                        b0 = 0.99886 * b0 + white * 0.0555179;
+                        b1 = 0.99332 * b1 + white * 0.0750759;
+                        b2 = 0.96900 * b2 + white * 0.1538520;
+                        b3 = 0.86650 * b3 + white * 0.3104856;
+                        b4 = 0.55000 * b4 + white * 0.5329522;
+                        b5 = -0.7616 * b5 - white * 0.0168980;
+                        let pink = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+                        b6 = white * 0.115926;
+                        if (pink > 1) pink = 1;
+                        if (pink < -1) pink = -1;
+                        data[i] = pink;
+                    }
+                }
+                return buffer;
+            }
+
+            // ================================================================
+            //  音频引擎
+            // ================================================================
+            function initAudio() {
+                if (isInitialized) return;
+                try {
+                    audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                    masterGain = audioCtx.createGain();
+                    masterGain.gain.value = 0;
+
+                    highpassFilter = audioCtx.createBiquadFilter();
+                    highpassFilter.type = 'highpass';
+                    highpassFilter.frequency.value = params.highpassFreq;
+
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 256;
+                    analyser.smoothingTimeConstant = 0.75;
+
+                    masterGain.connect(highpassFilter);
+                    highpassFilter.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+
+                    const bufferLength = analyser.frequencyBinCount;
+                    dataArray = new Uint8Array(bufferLength);
+
+                    isInitialized = true;
+                    statusDetail.textContent = '音频已就绪';
+                } catch (e) {
+                    console.error('音频初始化失败:', e);
+                    statusDetail.textContent = '⚠️ 音频初始化失败';
+                }
+            }
+
+            function startNoise() {
+                if (!audioCtx || !isInitialized) return;
+                if (noiseSource) {
+                    try { noiseSource.stop(); } catch (e) { /* ignore */ }
+                    noiseSource.disconnect();
+                    noiseSource = null;
+                }
+                const buffer = generateNoiseBuffer(audioCtx, params.noiseType, 8);
+                noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = buffer;
+                noiseSource.loop = true;
+                noiseSource.connect(masterGain);
+                noiseSource.start();
+            }
+
+            function stopNoise() {
+                if (noiseSource) {
+                    try { noiseSource.stop(); } catch (e) { /* ignore */ }
+                    noiseSource.disconnect();
+                    noiseSource = null;
+                }
+            }
+
+            // ================================================================
+            //  参数应用
+            // ================================================================
+            function applyVolToMaster(volPercent) {
+                if (!audioCtx || !isInitialized) return;
+                const now = audioCtx.currentTime;
+                const gainVal = (volPercent / 100) * 0.65;
+                const timeConstant = clamp(0.25 - (params.speed - 1) * 0.02, 0.04, 0.30);
+                masterGain.gain.setTargetAtTime(gainVal, now, timeConstant);
+            }
+
+            function applyHighpassFilter(freq) {
+                if (!audioCtx || !highpassFilter) return;
+                const now = audioCtx.currentTime;
+                highpassFilter.frequency.setTargetAtTime(freq, now, 0.08);
+            }
+
+            function rebuildNoiseSource() {
+                if (!isPlaying || !audioCtx) return;
+                stopNoise();
+                startNoise();
+            }
+
+            // ================================================================
+            //  音量随机漫步
+            // ================================================================
+            function generateNewTargetVol() {
+                const vMin = params.volMin;
+                const vMax = params.volMax;
+                const vRange = vMax - vMin;
+                if (vRange <= 0) {
+                    targetVol = vMin;
+                    return;
+                }
+                const speedFactor = params.speed / 10;
+
+                let newVol = targetVol;
+                const baseStep = vRange * 0.40 * (0.3 + 0.7 * speedFactor);
+                const direction = Math.random() > 0.5 ? 1 : -1;
+                const step = baseStep * (0.3 + Math.random() * 0.7);
+                newVol += direction * step;
+
+                if (Math.random() < 0.15) {
+                    newVol = randBetween(vMin, vMax);
+                }
+                if (Math.random() < 0.08) {
+                    newVol = Math.random() > 0.5 ? vMin + vRange * 0.05 : vMax - vRange * 0.05;
+                }
+
+                const distToMin = newVol - vMin;
+                const distToMax = vMax - newVol;
+                const nearThreshold = vRange * 0.15;
+                if (distToMin < nearThreshold && Math.random() < 0.40) {
+                    newVol += vRange * (0.15 + Math.random() * 0.25);
+                }
+                if (distToMax < nearThreshold && Math.random() < 0.40) {
+                    newVol -= vRange * (0.15 + Math.random() * 0.25);
+                }
+
+                newVol = clamp(newVol, vMin, vMax);
+                targetVol = newVol;
+            }
+
+            // ================================================================
+            //  主循环
+            // ================================================================
+            function startUpdateLoop() {
+                stopUpdateLoop();
+
+                const speedVal = params.speed;
+                const interval = Math.max(100, 1100 - (speedVal - 1) * 100);
+
+                generateNewTargetVol();
+                applyVolToMaster(targetVol);
+
+                updateTimer = setInterval(() => {
+                    if (!isPlaying) return;
+                    generateNewTargetVol();
+                    applyVolToMaster(targetVol);
+                }, interval);
+
+                if (animFrameId) cancelAnimationFrame(animFrameId);
+                renderLoop();
+            }
+
+            function stopUpdateLoop() {
+                if (updateTimer) {
+                    clearInterval(updateTimer);
+                    updateTimer = null;
+                }
+                if (animFrameId) {
+                    cancelAnimationFrame(animFrameId);
+                    animFrameId = null;
+                }
+            }
+
+            function restartUpdateLoopIfPlaying() {
+                if (isPlaying) {
+                    startUpdateLoop();
+                }
+            }
+
+            // ================================================================
+            //  渲染循环
+            // ================================================================
+            function renderLoop() {
+                if (!isPlaying) {
+                    drawWaveform();
+                    return;
+                }
+
+                if (analyser && dataArray) {
+                    analyser.getByteTimeDomainData(dataArray);
+                }
+
+                const traceSpeed = 0.35;
+                currentVol = lerp(currentVol, targetVol, traceSpeed);
+                if (Math.abs(currentVol - targetVol) < 0.5) currentVol = targetVol;
+
+                updateDisplay();
+
+                if (dataArray) {
+                    drawWaveformFromData(dataArray);
+                } else {
+                    drawWaveform();
+                }
+
+                animFrameId = requestAnimationFrame(renderLoop);
+            }
+
+            // ================================================================
+            //  显示更新
+            // ================================================================
+            function updateDisplay() {
+                const v = Math.round(currentVol);
+                volDisplay.innerHTML = `${v} <span class="unit-pct">%</span>`;
+                volBar.style.width = v + '%';
+
+                const hp = Math.round(params.highpassFreq);
+                highpassDisplay.innerHTML = `${hp} <span class="unit-pct">Hz</span>`;
+                const hpPct = clamp((hp - 10) / (500 - 10) * 100, 0, 100);
+                highpassBar.style.width = hpPct + '%';
+            }
+
+            // ================================================================
+            //  波形绘制
+            // ================================================================
+            function drawWaveform() {
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < w; i += 20) { ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, h);
+                    ctx.stroke(); }
+                for (let i = 0; i < h; i += 15) { ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(w, i);
+                    ctx.stroke(); }
+                const mid = h / 2;
+                ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                ctx.beginPath();
+                ctx.moveTo(0, mid);
+                ctx.lineTo(w, mid);
+                ctx.stroke();
+                if (isPlaying) {
+                    const amp = (currentVol / 100) * 42 + 2;
+                    ctx.strokeStyle = 'rgba(122, 162, 247, 0.25)';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    for (let x = 0; x < w; x++) {
+                        const t = (x / w) * 6 * Math.PI * 2;
+                        const y = mid + Math.sin(t) * amp * 0.5;
+                        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            function drawWaveformFromData(data) {
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i < w; i += 20) { ctx.beginPath();
+                    ctx.moveTo(i, 0);
+                    ctx.lineTo(i, h);
+                    ctx.stroke(); }
+                for (let i = 0; i < h; i += 15) { ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(w, i);
+                    ctx.stroke(); }
+                const mid = h / 2;
+                ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+                ctx.beginPath();
+                ctx.moveTo(0, mid);
+                ctx.lineTo(w, mid);
+                ctx.stroke();
+
+                const bufferLength = data.length;
+                const sliceWidth = w / bufferLength;
+                const volScale = (currentVol / 100) * 0.8 + 0.2;
+
+                ctx.strokeStyle = 'rgba(93, 228, 199, 0.70)';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = 'rgba(93, 228, 199, 0.10)';
+                ctx.shadowBlur = 8;
+                ctx.beginPath();
+                let x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = data[i] / 128.0;
+                    const y = mid + (v - 1) * (h * 0.42) * volScale;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    x += sliceWidth;
+                }
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                ctx.strokeStyle = 'rgba(122, 162, 247, 0.15)';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                x = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = data[i] / 128.0;
+                    const y = mid + (v - 1) * (h * 0.42) * volScale;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    x += sliceWidth;
+                }
+                ctx.stroke();
+            }
+
+            // ================================================================
+            //  启动 / 停止
+            // ================================================================
+            function startEngine() {
+                if (isPlaying) return;
+
+                if (!isInitialized) {
+                    initAudio();
+                    if (!isInitialized) {
+                        statusDetail.textContent = '⚠️ 无法初始化音频';
+                        return;
+                    }
+                }
+
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume().catch(e => console.warn(e));
+                }
+
+                readParamsFromUI();
+                prevSpeed = params.speed;
+
+                startNoise();
+
+                targetVol = randBetween(params.volMin, params.volMax);
+                currentVol = targetVol;
+                applyVolToMaster(targetVol);
+                applyHighpassFilter(params.highpassFreq);
+
+                isPlaying = true;
+                statusBadge.classList.add('active');
+                statusText.textContent = '掩蔽中';
+                statusDetail.textContent = '🎧 全频段噪声输出 …';
+                toggleLabel.textContent = '停止掩蔽';
+                mainToggle.classList.add('active');
+                mainToggle.querySelector('.icon-btn').textContent = '■';
+
+                startUpdateLoop();
+                updateDisplay();
+            }
+
+            function stopEngine() {
+                if (!isPlaying) return;
+
+                isPlaying = false;
+                stopUpdateLoop();
+                stopNoise();
+
+                if (audioCtx && masterGain) {
+                    const now = audioCtx.currentTime;
+                    masterGain.gain.setTargetAtTime(0, now, 0.12);
+                }
+
+                statusBadge.classList.remove('active');
+                statusText.textContent = '已停止';
+                statusDetail.textContent = '⏸️ 暂停';
+                toggleLabel.textContent = '开始掩蔽';
+                mainToggle.classList.remove('active');
+                mainToggle.querySelector('.icon-btn').textContent = '▶';
+
+                drawWaveform();
+            }
+
+            function togglePlay() {
+                if (isPlaying) stopEngine();
+                else startEngine();
+            }
+
+            // ================================================================
+            //  参数读取 & 立即应用
+            // ================================================================
+            function readParamsFromUI() {
+                const vMin = parseFloat(volMinInp.value) || 0;
+                const vMax = parseFloat(volMaxInp.value) || 100;
+                params.volMin = Math.min(vMin, vMax);
+                params.volMax = Math.max(vMin, vMax);
+                volMinInp.value = params.volMin;
+                volMaxInp.value = params.volMax;
+
+                const newSpeed = parseFloat(speedInp.value) || 5;
+                const speedChanged = (newSpeed !== params.speed);
+                params.speed = clamp(newSpeed, 1, 10);
+                speedInp.value = params.speed;
+                updateSpeedHint(params.speed);
+
+                params.highpassFreq = parseFloat(highpassInp.value) || 20;
+                params.highpassFreq = clamp(params.highpassFreq, 10, 500);
+                highpassInp.value = params.highpassFreq;
+
+                // 噪声类型 从 active 按钮读取
+                const activeBtn = document.querySelector('#noiseTypeSelector button.active');
+                if (activeBtn) {
+                    const newType = activeBtn.dataset.type;
+                    if (newType !== params.noiseType) {
+                        params.noiseType = newType;
+                        if (isPlaying) {
+                            rebuildNoiseSource();
+                        }
+                        qualityInfo.textContent = `📊 ${newType === 'white' ? '白噪声' : '粉红噪声'}`;
+                    }
+                }
+
+                // 立即应用高通
+                if (isPlaying) {
+                    applyHighpassFilter(params.highpassFreq);
+                    // 确保目标音量在范围内
+                    targetVol = clamp(targetVol, params.volMin, params.volMax);
+                }
+
+                // 如果速度变了且正在播放，重启循环
+                if (speedChanged && isPlaying) {
+                    restartUpdateLoopIfPlaying();
+                }
+
+                // 更新显示
+                updateDisplay();
+            }
+
+            function updateSpeedHint(speed) {
+                if (speed <= 2.5) speedHint.textContent = '缓慢';
+                else if (speed <= 5) speedHint.textContent = '适中';
+                else if (speed <= 7.5) speedHint.textContent = '较快';
+                else speedHint.textContent = '急促';
+            }
+
+            // 噪声类型切换
+            function setNoiseType(type) {
+                noiseTypeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.type === type);
+                });
+                params.noiseType = type;
+                qualityInfo.textContent = `📊 ${type === 'white' ? '白噪声' : '粉红噪声'}`;
+                if (isPlaying) {
+                    rebuildNoiseSource();
+                }
+            }
+
+            // ================================================================
+            //  重置
+            // ================================================================
+            function resetToDefaults() {
+                if (isPlaying) stopEngine();
+
+                volMinInp.value = 30;
+                volMaxInp.value = 80;
+                speedInp.value = 7;
+                highpassInp.value = 20;
+                params.noiseType = 'pink';
+                noiseTypeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.type === 'pink');
+                });
+                qualityInfo.textContent = '📊 粉红噪声';
+                readParamsFromUI();
+
+                currentVol = 55;
+                targetVol = 55;
+                updateDisplay();
+                drawWaveform();
+
+                statusDetail.textContent = '已重置至默认';
+                setTimeout(() => {
+                    if (!isPlaying) statusDetail.textContent = '等待启动 …';
+                }, 1200);
+            }
+
+            // ================================================================
+            //  Canvas 尺寸自适应
+            // ================================================================
+            function resizeCanvas() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+                if (isPlaying && analyser && dataArray) {
+                    analyser.getByteTimeDomainData(dataArray);
+                    drawWaveformFromData(dataArray);
+                } else {
+                    drawWaveform();
+                }
+            }
+
+            // ================================================================
+            //  事件绑定
+            // ================================================================
+            noiseTypeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setNoiseType(btn.dataset.type);
+                });
+            });
+
+            // 所有输入框：input 事件立即读取并应用
+            const paramInputs = [highpassInp, volMinInp, volMaxInp, speedInp];
+            paramInputs.forEach(inp => {
+                inp.addEventListener('input', readParamsFromUI);
+                inp.addEventListener('change', readParamsFromUI);
+            });
+
+            // 额外确保音量范围交换逻辑
+            volMinInp.addEventListener('change', () => {
+                const vMin = parseFloat(volMinInp.value) || 0;
+                const vMax = parseFloat(volMaxInp.value) || 100;
+                if (vMin > vMax) {
+                    volMinInp.value = vMax;
+                    volMaxInp.value = vMin;
+                    readParamsFromUI();
+                }
+            });
+            volMaxInp.addEventListener('change', () => {
+                const vMin = parseFloat(volMinInp.value) || 0;
+                const vMax = parseFloat(volMaxInp.value) || 100;
+                if (vMin > vMax) {
+                    volMinInp.value = vMax;
+                    volMaxInp.value = vMin;
+                    readParamsFromUI();
+                }
+            });
+
+            mainToggle.addEventListener('click', togglePlay);
+            resetBtn.addEventListener('click', resetToDefaults);
+
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(resizeCanvas, 120);
+            });
+
+            // ================================================================
+            //  初始化
+            // ================================================================
+            function init() {
+                // 确保默认粉红噪声高亮
+                noiseTypeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.type === 'pink');
+                });
+                qualityInfo.textContent = '📊 粉红噪声';
+                readParamsFromUI();
+                initAudio();
+                resizeCanvas();
+                drawWaveform();
+                statusDetail.textContent = '🎛️ 已就绪，点击「开始掩蔽」';
+                console.log('🧠 噪声掩蔽器已加载 (粉红噪声，默认速度7)');
+            }
+
+            if (document.readyState === 'complete') {
+                init();
+            } else {
+                window.addEventListener('load', init);
+            }
+
+            window.__noiseMask = {
+                start: startEngine,
+                stop: stopEngine,
+                toggle: togglePlay,
+                reset: resetToDefaults,
+                params: params,
+                setNoiseType: setNoiseType
+            };
+
+        })();
+    </script>
+</body>
+</html>
