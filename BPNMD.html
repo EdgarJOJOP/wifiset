@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>抗学习 · 复合噪声掩蔽器 · 稳定版</title>
+    <title>抗学习 · 复合噪声掩蔽器 · 不可预测</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -211,7 +211,7 @@
             <div class="header-left">
                 <span class="icon">🧬</span>
                 <h1>人声带噪声掩蔽器</h1>
-                <span class="sub">· 混沌+漂移 · 不可预测 ·</span>
+                <span class="sub">· 不可预测 ·</span>
             </div>
             <div class="status-badge" id="statusBadge">
                 <span class="dot" id="statusDot"></span>
@@ -222,15 +222,15 @@
         <div class="controls-grid">
             <!-- 主噪声 -->
             <div class="control-group">
-                <div class="control-label"><span>🎛️ 主噪声</span><span class="unit">粉红/白</span></div>
+                <div class="control-label"><span>🎛️ 主噪声(默认就行)</span><span class="unit">粉红/白</span></div>
                 <div class="choose-row" id="noiseTypeSelector">
-                    <button data-type="white">白噪声</button>
-                    <button data-type="pink" class="active">粉红噪声</button>
+                    <button data-type="white">白</button>
+                    <button data-type="pink" class="active">粉红</button>
                 </div>
                 <div style="margin-top:6px;">
-                    <div class="control-label" style="margin-bottom:1px;"><span>🔽 高通截止(20-30hz)</span><span class="unit">Hz</span></div>
+                    <div class="control-label" style="margin-bottom:1px;"><span>🔽 高通截止(默认就行)</span><span class="unit">Hz</span></div>
                     <div class="input-row">
-                        <input type="number" id="highpassFreq" min="10" max="500" value="20" step="1" inputmode="numeric" />
+                        <input type="number" id="highpassFreq" min="10" max="800" value="550" step="1" inputmode="numeric" />
                         <span class="unit-label">Hz</span>
                     </div>
                 </div>
@@ -285,11 +285,11 @@
 
             <!-- 漂移参数显示 -->
             <div class="control-group">
-                <div class="control-label"><span>🌀 实时漂移</span><span class="unit">随机化</span></div>
+                <div class="control-label"><span>🌀 实时漂移</span><span class="unit">±100Hz</span></div>
                 <div style="display:flex; gap:2px; flex-wrap:wrap; margin-top:4px;">
                     <div style="flex:1;min-width:40px;text-align:center;">
                         <div style="font-size:9px;color:#7a8aaa;">HP</div>
-                        <div id="driftHpDisplay" style="font-size:14px;font-weight:600;color:#b0a0f0;">20Hz</div>
+                        <div id="driftHpDisplay" style="font-size:14px;font-weight:600;color:#b0a0f0;">550Hz</div>
                     </div>
                     <div style="flex:1;min-width:40px;text-align:center;">
                         <div style="font-size:9px;color:#7a8aaa;">Vol</div>
@@ -300,7 +300,7 @@
                         <div id="driftAuxDisplay" style="font-size:14px;font-weight:600;color:#b0a0f0;">25%</div>
                     </div>
                 </div>
-                <div class="hint-text">参数持续无规律变化</div>
+                <div class="hint-text">高通在450~650Hz间随机变化</div>
             </div>
         </div>
 
@@ -312,8 +312,8 @@
             </div>
             <div class="meter-card highpass">
                 <div class="meter-label">🎚️ 高通截止</div>
-                <div class="meter-value" id="highpassDisplay">20 <span class="unit-pct">Hz</span></div>
-                <div class="meter-bar-bg"><div class="meter-bar" id="highpassBar" style="width:2%;"></div></div>
+                <div class="meter-value" id="highpassDisplay">550 <span class="unit-pct">Hz</span></div>
+                <div class="meter-bar-bg"><div class="meter-bar" id="highpassBar" style="width:69%;"></div></div>
             </div>
             <div class="meter-card aux">
                 <div class="meter-label">🌀 辅助输出</div>
@@ -383,7 +383,7 @@
             const ctx = canvas.getContext('2d');
             const qualityInfo = $('qualityInfo');
 
-            // ===== 核心状态 =====
+            // ===== 状态 =====
             let isPlaying = false;
             let audioCtx = null;
             let masterGain = null;
@@ -393,25 +393,31 @@
             let highpassFilter = null;
             let auxGain = null;
             let auxSource = null;
-
             let isInitialized = false;
 
             let targetVol = 55, currentVol = 55;
             let targetAuxVol = 0, currentAuxVol = 0;
             let driftIntensity = 75;
 
-            const params = {
-                volMin: 30, volMax: 80, speed: 7,
-                highpassFreq: 20, noiseType: 'pink',
-                auxType: 'water', auxVol: 25
+            // 基础值（用户设定，漂移围绕此值波动）
+            const baseParams = {
+                highpassFreq: 550,
+                volMin: 30,
+                volMax: 80,
+                auxVol: 25,
+                speed: 7,
+                noiseType: 'pink',
+                auxType: 'water'
             };
+            // 漂移后的实际值
             const drifted = {
-                highpassFreq: 20,
-                volMin: 30, volMax: 80,
+                highpassFreq: 550,
+                volMin: 30,
+                volMax: 80,
                 auxVol: 25
             };
             const lastValid = {
-                highpassFreq: 20, volMin: 30, volMax: 80, speed: 7, auxVol: 25
+                highpassFreq: 550, volMin: 30, volMax: 80, speed: 7, auxVol: 25
             };
 
             let updateTimer = null;
@@ -442,7 +448,6 @@
                 }
                 return buf;
             }
-
             function generatePinkBuffer(ctx, lenSec = 4) {
                 const sr = ctx.sampleRate, len = sr * lenSec;
                 const buf = ctx.createBuffer(1, len, sr);
@@ -460,7 +465,6 @@
                 }
                 return buf;
             }
-
             function generateWhiteBuffer(ctx, lenSec = 4) {
                 const sr = ctx.sampleRate, len = sr * lenSec;
                 const buf = ctx.createBuffer(1, len, sr);
@@ -468,7 +472,6 @@
                 for (let i=0; i<len; i++) d[i] = Math.random()*2-1;
                 return buf;
             }
-
             function generateWaterBuffer(ctx, lenSec = 4) {
                 const sr = ctx.sampleRate, len = sr * lenSec;
                 const buf = ctx.createBuffer(1, len, sr);
@@ -502,7 +505,7 @@
                     masterGain.gain.value = 0;
                     highpassFilter = audioCtx.createBiquadFilter();
                     highpassFilter.type = 'highpass';
-                    highpassFilter.frequency.value = params.highpassFreq;
+                    highpassFilter.frequency.value = baseParams.highpassFreq;
                     analyser = audioCtx.createAnalyser();
                     analyser.fftSize = 256;
                     analyser.smoothingTimeConstant = 0.75;
@@ -515,7 +518,6 @@
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
                     isInitialized = true;
                     statusDetail.textContent = '音频就绪';
-                    console.log('audio initialized');
                 } catch(e) { console.error(e); statusDetail.textContent = '⚠️ 音频初始化失败'; }
             }
 
@@ -523,32 +525,29 @@
                 if (!audioCtx || !isInitialized) return;
                 if (mainSource) { try{mainSource.stop();}catch(e){} mainSource.disconnect(); mainSource=null; }
                 let buf;
-                if (params.noiseType === 'white') buf = generateWhiteBuffer(audioCtx, 8);
+                if (baseParams.noiseType === 'white') buf = generateWhiteBuffer(audioCtx, 8);
                 else buf = generatePinkBuffer(audioCtx, 8);
                 mainSource = audioCtx.createBufferSource();
                 mainSource.buffer = buf; mainSource.loop = true;
                 mainSource.connect(masterGain); mainSource.start();
-                console.log('main noise started');
             }
 
             function startAuxNoise() {
                 if (!audioCtx || !isInitialized) return;
                 if (auxSource) { try{auxSource.stop();}catch(e){} auxSource.disconnect(); auxSource=null; }
-                if (params.auxType === 'none') { if(auxGain) auxGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05); return; }
+                if (baseParams.auxType === 'none') { if(auxGain) auxGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05); return; }
                 let buf;
-                if (params.auxType === 'white') buf = generateWhiteBuffer(audioCtx, 8);
-                else if (params.auxType === 'water') buf = generateWaterBuffer(audioCtx, 8);
+                if (baseParams.auxType === 'white') buf = generateWhiteBuffer(audioCtx, 8);
+                else if (baseParams.auxType === 'water') buf = generateWaterBuffer(audioCtx, 8);
                 else buf = generateChaosBuffer(audioCtx, 8);
                 auxSource = audioCtx.createBufferSource();
                 auxSource.buffer = buf; auxSource.loop = true;
                 auxSource.connect(auxGain); auxSource.start();
-                console.log('aux noise started');
             }
 
             function stopAllNoise() {
                 if (mainSource) { try{mainSource.stop();}catch(e){} mainSource.disconnect(); mainSource=null; }
                 if (auxSource) { try{auxSource.stop();}catch(e){} auxSource.disconnect(); auxSource=null; }
-                console.log('all noise stopped');
             }
 
             // ===== 应用参数 =====
@@ -556,23 +555,20 @@
                 if (!audioCtx || !isInitialized) return;
                 const now = audioCtx.currentTime;
                 const gainVal = (vol / 100) * 0.65;
-                const tc = clamp(0.25 - (params.speed-1)*0.02, 0.04, 0.30);
+                const tc = clamp(0.25 - (baseParams.speed-1)*0.02, 0.04, 0.30);
                 masterGain.gain.setTargetAtTime(gainVal, now, tc);
             }
-
             function applyAuxVol(vol) {
                 if (!audioCtx || !isInitialized || !auxGain) return;
                 const now = audioCtx.currentTime;
                 const gainVal = (vol / 100) * 0.55;
                 auxGain.gain.setTargetAtTime(gainVal, now, 0.12);
             }
-
             function applyHighpass(freq) {
                 if (!audioCtx || !highpassFilter) return;
                 const now = audioCtx.currentTime;
                 highpassFilter.frequency.setTargetAtTime(freq, now, 0.08);
             }
-
             function rebuildSources() {
                 if (!isPlaying || !audioCtx) return;
                 stopAllNoise();
@@ -580,31 +576,47 @@
                 startAuxNoise();
             }
 
-            // ===== 漂移系统 =====
+            // ===== 漂移系统（高通 ±100Hz） =====
             function startDrift() {
                 stopDrift();
                 function driftUpdate() {
                     if (!isPlaying) return;
                     const depth = antiLearnToggle.checked ? 1.0 : 0.3;
-                    const hpDrift = (Math.random() - 0.5) * 60 * depth;
-                    let newHp = clamp(drifted.highpassFreq + hpDrift, 10, 300);
+                    // 高通漂移：基于 baseParams.highpassFreq，范围 ±100Hz，上限 clamp(10, 800)
+                    const baseHp = baseParams.highpassFreq;
+                    const hpOffset = (Math.random() - 0.5) * 200 * depth; // 200 = 2*100
+                    let newHp = clamp(baseHp + hpOffset, baseHp - 100, baseHp + 100);
+                    newHp = clamp(newHp, 10, 800);
                     drifted.highpassFreq = newHp;
                     applyHighpass(newHp);
-                    const volDrift = (Math.random() - 0.5) * 20 * depth;
-                    let newVmin = clamp(drifted.volMin + volDrift, 0, 90);
-                    let newVmax = clamp(drifted.volMax + volDrift, 10, 100);
-                    if (newVmin >= newVmax - 2) { newVmin = clamp(newVmin - 5, 0, 90); newVmax = clamp(newVmax + 5, 10, 100); }
-                    drifted.volMin = newVmin; drifted.volMax = newVmax;
-                    const auxDrift = (Math.random() - 0.5) * 20 * depth;
-                    let newAux = clamp(drifted.auxVol + auxDrift, 0, 100);
+
+                    // 音量范围漂移：基于 baseParams.volMin/volMax，范围 ±10%
+                    const baseVmin = baseParams.volMin, baseVmax = baseParams.volMax;
+                    const volOffset = (Math.random() - 0.5) * 20 * depth;
+                    let newVmin = clamp(baseVmin + volOffset, 0, 100);
+                    let newVmax = clamp(baseVmax + volOffset, 0, 100);
+                    if (newVmin >= newVmax - 2) { newVmin = clamp(baseVmin - 5, 0, 100); newVmax = clamp(baseVmax + 5, 0, 100); }
+                    newVmin = clamp(newVmin, 0, 100);
+                    newVmax = clamp(newVmax, 0, 100);
+                    if (newVmin > newVmax) { [newVmin, newVmax] = [newVmax, newVmin]; }
+                    drifted.volMin = newVmin;
+                    drifted.volMax = newVmax;
+
+                    // 辅助音量漂移
+                    const baseAux = baseParams.auxVol;
+                    const auxOffset = (Math.random() - 0.5) * 20 * depth;
+                    let newAux = clamp(baseAux + auxOffset, 0, 100);
                     drifted.auxVol = newAux;
-                    if (params.auxType !== 'none') applyAuxVol(newAux * 0.7);
+                    if (baseParams.auxType !== 'none') applyAuxVol(newAux * 0.7);
+
+                    // 更新显示
                     driftHpDisplay.textContent = Math.round(newHp) + 'Hz';
                     driftVolDisplay.textContent = Math.round((newVmin+newVmax)/2) + '%';
                     driftAuxDisplay.textContent = Math.round(newAux) + '%';
                     driftIntensity = (depth * 100) * (0.5 + Math.random() * 0.5);
                     driftIntensityDisplay.innerHTML = Math.round(driftIntensity) + ' <span class="unit-pct">%</span>';
                     driftBar.style.width = driftIntensity + '%';
+
                     const nextDelay = 400 + Math.random() * 800;
                     driftTimer = setTimeout(driftUpdate, nextDelay);
                 }
@@ -619,7 +631,7 @@
             function generateTargetVol() {
                 const vMin = drifted.volMin, vMax = drifted.volMax, vRange = vMax - vMin;
                 if (vRange <= 0) { targetVol = vMin; return; }
-                const sf = params.speed / 10;
+                const sf = baseParams.speed / 10;
                 let nv = targetVol;
                 const baseStep = vRange * 0.40 * (0.3 + 0.7*sf);
                 const dir = Math.random()>0.5?1:-1;
@@ -634,14 +646,14 @@
 
             function startUpdateLoop() {
                 stopUpdateLoop();
-                const interval = Math.max(100, 1100 - (params.speed-1)*100);
+                const interval = Math.max(100, 1100 - (baseParams.speed-1)*100);
                 generateTargetVol();
                 applyVolToMaster(targetVol);
                 updateTimer = setInterval(() => {
                     if (!isPlaying) return;
                     generateTargetVol();
                     applyVolToMaster(targetVol);
-                    if (params.auxType !== 'none') {
+                    if (baseParams.auxType !== 'none') {
                         const auxT = drifted.auxVol * (0.5 + Math.random() * 0.5);
                         targetAuxVol = clamp(auxT, 0, drifted.auxVol);
                         applyAuxVol(targetAuxVol);
@@ -677,14 +689,13 @@
                 volBar.style.width = v+'%';
                 const hp = Math.round(drifted.highpassFreq);
                 highpassDisplay.innerHTML = `${hp} <span class="unit-pct">Hz</span>`;
-                const hpPct = clamp((hp-10)/(300-10)*100, 0, 100);
+                const hpPct = clamp((hp-10)/(800-10)*100, 0, 100);
                 highpassBar.style.width = hpPct+'%';
                 const av = Math.round(currentAuxVol);
                 auxDisplay.innerHTML = `${av} <span class="unit-pct">%</span>`;
                 auxBar.style.width = av+'%';
             }
 
-            // ===== 波形绘制 =====
             function drawWaveform() {
                 const w=canvas.width, h=canvas.height;
                 ctx.clearRect(0,0,w,h);
@@ -726,20 +737,23 @@
                 if (isPlaying) return;
                 if (!isInitialized) { initAudio(); if(!isInitialized) return; }
                 if (audioCtx.state === 'suspended') audioCtx.resume().catch(e=>{});
-                collectParamsFromUI();
-                drifted.highpassFreq = params.highpassFreq;
-                drifted.volMin = params.volMin;
-                drifted.volMax = params.volMax;
-                drifted.auxVol = params.auxVol;
+                collectParamsFromUI(); // 从UI同步baseParams
+                // 初始化漂移基础值
+                drifted.highpassFreq = baseParams.highpassFreq;
+                drifted.volMin = baseParams.volMin;
+                drifted.volMax = baseParams.volMax;
+                drifted.auxVol = baseParams.auxVol;
+
                 startMainNoise();
                 startAuxNoise();
                 targetVol = randBetween(drifted.volMin, drifted.volMax);
                 currentVol = targetVol;
-                targetAuxVol = params.auxType === 'none' ? 0 : drifted.auxVol * 0.7;
+                targetAuxVol = baseParams.auxType === 'none' ? 0 : drifted.auxVol * 0.7;
                 currentAuxVol = targetAuxVol;
                 applyVolToMaster(targetVol);
                 applyAuxVol(targetAuxVol);
                 applyHighpass(drifted.highpassFreq);
+
                 isPlaying = true;
                 statusBadge.classList.add('active');
                 statusText.textContent = '掩蔽中';
@@ -750,7 +764,6 @@
                 startUpdateLoop();
                 startDrift();
                 updateDisplay();
-                console.log('Engine started');
             }
 
             function stopEngine() {
@@ -771,43 +784,42 @@
                 mainToggle.classList.remove('active');
                 mainToggle.querySelector('.icon-btn').textContent = '▶';
                 drawWaveform();
-                console.log('Engine stopped');
             }
 
             function togglePlay() { if (isPlaying) stopEngine(); else startEngine(); }
 
-            // ===== 参数收集 =====
+            // ===== 参数收集（从UI到baseParams） =====
             function collectParamsFromUI() {
                 const rawHp = highpassInp.value;
                 if (rawHp !== '' && !isNaN(parseFloat(rawHp))) {
-                    params.highpassFreq = clamp(parseFloat(rawHp), 10, 500);
-                    lastValid.highpassFreq = params.highpassFreq;
+                    baseParams.highpassFreq = clamp(parseFloat(rawHp), 10, 800);
+                    lastValid.highpassFreq = baseParams.highpassFreq;
                 }
                 const rawVmin = volMinInp.value, rawVmax = volMaxInp.value;
                 if (rawVmin !== '' && !isNaN(parseFloat(rawVmin))) {
-                    params.volMin = clamp(parseFloat(rawVmin), 0, 100);
-                    lastValid.volMin = params.volMin;
+                    baseParams.volMin = clamp(parseFloat(rawVmin), 0, 100);
+                    lastValid.volMin = baseParams.volMin;
                 }
                 if (rawVmax !== '' && !isNaN(parseFloat(rawVmax))) {
-                    params.volMax = clamp(parseFloat(rawVmax), 0, 100);
-                    lastValid.volMax = params.volMax;
+                    baseParams.volMax = clamp(parseFloat(rawVmax), 0, 100);
+                    lastValid.volMax = baseParams.volMax;
                 }
-                if (params.volMin > params.volMax) { params.volMin = params.volMax; volMinInp.value = params.volMin; }
+                if (baseParams.volMin > baseParams.volMax) { baseParams.volMin = baseParams.volMax; volMinInp.value = baseParams.volMin; }
                 const rawSpd = speedInp.value;
                 if (rawSpd !== '' && !isNaN(parseFloat(rawSpd))) {
-                    params.speed = clamp(parseFloat(rawSpd), 1, 10);
-                    lastValid.speed = params.speed;
-                    updateSpeedHint(params.speed);
+                    baseParams.speed = clamp(parseFloat(rawSpd), 1, 10);
+                    lastValid.speed = baseParams.speed;
+                    updateSpeedHint(baseParams.speed);
                 }
                 const rawAux = auxVolInp.value;
                 if (rawAux !== '' && !isNaN(parseFloat(rawAux))) {
-                    params.auxVol = clamp(parseFloat(rawAux), 0, 100);
-                    lastValid.auxVol = params.auxVol;
+                    baseParams.auxVol = clamp(parseFloat(rawAux), 0, 100);
+                    lastValid.auxVol = baseParams.auxVol;
                 }
                 const activeAux = document.querySelector('#auxTypeSelector button.active');
-                if (activeAux) params.auxType = activeAux.dataset.type;
+                if (activeAux) baseParams.auxType = activeAux.dataset.type;
                 const activeMain = document.querySelector('#noiseTypeSelector button.active');
-                if (activeMain) params.noiseType = activeMain.dataset.type;
+                if (activeMain) baseParams.noiseType = activeMain.dataset.type;
             }
 
             function updateSpeedHint(s) {
@@ -823,35 +835,34 @@
                 if (raw === '') return;
                 const parsed = parseFloat(raw);
                 if (!isNaN(parsed)) {
-                    const clamped = clamp(parsed, 10, 500);
-                    params.highpassFreq = clamped; lastValid.highpassFreq = clamped;
-                    dragged.highpassFreq = clamped; // 同步漂移目标
-                    if (isPlaying) applyHighpass(clamped);
+                    const clamped = clamp(parsed, 10, 800);
+                    baseParams.highpassFreq = clamped; lastValid.highpassFreq = clamped;
+                    if (isPlaying) { drifted.highpassFreq = clamped; applyHighpass(clamped); }
                     updateDisplay();
                 }
             }
             function onHighpassChange() {
                 const raw = highpassInp.value;
                 if (raw === '' || isNaN(parseFloat(raw))) { highpassInp.value = lastValid.highpassFreq; }
-                else { const c = clamp(parseFloat(raw),10,500); highpassInp.value = c; lastValid.highpassFreq=c; params.highpassFreq=c; }
-                if (isPlaying) applyHighpass(params.highpassFreq);
+                else { const c = clamp(parseFloat(raw),10,800); highpassInp.value = c; lastValid.highpassFreq=c; baseParams.highpassFreq=c; }
+                if (isPlaying) applyHighpass(baseParams.highpassFreq);
                 updateDisplay();
             }
             function onVolMinInput() {
                 const raw = volMinInp.value; if (raw==='') return;
                 const p = parseFloat(raw); if (!isNaN(p)) {
-                    params.volMin = clamp(p,0,100); lastValid.volMin = params.volMin;
-                    if (params.volMin > params.volMax) { params.volMax = params.volMin; volMaxInp.value = params.volMax; lastValid.volMax = params.volMax; }
-                    if (isPlaying) targetVol = clamp(targetVol, params.volMin, params.volMax);
+                    baseParams.volMin = clamp(p,0,100); lastValid.volMin = baseParams.volMin;
+                    if (baseParams.volMin > baseParams.volMax) { baseParams.volMax = baseParams.volMin; volMaxInp.value = baseParams.volMax; lastValid.volMax = baseParams.volMax; }
+                    if (isPlaying) targetVol = clamp(targetVol, baseParams.volMin, baseParams.volMax);
                     updateDisplay();
                 }
             }
             function onVolMaxInput() {
                 const raw = volMaxInp.value; if (raw==='') return;
                 const p = parseFloat(raw); if (!isNaN(p)) {
-                    params.volMax = clamp(p,0,100); lastValid.volMax = params.volMax;
-                    if (params.volMin > params.volMax) { params.volMin = params.volMax; volMinInp.value = params.volMin; lastValid.volMin = params.volMin; }
-                    if (isPlaying) targetVol = clamp(targetVol, params.volMin, params.volMax);
+                    baseParams.volMax = clamp(p,0,100); lastValid.volMax = baseParams.volMax;
+                    if (baseParams.volMin > baseParams.volMax) { baseParams.volMin = baseParams.volMax; volMinInp.value = baseParams.volMin; lastValid.volMin = baseParams.volMin; }
+                    if (isPlaying) targetVol = clamp(targetVol, baseParams.volMin, baseParams.volMax);
                     updateDisplay();
                 }
             }
@@ -861,7 +872,7 @@
                 if (isNaN(vMax) || volMaxInp.value==='') vMax = lastValid.volMax;
                 vMin = clamp(vMin,0,100); vMax = clamp(vMax,0,100);
                 if (vMin > vMax) { const t=vMin; vMin=vMax; vMax=t; }
-                params.volMin=vMin; params.volMax=vMax;
+                baseParams.volMin=vMin; baseParams.volMax=vMax;
                 volMinInp.value=vMin; volMaxInp.value=vMax;
                 lastValid.volMin=vMin; lastValid.volMax=vMax;
                 if (isPlaying) targetVol = clamp(targetVol, vMin, vMax);
@@ -870,8 +881,8 @@
             function onSpeedInput() {
                 const raw = speedInp.value; if (raw==='') return;
                 const p = parseFloat(raw); if (!isNaN(p)) {
-                    params.speed = clamp(p,1,10); lastValid.speed=params.speed;
-                    updateSpeedHint(params.speed);
+                    baseParams.speed = clamp(p,1,10); lastValid.speed=baseParams.speed;
+                    updateSpeedHint(baseParams.speed);
                     if (isPlaying) restartLoopIfPlaying();
                     updateDisplay();
                 }
@@ -879,7 +890,7 @@
             function onSpeedChange() {
                 let s = parseFloat(speedInp.value);
                 if (isNaN(s) || speedInp.value==='') s = lastValid.speed;
-                s = clamp(s,1,10); params.speed=s; speedInp.value=s; lastValid.speed=s;
+                s = clamp(s,1,10); baseParams.speed=s; speedInp.value=s; lastValid.speed=s;
                 updateSpeedHint(s);
                 if (isPlaying) restartLoopIfPlaying();
                 updateDisplay();
@@ -887,9 +898,9 @@
             function onAuxVolInput() {
                 const raw = auxVolInp.value; if (raw==='') return;
                 const p = parseFloat(raw); if (!isNaN(p)) {
-                    params.auxVol = clamp(p,0,100); lastValid.auxVol = params.auxVol;
-                    if (isPlaying && params.auxType!=='none') {
-                        targetAuxVol = params.auxVol * (0.5 + Math.random()*0.5);
+                    baseParams.auxVol = clamp(p,0,100); lastValid.auxVol = baseParams.auxVol;
+                    if (isPlaying && baseParams.auxType!=='none') {
+                        targetAuxVol = baseParams.auxVol * (0.5 + Math.random()*0.5);
                         applyAuxVol(targetAuxVol);
                     }
                     updateDisplay();
@@ -898,8 +909,8 @@
             function onAuxVolChange() {
                 let v = parseFloat(auxVolInp.value);
                 if (isNaN(v) || auxVolInp.value==='') v = lastValid.auxVol;
-                v = clamp(v,0,100); params.auxVol=v; auxVolInp.value=v; lastValid.auxVol=v;
-                if (isPlaying && params.auxType!=='none') {
+                v = clamp(v,0,100); baseParams.auxVol=v; auxVolInp.value=v; lastValid.auxVol=v;
+                if (isPlaying && baseParams.auxType!=='none') {
                     targetAuxVol = v * 0.7; applyAuxVol(targetAuxVol);
                 }
                 updateDisplay();
@@ -908,20 +919,20 @@
             // 噪声类型切换
             function setMainNoiseType(type) {
                 noiseTypeBtns.forEach(b=>b.classList.toggle('active', b.dataset.type===type));
-                params.noiseType = type;
+                baseParams.noiseType = type;
                 updateQualityInfo();
                 if (isPlaying) rebuildSources();
             }
             function setAuxType(type) {
                 auxTypeBtns.forEach(b=>b.classList.toggle('active', b.dataset.type===type));
-                params.auxType = type;
+                baseParams.auxType = type;
                 if (type === 'none') {
                     targetAuxVol = 0; if (isPlaying) applyAuxVol(0);
                     if (isPlaying && auxSource) { try{auxSource.stop();}catch(e){} auxSource.disconnect(); auxSource=null; }
                 } else {
                     if (isPlaying) {
                         startAuxNoise();
-                        targetAuxVol = params.auxVol * 0.7;
+                        targetAuxVol = baseParams.auxVol * 0.7;
                         applyAuxVol(targetAuxVol);
                     }
                 }
@@ -930,28 +941,25 @@
                 updateDisplay();
             }
             function updateQualityInfo() {
-                const main = params.noiseType==='white'?'白':'粉红';
-                const aux = params.auxType==='none'?'无':(params.auxType==='white'?'白噪':(params.auxType==='water'?'水流':'混沌'));
+                const main = baseParams.noiseType==='white'?'白':'粉红';
+                const aux = baseParams.auxType==='none'?'无':(baseParams.auxType==='white'?'白噪':(baseParams.auxType==='water'?'水流':'混沌'));
                 qualityInfo.textContent = `📊 ${main}+${aux}+深度`;
             }
 
             // ===== 重置 =====
             function resetToDefaults() {
                 if (isPlaying) stopEngine();
-                highpassInp.value = 20; volMinInp.value = 30; volMaxInp.value = 80; speedInp.value = 7; auxVolInp.value = 25;
-                // 恢复按钮状态
+                highpassInp.value = 550; volMinInp.value = 30; volMaxInp.value = 80; speedInp.value = 7; auxVolInp.value = 25;
                 noiseTypeBtns.forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
                 auxTypeBtns.forEach(b=>b.classList.toggle('active',b.dataset.type==='water'));
                 updateQualityInfo();
-                params.noiseType='pink'; params.auxType='water';
-                params.highpassFreq=20; params.volMin=30; params.volMax=80; params.speed=7; params.auxVol=25;
-                lastValid.highpassFreq=20; lastValid.volMin=30; lastValid.volMax=80; lastValid.speed=7; lastValid.auxVol=25;
-                drifted.highpassFreq=20; drifted.volMin=30; drifted.volMax=80; drifted.auxVol=25;
+                baseParams.highpassFreq=550; baseParams.volMin=30; baseParams.volMax=80; baseParams.speed=7; baseParams.auxVol=25; baseParams.noiseType='pink'; baseParams.auxType='water';
+                lastValid.highpassFreq=550; lastValid.volMin=30; lastValid.volMax=80; lastValid.speed=7; lastValid.auxVol=25;
+                drifted.highpassFreq=550; drifted.volMin=30; drifted.volMax=80; drifted.auxVol=25;
                 currentVol=55; targetVol=55; currentAuxVol=0; targetAuxVol=0;
                 updateDisplay(); updateSpeedHint(7); drawWaveform();
-                statusDetail.textContent='已重置至默认 (水流/混沌)';
+                statusDetail.textContent='已重置至默认 (高通550Hz)';
                 setTimeout(()=>{if(!isPlaying)statusDetail.textContent='等待启动…';},1000);
-                console.log('reset');
             }
 
             // ===== Canvas 自适应 =====
@@ -990,19 +998,19 @@
 
             // ===== 初始化 =====
             function init() {
-                // 确保默认按钮状态
                 noiseTypeBtns.forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
                 auxTypeBtns.forEach(b=>b.classList.toggle('active',b.dataset.type==='water'));
                 updateQualityInfo();
-                lastValid.highpassFreq=20; lastValid.volMin=30; lastValid.volMax=80; lastValid.speed=7; lastValid.auxVol=25;
-                collectParamsFromUI();
-                params.volMin=30; params.volMax=80; params.speed=7; params.highpassFreq=20; params.auxVol=25; params.auxType='water';
-                drifted.highpassFreq=20; drifted.volMin=30; drifted.volMax=80; drifted.auxVol=25;
+                // 设置默认值为550
+                highpassInp.value = 550;
+                lastValid.highpassFreq = 550; baseParams.highpassFreq = 550;
+                lastValid.volMin=30; lastValid.volMax=80; lastValid.speed=7; lastValid.auxVol=25;
+                baseParams.volMin=30; baseParams.volMax=80; baseParams.speed=7; baseParams.auxVol=25;
+                drifted.highpassFreq=550; drifted.volMin=30; drifted.volMax=80; drifted.auxVol=25;
                 currentVol=55; targetVol=55; currentAuxVol=0; targetAuxVol=0;
                 updateDisplay(); updateSpeedHint(7);
                 initAudio(); resizeCanvas(); drawWaveform();
-                statusDetail.textContent='🎛️ 抗学习就绪 (混沌+漂移)';
-                console.log('Anti-learning masker loaded. Click start.');
+                statusDetail.textContent='🎛️ 抗学习就绪 (高通550Hz ±100Hz)';
             }
             if (document.readyState==='complete') init();
             else window.addEventListener('load', init);
