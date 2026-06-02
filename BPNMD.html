@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>生物防护抗AI学习系统</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
             background: #f4f6fa;
@@ -28,69 +24,22 @@
             -webkit-backdrop-filter: blur(8px);
             border-radius: 36px;
             padding: 24px 24px 28px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08), 0 8px 20px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.04);
         }
-        @media (max-width: 700px) {
-            .app-container {
-                padding: 14px;
-            }
-        }
+        @media (max-width: 700px) { .app-container { padding: 14px; } }
         .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 6px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px; flex-wrap: wrap; gap: 6px;
         }
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .header-left .icon {
-            font-size: 28px;
-        }
-        .header-left h1 {
-            font-size: 20px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        .header-left .sub {
-            font-size: 11px;
-            color: #6c7a8a;
-            padding: 2px 12px;
-            border-radius: 16px;
-            background: rgba(0, 0, 0, 0.04);
-        }
-        .status-badge {
-            font-size: 11px;
-            padding: 4px 12px;
-            border-radius: 30px;
-            background: rgba(0, 0, 0, 0.04);
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            color: #5a6a7a;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .status-badge .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #b0b8c8;
-            transition: 0.3s;
-        }
-        .status-badge.active .dot {
-            background: #27ae60;
-            box-shadow: 0 0 12px rgba(39, 174, 96, 0.35);
-        }
-        .status-badge.active {
-            color: #2c3e50;
-            border-color: rgba(39, 174, 96, 0.3);
-        }
+        .header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .header-left .icon { font-size: 28px; }
+        .header-left h1 { font-size: 20px; font-weight: 600; color: #2c3e50; }
+        .header-left .sub { font-size: 11px; color: #6c7a8a; padding: 2px 12px; border-radius: 16px; background: rgba(0,0,0,0.04); }
+        .status-badge { font-size: 11px; padding: 4px 12px; border-radius: 30px; background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); color: #5a6a7a; display: flex; align-items: center; gap: 4px; }
+        .status-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: #b0b8c8; transition: 0.3s; }
+        .status-badge.active .dot { background: #27ae60; box-shadow: 0 0 12px rgba(39,174,96,0.35); }
+        .status-badge.active { color: #2c3e50; border-color: rgba(39,174,96,0.3); }
 
         .channels-grid {
             display: grid;
@@ -98,125 +47,41 @@
             gap: 12px 14px;
             margin-bottom: 14px;
         }
-        @media (max-width: 900px) {
-            .channels-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-        @media (max-width: 500px) {
-            .channels-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 900px) { .channels-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 500px) { .channels-grid { grid-template-columns: 1fr; } }
 
         .channel-card {
             background: #ffffff;
             border-radius: 20px;
             padding: 14px 12px 12px;
-            border: 1px solid rgba(0, 0, 0, 0.06);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0,0,0,0.06);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .channel-card:hover {
-            background: #fafcff;
-        }
-        .ch-title {
-            font-size: 11px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .ch-title .ch-num {
-            width: 20px;
-            height: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #eef2f7;
-            border-radius: 50%;
-            font-size: 10px;
-        }
-        .ch-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .ch-row {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            flex-wrap: wrap;
-        }
-        .ch-row label {
-            font-size: 9px;
-            color: #6c7a8a;
-            min-width: 30px;
-        }
+        .channel-card:hover { background: #fafcff; }
+        .ch-title { font-size: 11px; font-weight: 600; color: #2c3e50; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .ch-title .ch-num { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; background: #eef2f7; border-radius: 50%; font-size: 10px; }
+        .ch-controls { display: flex; flex-direction: column; gap: 5px; }
+        .ch-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .ch-row label { font-size: 9px; color: #6c7a8a; min-width: 30px; }
         .ch-row input[type="number"] {
-            background: #f0f2f5;
-            border: 1px solid #d0d6e0;
-            border-radius: 8px;
-            padding: 4px 4px;
-            color: #222;
-            font-size: 11px;
-            font-weight: 500;
-            width: 44px;
-            text-align: center;
-            -moz-appearance: textfield;
-            outline: none;
+            background: #f0f2f5; border: 1px solid #d0d6e0; border-radius: 8px;
+            padding: 4px 4px; color: #222; font-size: 11px; font-weight: 500;
+            width: 44px; text-align: center; -moz-appearance: textfield; outline: none;
         }
-        .ch-row input[type="number"]:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
-        }
-        .ch-row input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-        }
-        .ch-row .unit-label {
-            font-size: 9px;
-            color: #8a9aaa;
-        }
-        .ch-row .range-sep {
-            color: #8a9aaa;
-            font-size: 10px;
-        }
-        .ch-row .freq-pill {
-            display: inline-block;
-            padding: 1px 8px;
-            background: #eef2f7;
-            border-radius: 30px;
-            font-size: 9px;
-            color: #2c3e50;
-            font-weight: 500;
-        }
+        .ch-row input[type="number"]:focus { border-color: #3498db; box-shadow: 0 0 0 2px rgba(52,152,219,0.15); }
+        .ch-row input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+        .ch-row .unit-label { font-size: 9px; color: #8a9aaa; }
+        .ch-row .range-sep { color: #8a9aaa; font-size: 10px; }
+        .ch-row .freq-pill { display: inline-block; padding: 1px 8px; background: #eef2f7; border-radius: 30px; font-size: 9px; color: #2c3e50; font-weight: 500; }
 
-        .aux-chooser {
-            display: flex;
-            gap: 3px;
-            margin-top: 3px;
-        }
+        .aux-chooser { display: flex; gap: 3px; margin-top: 3px; }
         .aux-chooser button {
-            background: #eef2f7;
-            border: 1px solid #d0d6e0;
-            color: #2c3e50;
-            padding: 2px 6px;
-            border-radius: 14px;
-            font-size: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: 0.15s;
-            flex: 1;
+            background: #eef2f7; border: 1px solid #d0d6e0;
+            color: #2c3e50; padding: 2px 6px; border-radius: 14px; font-size: 8px; cursor: pointer;
+            font-weight: 500; transition: 0.15s; flex: 1;
         }
-        .aux-chooser button.active {
-            background: #3498db;
-            border-color: #3498db;
-            color: #fff;
-        }
-        .aux-chooser button:hover {
-            background: #d6e4f0;
-        }
+        .aux-chooser button.active { background: #3498db; border-color: #3498db; color: #fff; }
+        .aux-chooser button:hover { background: #d6e4f0; }
 
         .global-controls {
             display: flex;
@@ -227,152 +92,62 @@
             padding: 10px 14px;
             margin-bottom: 12px;
             align-items: center;
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0,0,0,0.04);
         }
-        .global-controls .g-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .global-controls .g-item label {
-            font-size: 10px;
-            color: #5a6a7a;
-        }
+        .global-controls .g-item { display: flex; align-items: center; gap: 4px; }
+        .global-controls .g-item label { font-size: 10px; color: #5a6a7a; }
         .global-controls .g-item input[type="number"] {
-            background: #f0f2f5;
-            border: 1px solid #d0d6e0;
-            border-radius: 8px;
-            padding: 3px 5px;
-            color: #222;
-            font-size: 11px;
-            width: 42px;
-            text-align: center;
-            -moz-appearance: textfield;
+            background: #f0f2f5; border: 1px solid #d0d6e0;
+            border-radius: 8px; padding: 3px 5px; color: #222; font-size: 11px;
+            width: 42px; text-align: center; -moz-appearance: textfield;
         }
-        .global-controls .g-item .unit-label {
-            font-size: 9px;
-            color: #8a9aaa;
-        }
+        .global-controls .g-item .unit-label { font-size: 9px; color: #8a9aaa; }
 
         .monitor-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(5,1fr);
             gap: 8px 12px;
             margin-bottom: 10px;
         }
-        @media (max-width: 700px) {
-            .monitor-grid {
-                grid-template-columns: 1fr 1fr 1fr;
-            }
-        }
+        @media (max-width: 700px) { .monitor-grid { grid-template-columns: 1fr 1fr 1fr; } }
         .monitor-item {
             background: #ffffff;
             border-radius: 12px;
             padding: 6px 10px 8px;
             text-align: center;
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0,0,0,0.04);
         }
-        .monitor-item .m-label {
-            font-size: 9px;
-            color: #6c7a8a;
-        }
-        .monitor-item .m-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        .monitor-item .m-bar {
-            margin-top: 2px;
-            height: 2px;
-            background: #e0e6ee;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .monitor-item .m-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #3498db, #9b59b6);
-        }
+        .monitor-item .m-label { font-size: 9px; color: #6c7a8a; }
+        .monitor-item .m-value { font-size: 16px; font-weight: 600; color: #2c3e50; }
+        .monitor-item .m-bar { margin-top: 2px; height: 2px; background: #e0e6ee; border-radius: 4px; overflow: hidden; }
+        .monitor-item .m-bar-fill { height: 100%; background: linear-gradient(90deg, #3498db, #9b59b6); }
 
         .action-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
         }
         .btn {
-            padding: 6px 16px;
-            border: none;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(0, 0, 0, 0.04);
-            color: #2c3e50;
-            border: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 6px 16px; border: none; border-radius: 40px; font-size: 12px; font-weight: 600;
+            cursor: pointer; transition: 0.2s; display: flex; align-items: center;
+            gap: 4px; background: rgba(0,0,0,0.04); color: #2c3e50; border: 1px solid rgba(0,0,0,0.06);
         }
-        .btn:hover {
-            transform: translateY(-1px);
-            background: rgba(0, 0, 0, 0.08);
-        }
+        .btn:hover { transform: translateY(-1px); background: rgba(0,0,0,0.08); }
         .btn-primary {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: #fff;
-            border: none;
-            box-shadow: 0 4px 20px rgba(52, 152, 219, 0.30);
+            background: linear-gradient(135deg, #3498db, #2980b9); color: #fff; border: none;
+            box-shadow: 0 4px 20px rgba(52,152,219,0.30);
         }
-        .btn-primary:hover {
-            box-shadow: 0 6px 28px rgba(52, 152, 219, 0.65);
-            background: linear-gradient(135deg, #3ea0e0, #2c86c4);
-        }
-        .btn-primary.active {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            box-shadow: 0 4px 20px rgba(231, 76, 60, 0.30);
-        }
-        .btn-primary.active:hover {
-            background: linear-gradient(135deg, #f05a4a, #d04535);
-        }
-        .btn-secondary {
-            background: rgba(0, 0, 0, 0.04);
-            color: #5a6a7a;
-        }
-        .action-info {
-            font-size: 9px;
-            color: #6c7a8a;
-            margin-left: auto;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .action-info .fade {
-            color: #a0b0c0;
-        }
-        .no-select {
-            user-select: none;
-        }
-        .hint {
-            font-size: 7px;
-            color: #8a9aaa;
-            margin-top: 2px;
-        }
+        .btn-primary:hover { box-shadow: 0 6px 28px rgba(52,152,219,0.65); background: linear-gradient(135deg, #3ea0e0, #2c86c4); }
+        .btn-primary.active { background: linear-gradient(135deg, #e74c3c, #c0392b); box-shadow: 0 4px 20px rgba(231,76,60,0.30); }
+        .btn-primary.active:hover { background: linear-gradient(135deg, #f05a4a, #d04535); }
+        .btn-secondary { background: rgba(0,0,0,0.04); color: #5a6a7a; }
+        .action-info { font-size: 9px; color: #6c7a8a; margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+        .action-info .fade { color: #a0b0c0; }
+        .no-select { user-select: none; }
+        .hint { font-size: 7px; color: #8a9aaa; margin-top: 2px; }
         @media (max-width: 600px) {
-            .global-controls {
-                gap: 4px 8px;
-                padding: 6px 10px;
-            }
-            .ch-row input[type="number"] {
-                width: 36px;
-                font-size: 10px;
-            }
-            .monitor-item .m-value {
-                font-size: 14px;
-            }
-            .channel-card {
-                padding: 10px;
-            }
+            .global-controls { gap: 4px 8px; padding: 6px 10px; }
+            .ch-row input[type="number"] { width: 36px; font-size: 10px; }
+            .monitor-item .m-value { font-size: 14px; }
+            .channel-card { padding: 10px; }
         }
     </style>
 </head>
@@ -436,7 +211,7 @@
                     </div>
                     <div class="ch-row">
                         <label>Sub</label>
-                        <input type="number" id="ch2_sub" value="65" min="0" max="100" step="1" style="width:36px;" />
+                        <input type="number" id="ch2_sub" value="40" min="0" max="100" step="1" style="width:36px;" />
                         <span class="unit-label">%</span>
                         <span style="font-size:8px;color:#8a9aaa;">(低频振荡)</span>
                     </div>
@@ -546,451 +321,287 @@
         (function() {
             'use strict';
             const $ = id => document.getElementById(id);
-            const ch1_hp = $('ch1_hp'),
-                ch1_volMin = $('ch1_volMin'),
-                ch1_volMax = $('ch1_volMax'),
-                ch1_q = $('ch1_q');
-            const ch2_lpf = $('ch2_lpf'),
-                ch2_vol = $('ch2_vol'),
-                ch2_sub = $('ch2_sub');
-            const ch3_hp = $('ch3_hp'),
-                ch3_vol = $('ch3_vol'),
-                ch3_phaseDelay = $('ch3_phaseDelay');
-            const ch4_thetaVol = $('ch4_thetaVol'),
-                ch4_betaVol = $('ch4_betaVol'),
-                ch4_mixVol = $('ch4_mixVol');
-            const ch4_thetaFreqDisplay = $('ch4_thetaFreqDisplay'),
-                ch4_betaFreqDisplay = $('ch4_betaFreqDisplay');
-            const globalMutate = $('globalMutate'),
-                globalDepth = $('globalDepth'),
-                globalGain = $('globalGain');
+            const ch1_hp = $('ch1_hp'), ch1_volMin = $('ch1_volMin'), ch1_volMax = $('ch1_volMax'), ch1_q = $('ch1_q');
+            const ch2_lpf = $('ch2_lpf'), ch2_vol = $('ch2_vol'), ch2_sub = $('ch2_sub');
+            const ch3_hp = $('ch3_hp'), ch3_vol = $('ch3_vol'), ch3_phaseDelay = $('ch3_phaseDelay');
+            const ch4_thetaVol = $('ch4_thetaVol'), ch4_betaVol = $('ch4_betaVol'), ch4_mixVol = $('ch4_mixVol');
+            const ch4_thetaFreqDisplay = $('ch4_thetaFreqDisplay'), ch4_betaFreqDisplay = $('ch4_betaFreqDisplay');
+            const globalMutate = $('globalMutate'), globalDepth = $('globalDepth'), globalGain = $('globalGain');
 
-            const statusBadge = $('statusBadge'),
-                statusText = $('statusText'),
-                statusDetail = $('statusDetail');
-            const mainToggle = $('mainToggle'),
-                toggleLabel = $('toggleLabel'),
-                resetBtn = $('resetBtn');
-            const m1hp = $('m1hp'),
-                m2lpf = $('m2lpf'),
-                m3hp = $('m3hp'),
-                m4Freq = $('m4Freq'),
-                mComplex = $('mComplex');
+            const statusBadge = $('statusBadge'), statusText = $('statusText'), statusDetail = $('statusDetail');
+            const mainToggle = $('mainToggle'), toggleLabel = $('toggleLabel'), resetBtn = $('resetBtn');
+            const m1hp = $('m1hp'), m2lpf = $('m2lpf'), m3hp = $('m3hp'), m4Freq = $('m4Freq'), mComplex = $('mComplex');
             const qualityDisp = $('qualityDisp');
 
             let isPlaying = false;
             let audioCtx = null;
             let masterGain = null;
-            let analyser = null,
-                dataArray = null;
+            let analyser = null, dataArray = null;
             // 通道1-3
-            let ch1_gain = null,
-                ch1_filter = null,
-                ch1_source = null;
-            let ch2_gain = null,
-                ch2_filter = null,
-                ch2_source = null;
-            let ch3_gain = null,
-                ch3_filter = null,
-                ch3_source = null;
-            let ch2_subOsc = null,
-                ch2_subGain = null;
+            let ch1_gain = null, ch1_filter = null, ch1_source = null;
+            let ch2_gain = null, ch2_filter = null, ch2_source = null;
+            let ch3_gain = null, ch3_filter = null, ch3_source = null;
+            let ch2_subOsc = null, ch2_subGain = null;
             // 通道4
-            let ch4_gain = null,
-                ch4_osc1 = null,
-                ch4_osc2 = null;
-            let ch4_gain1 = null,
-                ch4_gain2 = null;
+            let ch4_gain = null, ch4_osc1 = null, ch4_osc2 = null;
+            let ch4_gain1 = null, ch4_gain2 = null;
             let isInit = false;
 
             const baseParams = {
-                ch1: { hp: 550, volMin: 20, volMax: 70, q: 0.7, type: 'pink' },
-                ch2: { lpf: 200, vol: 50, sub: 65, type: 'pink' },
-                ch3: { hp: 100, vol: 35, phaseDelay: 0, type: 'chaos' },
-                ch4: { thetaVol: 65, betaVol: 35, mixVol: 50, thetaFreq: 5.5, betaFreq: 18.5 },
-                global: { mutate: 75, depth: 100, gain: 75 }
+                ch1: { hp:550, volMin:20, volMax:70, q:0.7, type:'pink' },
+                ch2: { lpf:200, vol:50, sub:40, type:'pink' },
+                ch3: { hp:100, vol:35, phaseDelay:0, type:'chaos' },
+                ch4: { thetaVol:65, betaVol:35, mixVol:50, thetaFreq:5.5, betaFreq:18.5 },
+                global: { mutate:75, depth:100, gain:75 }
             };
             const drifted = {
-                ch1: { hp: 550, volMin: 20, volMax: 70, q: 0.7 },
-                ch2: { lpf: 200, vol: 50, sub: 65 },
-                ch3: { hp: 100, vol: 35, phaseDelay: 0 },
-                // ▼▼▼  thetaVol 默认值从 40 改为 65 ▼▼▼
-                ch4: { thetaVol: 65, betaVol: 35, mixVol: 50, thetaFreq: 5.5, betaFreq: 18.5 }
+                ch1: { hp:550, volMin:20, volMax:70, q:0.7 },
+                ch2: { lpf:200, vol:50, sub:40 },
+                ch3: { hp:100, vol:35, phaseDelay:0 },
+                ch4: { thetaVol:65, betaVol:35, mixVol:50, thetaFreq:5.5, betaFreq:18.5 }
             };
             const lastValid = {
-                ch1_hp: 550,
-                ch1_volMin: 20,
-                ch1_volMax: 70,
-                ch1_q: 0.7,
-                ch2_lpf: 200,
-                ch2_vol: 50,
-                ch2_sub: 40,
-                ch3_hp: 100,
-                ch3_vol: 35,
-                ch3_phase: 0,
-                // ▼▼▼  ch4_thetaVol 默认值从 40 改为 65 ▼▼▼
-                ch4_thetaVol: 65,
-                ch4_betaVol: 35,
-                ch4_mixVol: 50,
-                globalMutate: 75,
-                globalDepth: 100,
-                globalGain: 75
+                ch1_hp:550, ch1_volMin:20, ch1_volMax:70, ch1_q:0.7,
+                ch2_lpf:200, ch2_vol:50, ch2_sub:40,
+                ch3_hp:100, ch3_vol:35, ch3_phase:0,
+                ch4_thetaVol:65, ch4_betaVol:35, ch4_mixVol:50,
+                globalMutate:75, globalDepth:100, globalGain:75
             };
 
             let driftTimer = null;
             let totalComplexity = 0;
 
-            function clamp(v, min, max) { return Math.min(Math.max(v, min), max); }
-
-            function rand(min, max) { return min + Math.random() * (max - min); }
-
+            function clamp(v,min,max) { return Math.min(Math.max(v,min),max); }
+            function rand(min,max) { return min + Math.random()*(max-min); }
             function safeParse(val, fallback) {
                 const n = parseFloat(val);
                 return isNaN(n) ? fallback : n;
             }
 
             // 噪声生成（原三通道）
-            function generatePinkBuffer(ctx, lenSec = 4) {
-                const sr = ctx.sampleRate,
-                    L = sr * lenSec;
-                const buf = ctx.createBuffer(1, L, sr),
-                    d = buf.getChannelData(0);
-                let b0 = 0,
-                    b1 = 0,
-                    b2 = 0,
-                    b3 = 0,
-                    b4 = 0,
-                    b5 = 0,
-                    b6 = 0;
-                for (let i = 0; i < L; i++) {
-                    const w = Math.random() * 2 - 1;
-                    b0 = 0.99886 * b0 + w * 0.0555179;
-                    b1 = 0.99332 * b1 + w * 0.0750759;
-                    b2 = 0.96900 * b2 + w * 0.1538520;
-                    b3 = 0.86650 * b3 + w * 0.3104856;
-                    b4 = 0.55000 * b4 + w * 0.5329522;
-                    b5 = -0.7616 * b5 - w * 0.0168980;
-                    let p = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11;
-                    b6 = w * 0.115926;
-                    if (p > 1) p = 1;
-                    if (p < -1) p = -1;
-                    d[i] = p;
+            function generatePinkBuffer(ctx, lenSec=4) {
+                const sr=ctx.sampleRate, L=sr*lenSec;
+                const buf=ctx.createBuffer(1,L,sr), d=buf.getChannelData(0);
+                let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+                for(let i=0;i<L;i++){
+                    const w=Math.random()*2-1;
+                    b0=0.99886*b0+w*0.0555179;b1=0.99332*b1+w*0.0750759;
+                    b2=0.96900*b2+w*0.1538520;b3=0.86650*b3+w*0.3104856;
+                    b4=0.55000*b4+w*0.5329522;b5=-0.7616*b5-w*0.0168980;
+                    let p=(b0+b1+b2+b3+b4+b5+b6+w*0.5362)*0.11;
+                    b6=w*0.115926; if(p>1)p=1;if(p<-1)p=-1; d[i]=p;
                 }
                 return buf;
             }
-
-            function generateWhiteBuffer(ctx, lenSec = 4) {
-                const sr = ctx.sampleRate,
-                    L = sr * lenSec;
-                const buf = ctx.createBuffer(1, L, sr),
-                    d = buf.getChannelData(0);
-                for (let i = 0; i < L; i++) d[i] = Math.random() * 2 - 1;
+            function generateWhiteBuffer(ctx, lenSec=4) {
+                const sr=ctx.sampleRate, L=sr*lenSec;
+                const buf=ctx.createBuffer(1,L,sr), d=buf.getChannelData(0);
+                for(let i=0;i<L;i++) d[i]=Math.random()*2-1;
                 return buf;
             }
-
-            function generateChaosBuffer(ctx, lenSec = 5) {
-                const sr = ctx.sampleRate,
-                    L = sr * lenSec;
-                const buf = ctx.createBuffer(1, L, sr),
-                    d = buf.getChannelData(0);
-                let x = 0.3 + Math.random() * 0.4,
-                    y = 0.7 + Math.random() * 0.3;
-                for (let i = 0; i < L; i++) {
-                    x = 3.9 * x * (1 - x) + 0.1 * Math.sin(y * 20);
-                    y = 0.8 * y + 0.2 * Math.sin(x * 30);
-                    if (x > 1) x = 1 - 0.001;
-                    if (x < 0) x = 0.001;
-                    if (y > 1) y = 1;
-                    if (y < 0) y = 0;
-                    let val = (x - 0.5) * 2 * 0.9 + (Math.random() - 0.5) * 0.2;
-                    val += Math.sin(i * 0.01 + x * 100) * 0.1;
-                    if (val > 1) val = 1;
-                    if (val < -1) val = -1;
-                    d[i] = val;
+            function generateChaosBuffer(ctx, lenSec=5) {
+                const sr=ctx.sampleRate, L=sr*lenSec;
+                const buf=ctx.createBuffer(1,L,sr), d=buf.getChannelData(0);
+                let x=0.3+Math.random()*0.4, y=0.7+Math.random()*0.3;
+                for(let i=0;i<L;i++){
+                    x=3.9*x*(1-x)+0.1*Math.sin(y*20); y=0.8*y+0.2*Math.sin(x*30);
+                    if(x>1)x=1-0.001;if(x<0)x=0.001;if(y>1)y=1;if(y<0)y=0;
+                    let val=(x-0.5)*2*0.9+(Math.random()-0.5)*0.2;
+                    val+=Math.sin(i*0.01+x*100)*0.1;
+                    if(val>1)val=1;if(val<-1)val=-1; d[i]=val;
                 }
                 return buf;
             }
-
-            function generateWaterBuffer(ctx, lenSec = 4) {
-                const sr = ctx.sampleRate,
-                    L = sr * lenSec;
-                const buf = ctx.createBuffer(1, L, sr),
-                    d = buf.getChannelData(0);
-                let pt = 0;
-                for (let i = 0; i < L; i++) {
-                    const t = i / sr;
-                    const mod = 0.5 + 0.5 * Math.sin(2 * Math.PI * 3.2 * t + Math.sin(2 * Math.PI * 0.7 * t) * 0.5);
-                    pt -= 1;
-                    let pulse = 0;
-                    if (pt <= 0) {
-                        if (Math.random() < 0.015) { pulse = (Math.random() * 2 - 1) * (0.3 + Math.random() * 0.7);
-                            pt = Math.floor(50 + Math.random() * 200); } else { pt = 1 + Math.floor(Math.random() * 20); }
-                    }
-                    const base = Math.random() * 2 - 1;
-                    d[i] = clamp(base * mod * 0.8 + pulse * 0.4 + (Math.random() * 2 - 1) * 0.15, -1, 1);
+            function generateWaterBuffer(ctx, lenSec=4) {
+                const sr=ctx.sampleRate, L=sr*lenSec;
+                const buf=ctx.createBuffer(1,L,sr), d=buf.getChannelData(0);
+                let pt=0;
+                for(let i=0;i<L;i++){
+                    const t=i/sr;
+                    const mod=0.5+0.5*Math.sin(2*Math.PI*3.2*t+Math.sin(2*Math.PI*0.7*t)*0.5);
+                    pt-=1; let pulse=0;
+                    if(pt<=0){ if(Math.random()<0.015){pulse=(Math.random()*2-1)*(0.3+Math.random()*0.7);pt=Math.floor(50+Math.random()*200);}else{pt=1+Math.floor(Math.random()*20);} }
+                    const base=Math.random()*2-1;
+                    d[i]=clamp(base*mod*0.8+pulse*0.4+(Math.random()*2-1)*0.15,-1,1);
                 }
                 return buf;
             }
-
-            function generateSinBuffer(ctx, lenSec = 4) {
-                const sr = ctx.sampleRate,
-                    L = sr * lenSec;
-                const buf = ctx.createBuffer(1, L, sr),
-                    d = buf.getChannelData(0);
-                const f_base = 80 + Math.random() * 120;
-                for (let i = 0; i < L; i++) {
-                    d[i] = Math.sin(2 * Math.PI * f_base * i / sr) * (0.2 + 0.3 * Math.sin(2 * Math.PI * 3 * i / sr));
+            function generateSinBuffer(ctx, lenSec=4) {
+                const sr=ctx.sampleRate, L=sr*lenSec;
+                const buf=ctx.createBuffer(1,L,sr), d=buf.getChannelData(0);
+                const f_base=80+Math.random()*120;
+                for(let i=0;i<L;i++){
+                    d[i]=Math.sin(2*Math.PI*f_base*i/sr)*(0.2+0.3*Math.sin(2*Math.PI*3*i/sr));
                 }
                 return buf;
             }
 
             // ========== 初始化音频 ==========
             function initAudio() {
-                if (isInit) return;
-                try {
-                    audioCtx = new(window.AudioContext || window.webkitAudioContext)();
-                    masterGain = audioCtx.createGain();
-                    masterGain.gain.value = 0;
-                    analyser = audioCtx.createAnalyser();
-                    analyser.fftSize = 256;
-                    analyser.smoothingTimeConstant = 0.8;
-                    masterGain.connect(analyser);
-                    analyser.connect(audioCtx.destination);
+                if(isInit) return;
+                try{
+                    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+                    masterGain = audioCtx.createGain(); masterGain.gain.value=0;
+                    analyser = audioCtx.createAnalyser(); analyser.fftSize=256; analyser.smoothingTimeConstant=0.8;
+                    masterGain.connect(analyser); analyser.connect(audioCtx.destination);
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
 
                     // 通道1
-                    ch1_gain = audioCtx.createGain();
-                    ch1_gain.gain.value = 0;
-                    ch1_filter = audioCtx.createBiquadFilter();
-                    ch1_filter.type = 'highpass';
-                    ch1_filter.frequency.value = baseParams.ch1.hp;
-                    ch1_filter.Q.value = baseParams.ch1.q;
-                    ch1_gain.connect(ch1_filter);
-                    ch1_filter.connect(masterGain);
+                    ch1_gain = audioCtx.createGain(); ch1_gain.gain.value=0;
+                    ch1_filter = audioCtx.createBiquadFilter(); ch1_filter.type='highpass';
+                    ch1_filter.frequency.value=baseParams.ch1.hp; ch1_filter.Q.value=baseParams.ch1.q;
+                    ch1_gain.connect(ch1_filter); ch1_filter.connect(masterGain);
 
                     // 通道2
-                    ch2_gain = audioCtx.createGain();
-                    ch2_gain.gain.value = 0;
-                    ch2_filter = audioCtx.createBiquadFilter();
-                    ch2_filter.type = 'lowpass';
-                    ch2_filter.frequency.value = baseParams.ch2.lpf;
-                    ch2_filter.Q.value = 1;
-                    ch2_subGain = audioCtx.createGain();
-                    ch2_subGain.gain.value = 0.3;
-                    ch2_subOsc = audioCtx.createOscillator();
-                    ch2_subOsc.type = 'sine';
-                    ch2_subOsc.frequency.value = 40 + Math.random() * 20;
-                    ch2_subOsc.connect(ch2_subGain);
-                    ch2_subGain.connect(ch2_gain);
-                    ch2_subOsc.start();
-                    ch2_gain.connect(ch2_filter);
-                    ch2_filter.connect(masterGain);
+                    ch2_gain = audioCtx.createGain(); ch2_gain.gain.value=0;
+                    ch2_filter = audioCtx.createBiquadFilter(); ch2_filter.type='lowpass';
+                    ch2_filter.frequency.value=baseParams.ch2.lpf; ch2_filter.Q.value=1;
+                    ch2_subGain = audioCtx.createGain(); ch2_subGain.gain.value=0.3;
+                    ch2_subOsc = audioCtx.createOscillator(); ch2_subOsc.type='sine'; ch2_subOsc.frequency.value=40+Math.random()*20;
+                    ch2_subOsc.connect(ch2_subGain); ch2_subGain.connect(ch2_gain); ch2_subOsc.start();
+                    ch2_gain.connect(ch2_filter); ch2_filter.connect(masterGain);
 
                     // 通道3
-                    ch3_gain = audioCtx.createGain();
-                    ch3_gain.gain.value = 0;
-                    ch3_filter = audioCtx.createBiquadFilter();
-                    ch3_filter.type = 'highpass';
-                    ch3_filter.frequency.value = baseParams.ch3.hp;
-                    ch3_filter.Q.value = 0.5;
-                    ch3_gain.connect(ch3_filter);
-                    ch3_filter.connect(masterGain);
+                    ch3_gain = audioCtx.createGain(); ch3_gain.gain.value=0;
+                    ch3_filter = audioCtx.createBiquadFilter(); ch3_filter.type='highpass';
+                    ch3_filter.frequency.value=baseParams.ch3.hp; ch3_filter.Q.value=0.5;
+                    ch3_gain.connect(ch3_filter); ch3_filter.connect(masterGain);
 
                     // 通道4
-                    ch4_gain = audioCtx.createGain();
-                    ch4_gain.gain.value = 0;
-                    ch4_gain1 = audioCtx.createGain();
-                    ch4_gain1.gain.value = 0;
-                    ch4_gain2 = audioCtx.createGain();
-                    ch4_gain2.gain.value = 0;
-                    ch4_osc1 = audioCtx.createOscillator();
-                    ch4_osc1.type = 'sine';
-                    ch4_osc1.frequency.value = baseParams.ch4.thetaFreq;
-                    ch4_osc2 = audioCtx.createOscillator();
-                    ch4_osc2.type = 'sine';
-                    ch4_osc2.frequency.value = baseParams.ch4.betaFreq;
-                    ch4_osc1.connect(ch4_gain1);
-                    ch4_gain1.connect(ch4_gain);
-                    ch4_osc2.connect(ch4_gain2);
-                    ch4_gain2.connect(ch4_gain);
-                    ch4_osc1.start();
-                    ch4_osc2.start();
+                    ch4_gain = audioCtx.createGain(); ch4_gain.gain.value=0;
+                    ch4_gain1 = audioCtx.createGain(); ch4_gain1.gain.value=0;
+                    ch4_gain2 = audioCtx.createGain(); ch4_gain2.gain.value=0;
+                    ch4_osc1 = audioCtx.createOscillator(); ch4_osc1.type='sine'; ch4_osc1.frequency.value=baseParams.ch4.thetaFreq;
+                    ch4_osc2 = audioCtx.createOscillator(); ch4_osc2.type='sine'; ch4_osc2.frequency.value=baseParams.ch4.betaFreq;
+                    ch4_osc1.connect(ch4_gain1); ch4_gain1.connect(ch4_gain);
+                    ch4_osc2.connect(ch4_gain2); ch4_gain2.connect(ch4_gain);
+                    ch4_osc1.start(); ch4_osc2.start();
                     ch4_gain.connect(masterGain);
 
                     isInit = true;
-                    statusDetail.textContent = '音频就绪 | 4声道';
-                } catch (e) { console.error(e);
-                    statusDetail.textContent = '⚠️ 音频初始化失败'; }
+                    statusDetail.textContent='音频就绪 | 4声道';
+                }catch(e){console.error(e);statusDetail.textContent='⚠️ 音频初始化失败';}
             }
 
             // ========== 源更新 ==========
             function startCh1() {
-                if (!audioCtx) return;
-                if (ch1_source) { try { ch1_source.stop(); } catch (e) {} ch1_source.disconnect(); }
+                if(!audioCtx) return;
+                if(ch1_source){try{ch1_source.stop();}catch(e){}ch1_source.disconnect();}
                 let buf;
-                const t = baseParams.ch1.type;
-                if (t === 'white') buf = generateWhiteBuffer(audioCtx, 8);
-                else if (t === 'chaos') buf = generateChaosBuffer(audioCtx, 6);
-                else buf = generatePinkBuffer(audioCtx, 8);
-                ch1_source = audioCtx.createBufferSource();
-                ch1_source.buffer = buf;
-                ch1_source.loop = true;
-                ch1_source.connect(ch1_gain);
-                ch1_source.start();
+                const t=baseParams.ch1.type;
+                if(t==='white')buf=generateWhiteBuffer(audioCtx,8);
+                else if(t==='chaos')buf=generateChaosBuffer(audioCtx,6);
+                else buf=generatePinkBuffer(audioCtx,8);
+                ch1_source=audioCtx.createBufferSource(); ch1_source.buffer=buf; ch1_source.loop=true;
+                ch1_source.connect(ch1_gain); ch1_source.start();
             }
-
             function startCh2() {
-                if (!audioCtx) return;
-                if (ch2_source) { try { ch2_source.stop(); } catch (e) {} ch2_source.disconnect(); }
+                if(!audioCtx) return;
+                if(ch2_source){try{ch2_source.stop();}catch(e){}ch2_source.disconnect();}
                 let buf;
-                const t = baseParams.ch2.type;
-                if (t === 'water') buf = generateWaterBuffer(audioCtx, 6);
-                else if (t === 'sin') buf = generateSinBuffer(audioCtx, 6);
-                else buf = generatePinkBuffer(audioCtx, 6);
-                ch2_source = audioCtx.createBufferSource();
-                ch2_source.buffer = buf;
-                ch2_source.loop = true;
-                ch2_source.connect(ch2_gain);
-                ch2_source.start();
+                const t=baseParams.ch2.type;
+                if(t==='water')buf=generateWaterBuffer(audioCtx,6);
+                else if(t==='sin')buf=generateSinBuffer(audioCtx,6);
+                else buf=generatePinkBuffer(audioCtx,6);
+                ch2_source=audioCtx.createBufferSource(); ch2_source.buffer=buf; ch2_source.loop=true;
+                ch2_source.connect(ch2_gain); ch2_source.start();
             }
-
             function startCh3() {
-                if (!audioCtx) return;
-                if (ch3_source) { try { ch3_source.stop(); } catch (e) {} ch3_source.disconnect(); }
+                if(!audioCtx) return;
+                if(ch3_source){try{ch3_source.stop();}catch(e){}ch3_source.disconnect();}
                 let buf;
-                const t = baseParams.ch3.type;
-                if (t === 'white') buf = generateWhiteBuffer(audioCtx, 6);
-                else if (t === 'water') buf = generateWaterBuffer(audioCtx, 6);
-                else buf = generateChaosBuffer(audioCtx, 6);
-                ch3_source = audioCtx.createBufferSource();
-                ch3_source.buffer = buf;
-                ch3_source.loop = true;
-                ch3_source.connect(ch3_gain);
-                ch3_source.start();
+                const t=baseParams.ch3.type;
+                if(t==='white')buf=generateWhiteBuffer(audioCtx,6);
+                else if(t==='water')buf=generateWaterBuffer(audioCtx,6);
+                else buf=generateChaosBuffer(audioCtx,6);
+                ch3_source=audioCtx.createBufferSource(); ch3_source.buffer=buf; ch3_source.loop=true;
+                ch3_source.connect(ch3_gain); ch3_source.start();
             }
 
             // ========== 同步输入到 drifted（防NaN） ==========
             function syncDriftedFromInputs() {
                 let v;
-                v = safeParse(ch1_hp.value, lastValid.ch1_hp);
-                drifted.ch1.hp = clamp(v, 50, 800);
-                lastValid.ch1_hp = drifted.ch1.hp;
-                v = safeParse(ch1_volMin.value, lastValid.ch1_volMin);
-                drifted.ch1.volMin = clamp(v, 0, 100);
-                lastValid.ch1_volMin = drifted.ch1.volMin;
-                v = safeParse(ch1_volMax.value, lastValid.ch1_volMax);
-                drifted.ch1.volMax = clamp(v, 0, 100);
-                lastValid.ch1_volMax = drifted.ch1.volMax;
+                v = safeParse(ch1_hp.value, lastValid.ch1_hp); drifted.ch1.hp = clamp(v,50,800); lastValid.ch1_hp = drifted.ch1.hp;
+                v = safeParse(ch1_volMin.value, lastValid.ch1_volMin); drifted.ch1.volMin = clamp(v,0,100); lastValid.ch1_volMin = drifted.ch1.volMin;
+                v = safeParse(ch1_volMax.value, lastValid.ch1_volMax); drifted.ch1.volMax = clamp(v,0,100); lastValid.ch1_volMax = drifted.ch1.volMax;
                 if (drifted.ch1.volMin > drifted.ch1.volMax) drifted.ch1.volMax = drifted.ch1.volMin;
-                v = safeParse(ch1_q.value, lastValid.ch1_q);
-                drifted.ch1.q = clamp(v, 0.1, 10);
-                lastValid.ch1_q = drifted.ch1.q;
+                v = safeParse(ch1_q.value, lastValid.ch1_q); drifted.ch1.q = clamp(v,0.1,10); lastValid.ch1_q = drifted.ch1.q;
 
-                v = safeParse(ch2_lpf.value, lastValid.ch2_lpf);
-                drifted.ch2.lpf = clamp(v, 30, 500);
-                lastValid.ch2_lpf = drifted.ch2.lpf;
-                v = safeParse(ch2_vol.value, lastValid.ch2_vol);
-                drifted.ch2.vol = clamp(v, 0, 100);
-                lastValid.ch2_vol = drifted.ch2.vol;
-                v = safeParse(ch2_sub.value, lastValid.ch2_sub);
-                drifted.ch2.sub = clamp(v, 0, 100);
-                lastValid.ch2_sub = drifted.ch2.sub;
+                v = safeParse(ch2_lpf.value, lastValid.ch2_lpf); drifted.ch2.lpf = clamp(v,30,500); lastValid.ch2_lpf = drifted.ch2.lpf;
+                v = safeParse(ch2_vol.value, lastValid.ch2_vol); drifted.ch2.vol = clamp(v,0,100); lastValid.ch2_vol = drifted.ch2.vol;
+                v = safeParse(ch2_sub.value, lastValid.ch2_sub); drifted.ch2.sub = clamp(v,0,100); lastValid.ch2_sub = drifted.ch2.sub;
 
-                v = safeParse(ch3_hp.value, lastValid.ch3_hp);
-                drifted.ch3.hp = clamp(v, 10, 800);
-                lastValid.ch3_hp = drifted.ch3.hp;
-                v = safeParse(ch3_vol.value, lastValid.ch3_vol);
-                drifted.ch3.vol = clamp(v, 0, 100);
-                lastValid.ch3_vol = drifted.ch3.vol;
-                v = safeParse(ch3_phaseDelay.value, lastValid.ch3_phase);
-                drifted.ch3.phaseDelay = clamp(v, 0, 500);
-                lastValid.ch3_phase = drifted.ch3.phaseDelay;
+                v = safeParse(ch3_hp.value, lastValid.ch3_hp); drifted.ch3.hp = clamp(v,10,800); lastValid.ch3_hp = drifted.ch3.hp;
+                v = safeParse(ch3_vol.value, lastValid.ch3_vol); drifted.ch3.vol = clamp(v,0,100); lastValid.ch3_vol = drifted.ch3.vol;
+                v = safeParse(ch3_phaseDelay.value, lastValid.ch3_phase); drifted.ch3.phaseDelay = clamp(v,0,500); lastValid.ch3_phase = drifted.ch3.phaseDelay;
 
-                v = safeParse(ch4_thetaVol.value, lastValid.ch4_thetaVol);
-                drifted.ch4.thetaVol = clamp(v, 0, 100);
-                lastValid.ch4_thetaVol = drifted.ch4.thetaVol;
-                v = safeParse(ch4_betaVol.value, lastValid.ch4_betaVol);
-                drifted.ch4.betaVol = clamp(v, 0, 100);
-                lastValid.ch4_betaVol = drifted.ch4.betaVol;
-                v = safeParse(ch4_mixVol.value, lastValid.ch4_mixVol);
-                drifted.ch4.mixVol = clamp(v, 0, 100);
-                lastValid.ch4_mixVol = drifted.ch4.mixVol;
+                v = safeParse(ch4_thetaVol.value, lastValid.ch4_thetaVol); drifted.ch4.thetaVol = clamp(v,0,100); lastValid.ch4_thetaVol = drifted.ch4.thetaVol;
+                v = safeParse(ch4_betaVol.value, lastValid.ch4_betaVol); drifted.ch4.betaVol = clamp(v,0,100); lastValid.ch4_betaVol = drifted.ch4.betaVol;
+                v = safeParse(ch4_mixVol.value, lastValid.ch4_mixVol); drifted.ch4.mixVol = clamp(v,0,100); lastValid.ch4_mixVol = drifted.ch4.mixVol;
 
-                v = safeParse(globalMutate.value, lastValid.globalMutate);
-                baseParams.global.mutate = clamp(v, 0, 100);
-                lastValid.globalMutate = baseParams.global.mutate;
-                v = safeParse(globalDepth.value, lastValid.globalDepth);
-                baseParams.global.depth = clamp(v, 10, 100);
-                lastValid.globalDepth = baseParams.global.depth;
-                v = safeParse(globalGain.value, lastValid.globalGain);
-                baseParams.global.gain = clamp(v, 0, 100);
-                lastValid.globalGain = baseParams.global.gain;
+                v = safeParse(globalMutate.value, lastValid.globalMutate); baseParams.global.mutate = clamp(v,0,100); lastValid.globalMutate = baseParams.global.mutate;
+                v = safeParse(globalDepth.value, lastValid.globalDepth); baseParams.global.depth = clamp(v,10,100); lastValid.globalDepth = baseParams.global.depth;
+                v = safeParse(globalGain.value, lastValid.globalGain); baseParams.global.gain = clamp(v,0,100); lastValid.globalGain = baseParams.global.gain;
 
                 const active1 = document.querySelector('#ch1_type button.active');
-                if (active1) baseParams.ch1.type = active1.dataset.type;
+                if(active1) baseParams.ch1.type = active1.dataset.type;
                 const active2 = document.querySelector('#ch2_type button.active');
-                if (active2) baseParams.ch2.type = active2.dataset.type;
+                if(active2) baseParams.ch2.type = active2.dataset.type;
                 const active3 = document.querySelector('#ch3_type button.active');
-                if (active3) baseParams.ch3.type = active3.dataset.type;
+                if(active3) baseParams.ch3.type = active3.dataset.type;
             }
 
             // ========== 应用音频参数 ==========
             function applyCh1(hp, volMin, volMax, q) {
-                if (!audioCtx || !ch1_filter || !ch1_gain) return;
-                const now = audioCtx.currentTime;
-                ch1_filter.frequency.setTargetAtTime(clamp(hp, 50, 800), now, 0.08);
-                ch1_filter.Q.setTargetAtTime(clamp(q, 0.1, 10), now, 0.1);
-                const targetVol = (clamp(volMin, 0, 100) + clamp(volMax, 0, 100)) / 2;
-                const gainVal = (targetVol / 100) * 0.7 * (clamp(baseParams.global.gain, 0, 100) / 100);
-                ch1_gain.gain.setTargetAtTime(clamp(gainVal, 0, 1), now, 0.12);
+                if(!audioCtx || !ch1_filter || !ch1_gain) return;
+                const now=audioCtx.currentTime;
+                ch1_filter.frequency.setTargetAtTime(clamp(hp,50,800), now, 0.08);
+                ch1_filter.Q.setTargetAtTime(clamp(q,0.1,10), now, 0.1);
+                const targetVol = (clamp(volMin,0,100) + clamp(volMax,0,100)) / 2;
+                const gainVal = (targetVol/100) * 0.7 * (clamp(baseParams.global.gain,0,100)/100);
+                ch1_gain.gain.setTargetAtTime(clamp(gainVal,0,1), now, 0.12);
             }
-
             function applyCh2(lpf, vol, sub) {
-                if (!audioCtx || !ch2_filter || !ch2_gain) return;
-                const now = audioCtx.currentTime;
-                ch2_filter.frequency.setTargetAtTime(clamp(lpf, 30, 500), now, 0.08);
-                const gainVal = (clamp(vol, 0, 100) / 100) * 0.6 * (clamp(baseParams.global.gain, 0, 100) / 100);
-                ch2_gain.gain.setTargetAtTime(clamp(gainVal, 0, 1), now, 0.12);
-                if (ch2_subGain) ch2_subGain.gain.setTargetAtTime(clamp(clamp(sub, 0, 100) / 100 * 0.4, 0, 0.4), now, 0.15);
-                if (ch2_subOsc) ch2_subOsc.frequency.setTargetAtTime(30 + Math.random() * 30, now, 0.2);
+                if(!audioCtx || !ch2_filter || !ch2_gain) return;
+                const now=audioCtx.currentTime;
+                ch2_filter.frequency.setTargetAtTime(clamp(lpf,30,500), now, 0.08);
+                const gainVal = (clamp(vol,0,100)/100) * 0.6 * (clamp(baseParams.global.gain,0,100)/100);
+                ch2_gain.gain.setTargetAtTime(clamp(gainVal,0,1), now, 0.12);
+                if(ch2_subGain) ch2_subGain.gain.setTargetAtTime(clamp(clamp(sub,0,100)/100 * 0.4, 0, 0.4), now, 0.15);
+                if(ch2_subOsc) ch2_subOsc.frequency.setTargetAtTime(30+Math.random()*30, now, 0.2);
             }
-
             function applyCh3(hp, vol, phaseMs) {
-                if (!audioCtx || !ch3_filter || !ch3_gain) return;
-                const now = audioCtx.currentTime;
-                ch3_filter.frequency.setTargetAtTime(clamp(hp, 10, 800), now, 0.08);
-                const gainVal = (clamp(vol, 0, 100) / 100) * 0.5 * (clamp(baseParams.global.gain, 0, 100) / 100);
-                ch3_gain.gain.setTargetAtTime(clamp(gainVal, 0, 1), now, 0.12);
+                if(!audioCtx || !ch3_filter || !ch3_gain) return;
+                const now=audioCtx.currentTime;
+                ch3_filter.frequency.setTargetAtTime(clamp(hp,10,800), now, 0.08);
+                const gainVal = (clamp(vol,0,100)/100) * 0.5 * (clamp(baseParams.global.gain,0,100)/100);
+                ch3_gain.gain.setTargetAtTime(clamp(gainVal,0,1), now, 0.12);
             }
-
             function applyCh4(thetaVol, betaVol, mixVol, thetaFreq, betaFreq) {
-                if (!audioCtx || !ch4_gain1 || !ch4_gain2 || !ch4_gain) return;
-                const now = audioCtx.currentTime;
+                if(!audioCtx || !ch4_gain1 || !ch4_gain2 || !ch4_gain) return;
+                const now=audioCtx.currentTime;
                 // 频率
-                ch4_osc1.frequency.setTargetAtTime(clamp(thetaFreq, 4, 7), now, 0.08);
-                ch4_osc2.frequency.setTargetAtTime(clamp(betaFreq, 18, 19), now, 0.08);
+                ch4_osc1.frequency.setTargetAtTime(clamp(thetaFreq,4,7), now, 0.08);
+                ch4_osc2.frequency.setTargetAtTime(clamp(betaFreq,18,19), now, 0.08);
                 // 各通道增益，考虑mix总控
-                const mix = clamp(mixVol, 0, 100) / 100;
-                const g1 = (clamp(thetaVol, 0, 100) / 100) * 0.3 * mix;
-                const g2 = (clamp(betaVol, 0, 100) / 100) * 0.3 * mix;
-                ch4_gain1.gain.setTargetAtTime(clamp(g1, 0, 0.3), now, 0.1);
-                ch4_gain2.gain.setTargetAtTime(clamp(g2, 0, 0.3), now, 0.1);
-                ch4_gain.gain.setTargetAtTime(clamp(baseParams.global.gain / 100, 0, 1) * 0.7, now, 0.1);
+                const mix = clamp(mixVol,0,100)/100;
+                const g1 = (clamp(thetaVol,0,100)/100) * 0.3 * mix;
+                const g2 = (clamp(betaVol,0,100)/100) * 0.3 * mix;
+                ch4_gain1.gain.setTargetAtTime(clamp(g1,0,0.3), now, 0.1);
+                ch4_gain2.gain.setTargetAtTime(clamp(g2,0,0.3), now, 0.1);
+                ch4_gain.gain.setTargetAtTime(clamp(baseParams.global.gain/100,0,1)*0.7, now, 0.1);
             }
-
             function applyGlobalGain() {
-                if (!audioCtx || !masterGain) return;
-                const now = audioCtx.currentTime;
-                masterGain.gain.setTargetAtTime(clamp(baseParams.global.gain / 100, 0, 1) * 0.85, now, 0.1);
+                if(!audioCtx||!masterGain) return;
+                const now=audioCtx.currentTime;
+                masterGain.gain.setTargetAtTime(clamp(baseParams.global.gain/100,0,1)*0.85, now, 0.1);
             }
-
             function applyAllChannels() {
-                if (!isPlaying || !audioCtx) return;
+                if(!isPlaying||!audioCtx) return;
                 applyCh1(drifted.ch1.hp, drifted.ch1.volMin, drifted.ch1.volMax, drifted.ch1.q);
                 applyCh2(drifted.ch2.lpf, drifted.ch2.vol, drifted.ch2.sub);
                 applyCh3(drifted.ch3.hp, drifted.ch3.vol, drifted.ch3.phaseDelay);
-                applyCh4(drifted.ch4.thetaVol, drifted.ch4.betaVol, drifted.ch4.mixVol, drifted.ch4.thetaFreq, drifted.ch4
-                .betaFreq);
+                applyCh4(drifted.ch4.thetaVol, drifted.ch4.betaVol, drifted.ch4.mixVol, drifted.ch4.thetaFreq, drifted.ch4.betaFreq);
                 applyGlobalGain();
             }
 
@@ -1001,50 +612,47 @@
                 const mutateProb = baseParams.global.mutate / 100;
 
                 function driftUpdate() {
-                    if (!isPlaying) return;
+                    if(!isPlaying) return;
                     // 通道1
                     let base1hp = safeParse(ch1_hp.value, lastValid.ch1_hp);
-                    drifted.ch1.hp = clamp(base1hp + (Math.random() - 0.5) * 240 * depth, 50, 800);
+                    drifted.ch1.hp = clamp(base1hp + (Math.random()-0.5)*240*depth, 50, 800);
                     let baseQ = safeParse(ch1_q.value, lastValid.ch1_q);
-                    drifted.ch1.q = clamp(baseQ + (Math.random() - 0.5) * 2 * depth, 0.1, 10);
+                    drifted.ch1.q = clamp(baseQ + (Math.random()-0.5)*2*depth, 0.1, 10);
                     let bvMin = safeParse(ch1_volMin.value, lastValid.ch1_volMin);
                     let bvMax = safeParse(ch1_volMax.value, lastValid.ch1_volMax);
-                    let vm = clamp(bvMin + (Math.random() - 0.5) * 20 * depth, 0, 100),
-                        vx = clamp(bvMax + (Math.random() - 0.5) * 20 * depth, 0, 100);
-                    if (vm >= vx - 2) { vm = clamp(bvMin - 5, 0, 100);
-                        vx = clamp(bvMax + 5, 0, 100); }
-                    drifted.ch1.volMin = vm;
-                    drifted.ch1.volMax = vx;
+                    let vm=clamp(bvMin+(Math.random()-0.5)*20*depth,0,100), vx=clamp(bvMax+(Math.random()-0.5)*20*depth,0,100);
+                    if(vm>=vx-2){vm=clamp(bvMin-5,0,100);vx=clamp(bvMax+5,0,100);}
+                    drifted.ch1.volMin=vm; drifted.ch1.volMax=vx;
 
                     // 通道2
                     let base2lpf = safeParse(ch2_lpf.value, lastValid.ch2_lpf);
-                    drifted.ch2.lpf = clamp(base2lpf + (Math.random() - 0.5) * 280 * depth, 30, 500);
+                    drifted.ch2.lpf = clamp(base2lpf + (Math.random()-0.5)*280*depth, 30, 500);
                     let bv2 = safeParse(ch2_vol.value, lastValid.ch2_vol);
-                    drifted.ch2.vol = clamp(bv2 + (Math.random() - 0.5) * 20 * depth, 0, 100);
+                    drifted.ch2.vol = clamp(bv2+(Math.random()-0.5)*20*depth, 0, 100);
                     let bsub = safeParse(ch2_sub.value, lastValid.ch2_sub);
-                    drifted.ch2.sub = clamp(bsub + (Math.random() - 0.5) * 20 * depth, 0, 100);
+                    drifted.ch2.sub = clamp(bsub+(Math.random()-0.5)*20*depth, 0, 100);
 
                     // 通道3
                     let base3hp = safeParse(ch3_hp.value, lastValid.ch3_hp);
-                    drifted.ch3.hp = clamp(base3hp + (Math.random() - 0.5) * 300 * depth, 10, 800);
+                    drifted.ch3.hp = clamp(base3hp + (Math.random()-0.5)*300*depth, 10, 800);
                     let bv3 = safeParse(ch3_vol.value, lastValid.ch3_vol);
-                    drifted.ch3.vol = clamp(bv3 + (Math.random() - 0.5) * 20 * depth, 0, 100);
+                    drifted.ch3.vol = clamp(bv3+(Math.random()-0.5)*20*depth, 0, 100);
                     let bph = safeParse(ch3_phaseDelay.value, lastValid.ch3_phase);
-                    drifted.ch3.phaseDelay = clamp(bph + (Math.random() - 0.5) * 100 * depth, 0, 500);
+                    drifted.ch3.phaseDelay = clamp(bph+(Math.random()-0.5)*100*depth, 0, 500);
 
                     // 通道4
                     let bThetaVol = safeParse(ch4_thetaVol.value, lastValid.ch4_thetaVol);
-                    drifted.ch4.thetaVol = clamp(bThetaVol + (Math.random() - 0.5) * 20 * depth, 0, 100);
+                    drifted.ch4.thetaVol = clamp(bThetaVol+(Math.random()-0.5)*20*depth, 0, 100);
                     let bBetaVol = safeParse(ch4_betaVol.value, lastValid.ch4_betaVol);
-                    drifted.ch4.betaVol = clamp(bBetaVol + (Math.random() - 0.5) * 20 * depth, 0, 100);
+                    drifted.ch4.betaVol = clamp(bBetaVol+(Math.random()-0.5)*20*depth, 0, 100);
                     let bMix = safeParse(ch4_mixVol.value, lastValid.ch4_mixVol);
-                    drifted.ch4.mixVol = clamp(bMix + (Math.random() - 0.5) * 15 * depth, 0, 100);
+                    drifted.ch4.mixVol = clamp(bMix+(Math.random()-0.5)*15*depth, 0, 100);
                     // 频率漂移：theta 4-7Hz, beta 18-19Hz
-                    drifted.ch4.thetaFreq = clamp(4 + Math.random() * 3, 4, 7);
-                    drifted.ch4.betaFreq = clamp(18 + Math.random() * 1, 18, 19);
+                    drifted.ch4.thetaFreq = clamp(4 + Math.random()*3, 4, 7);
+                    drifted.ch4.betaFreq = clamp(18 + Math.random()*1, 18, 19);
 
                     // 全局增益微调
-                    let gainOff = (Math.random() - 0.5) * 10 * depth;
+                    let gainOff = (Math.random()-0.5)*10*depth;
                     let newGain = clamp(baseParams.global.gain + gainOff, 0, 100);
                     baseParams.global.gain = newGain;
                     globalGain.value = Math.round(newGain);
@@ -1052,99 +660,86 @@
                     applyAllChannels();
 
                     // 突变
-                    if (Math.random() < mutateProb * 0.15) {
-                        const types = ['pink', 'white', 'chaos'];
-                        baseParams.ch1.type = types[Math.floor(Math.random() * 3)];
-                        document.querySelectorAll('#ch1_type button').forEach(b => b.classList.toggle('active', b.dataset
-                            .type === baseParams.ch1.type));
-                        if (isPlaying) startCh1();
+                    if(Math.random()<mutateProb*0.15){
+                        const types=['pink','white','chaos'];
+                        baseParams.ch1.type=types[Math.floor(Math.random()*3)];
+                        document.querySelectorAll('#ch1_type button').forEach(b=>b.classList.toggle('active',b.dataset.type===baseParams.ch1.type));
+                        if(isPlaying) startCh1();
                     }
-                    if (Math.random() < mutateProb * 0.12) {
-                        const types2 = ['pink', 'water', 'sin'];
-                        baseParams.ch2.type = types2[Math.floor(Math.random() * 3)];
-                        document.querySelectorAll('#ch2_type button').forEach(b => b.classList.toggle('active', b.dataset
-                            .type === baseParams.ch2.type));
-                        if (isPlaying) startCh2();
+                    if(Math.random()<mutateProb*0.12){
+                        const types2=['pink','water','sin'];
+                        baseParams.ch2.type=types2[Math.floor(Math.random()*3)];
+                        document.querySelectorAll('#ch2_type button').forEach(b=>b.classList.toggle('active',b.dataset.type===baseParams.ch2.type));
+                        if(isPlaying) startCh2();
                     }
-                    if (Math.random() < mutateProb * 0.10) {
-                        const types3 = ['chaos', 'white', 'water'];
-                        baseParams.ch3.type = types3[Math.floor(Math.random() * 3)];
-                        document.querySelectorAll('#ch3_type button').forEach(b => b.classList.toggle('active', b.dataset
-                            .type === baseParams.ch3.type));
-                        if (isPlaying) startCh3();
+                    if(Math.random()<mutateProb*0.10){
+                        const types3=['chaos','white','water'];
+                        baseParams.ch3.type=types3[Math.floor(Math.random()*3)];
+                        document.querySelectorAll('#ch3_type button').forEach(b=>b.classList.toggle('active',b.dataset.type===baseParams.ch3.type));
+                        if(isPlaying) startCh3();
                     }
 
                     // 更新显示
-                    m1hp.textContent = Math.round(drifted.ch1.hp) + 'Hz';
-                    m2lpf.textContent = Math.round(drifted.ch2.lpf) + 'Hz';
-                    m3hp.textContent = Math.round(drifted.ch3.hp) + 'Hz';
-                    m4Freq.textContent = drifted.ch4.thetaFreq.toFixed(1) + '/' + drifted.ch4.betaFreq.toFixed(1) + 'Hz';
-                    ch4_thetaFreqDisplay.textContent = drifted.ch4.thetaFreq.toFixed(1) + ' Hz';
-                    ch4_betaFreqDisplay.textContent = drifted.ch4.betaFreq.toFixed(1) + ' Hz';
-                    totalComplexity = (depth * 100) * (0.5 + Math.random() * 0.5) + mutateProb * 30;
-                    totalComplexity = clamp(totalComplexity, 0, 100);
-                    mComplex.textContent = Math.round(totalComplexity) + '%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width = (clamp(drifted.ch1.hp / 800 *
-                        100, 0, 100)) + '%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width = (clamp(drifted.ch2.lpf / 500 *
-                        100, 0, 100)) + '%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[2].style.width = (clamp(drifted.ch3.hp / 800 *
-                        100, 0, 100)) + '%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[3].style.width = ((drifted.ch4.thetaVol + drifted
-                        .ch4.betaVol) / 2) + '%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width = totalComplexity + '%';
+                    m1hp.textContent = Math.round(drifted.ch1.hp)+'Hz';
+                    m2lpf.textContent = Math.round(drifted.ch2.lpf)+'Hz';
+                    m3hp.textContent = Math.round(drifted.ch3.hp)+'Hz';
+                    m4Freq.textContent = drifted.ch4.thetaFreq.toFixed(1)+'/'+drifted.ch4.betaFreq.toFixed(1)+'Hz';
+                    ch4_thetaFreqDisplay.textContent = drifted.ch4.thetaFreq.toFixed(1)+' Hz';
+                    ch4_betaFreqDisplay.textContent = drifted.ch4.betaFreq.toFixed(1)+' Hz';
+                    totalComplexity = (depth*100)*(0.5+Math.random()*0.5)+mutateProb*30;
+                    totalComplexity = clamp(totalComplexity,0,100);
+                    mComplex.textContent = Math.round(totalComplexity)+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width=(clamp(drifted.ch1.hp/800*100,0,100))+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width=(clamp(drifted.ch2.lpf/500*100,0,100))+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[2].style.width=(clamp(drifted.ch3.hp/800*100,0,100))+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[3].style.width=((drifted.ch4.thetaVol+drifted.ch4.betaVol)/2)+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width=totalComplexity+'%';
 
-                    const delay = 300 + Math.random() * 600;
+                    const delay = 300+Math.random()*600;
                     driftTimer = setTimeout(driftUpdate, delay);
                 }
                 driftTimer = setTimeout(driftUpdate, 400);
             }
-
             function stopDrift() {
-                if (driftTimer) { clearTimeout(driftTimer);
-                    driftTimer = null; }
+                if(driftTimer){clearTimeout(driftTimer);driftTimer=null;}
             }
 
             // ========== 启动/停止 ==========
             function startEngine() {
-                if (isPlaying) return;
-                if (!isInit) { initAudio(); if (!isInit) return; }
+                if(isPlaying) return;
+                if(!isInit){initAudio();if(!isInit) return;}
                 if (audioCtx.state === 'suspended') {
                     audioCtx.resume().then(() => { proceedStart(); }).catch(e => { proceedStart(); });
                 } else {
                     proceedStart();
                 }
             }
-
             function proceedStart() {
-                if (isPlaying) return;
+                if(isPlaying) return;
                 syncDriftedFromInputs();
-                startCh1();
-                startCh2();
-                startCh3();
+                startCh1(); startCh2(); startCh3();
                 // 通道4是振荡器，已经启动
                 applyAllChannels();
                 isPlaying = true;
                 statusBadge.classList.add('active');
                 statusText.textContent = '掩蔽中';
-                statusDetail.textContent = '🔄 四通道 | 抗学习深度 ' + baseParams.global.depth + '%';
+                statusDetail.textContent = '🔄 四通道 | 抗学习深度 '+baseParams.global.depth+'%';
                 toggleLabel.textContent = '停止掩蔽';
                 mainToggle.classList.add('active');
                 mainToggle.querySelector('.icon-btn').textContent = '■';
                 startDrift();
                 updateQualityDisplay();
             }
-
             function stopEngine() {
-                if (!isPlaying) return;
+                if(!isPlaying) return;
                 isPlaying = false;
                 stopDrift();
-                if (ch1_source) { try { ch1_source.stop(); } catch (e) {} ch1_source.disconnect(); }
-                if (ch2_source) { try { ch2_source.stop(); } catch (e) {} ch2_source.disconnect(); }
-                if (ch3_source) { try { ch3_source.stop(); } catch (e) {} ch3_source.disconnect(); }
+                if(ch1_source){try{ch1_source.stop();}catch(e){}ch1_source.disconnect();}
+                if(ch2_source){try{ch2_source.stop();}catch(e){}ch2_source.disconnect();}
+                if(ch3_source){try{ch3_source.stop();}catch(e){}ch3_source.disconnect();}
                 // 通道4振荡器不停止，只静音
-                if (ch4_gain) ch4_gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-                if (audioCtx && masterGain) masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+                if(ch4_gain) ch4_gain.gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
+                if(audioCtx&&masterGain) masterGain.gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
                 statusBadge.classList.remove('active');
                 statusText.textContent = '已停止';
                 statusDetail.textContent = '⏸️ 暂停';
@@ -1152,16 +747,14 @@
                 mainToggle.classList.remove('active');
                 mainToggle.querySelector('.icon-btn').textContent = '▶';
             }
-
-            function togglePlay() { if (isPlaying) stopEngine();
-                else startEngine(); }
+            function togglePlay(){ if(isPlaying) stopEngine(); else startEngine(); }
 
             function onInputChange() {
                 syncDriftedFromInputs();
-                if (isPlaying) applyAllChannels();
+                if(isPlaying) applyAllChannels();
                 updateQualityDisplay();
-                statusDetail.textContent = isPlaying ?
-                    '🔄 已同步 | 抗学习深度 ' + baseParams.global.depth + '%' :
+                statusDetail.textContent = isPlaying ? 
+                    '🔄 已同步 | 抗学习深度 '+baseParams.global.depth+'%' :
                     '🎛️ 参数已更新';
             }
 
@@ -1170,69 +763,46 @@
             }
 
             function resetToDefaults() {
-                if (isPlaying) stopEngine();
-                ch1_hp.value = 550;
-                ch1_volMin.value = 20;
-                ch1_volMax.value = 70;
-                ch1_q.value = 0.7;
-                ch2_lpf.value = 200;
-                ch2_vol.value = 50;
-                ch2_sub.value = 40;
-                ch3_hp.value = 100;
-                ch3_vol.value = 35;
-                ch3_phaseDelay.value = 0;
-                ch4_thetaVol.value = 65;
-                ch4_betaVol.value = 35;
-                ch4_mixVol.value = 50;
-                globalMutate.value = 75;
-                globalDepth.value = 100;
-                globalGain.value = 75;
-                document.querySelectorAll('#ch1_type button').forEach(b => b.classList.toggle('active', b.dataset.type ===
-                    'pink'));
-                document.querySelectorAll('#ch2_type button').forEach(b => b.classList.toggle('active', b.dataset.type ===
-                    'pink'));
-                document.querySelectorAll('#ch3_type button').forEach(b => b.classList.toggle('active', b.dataset.type ===
-                    'chaos'));
+                if(isPlaying) stopEngine();
+                ch1_hp.value=550; ch1_volMin.value=20; ch1_volMax.value=70; ch1_q.value=0.7;
+                ch2_lpf.value=200; ch2_vol.value=50; ch2_sub.value=40;
+                ch3_hp.value=100; ch3_vol.value=35; ch3_phaseDelay.value=0;
+                ch4_thetaVol.value=65; ch4_betaVol.value=35; ch4_mixVol.value=50;
+                globalMutate.value=75; globalDepth.value=100; globalGain.value=75;
+                document.querySelectorAll('#ch1_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
+                document.querySelectorAll('#ch2_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
+                document.querySelectorAll('#ch3_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='chaos'));
                 syncDriftedFromInputs();
-                baseParams.global.mutate = 75;
-                baseParams.global.depth = 100;
-                baseParams.global.gain = 75;
-                drifted.ch4.thetaFreq = 5.5;
-                drifted.ch4.betaFreq = 18.5;
-                m1hp.textContent = '550Hz';
-                m2lpf.textContent = '200Hz';
-                m3hp.textContent = '100Hz';
-                m4Freq.textContent = '5.5/18.5Hz';
-                mComplex.textContent = '75%';
-                ch4_thetaFreqDisplay.textContent = '5.5 Hz';
-                ch4_betaFreqDisplay.textContent = '18.5 Hz';
-                document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width = '69%';
-                document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width = '40%';
-                document.querySelectorAll('.monitor-item .m-bar-fill')[2].style.width = '50%';
-                document.querySelectorAll('.monitor-item .m-bar-fill')[3].style.width = '40%';
-                document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width = '75%';
+                baseParams.global.mutate=75; baseParams.global.depth=100; baseParams.global.gain=75;
+                drifted.ch4.thetaFreq=5.5; drifted.ch4.betaFreq=18.5;
+                m1hp.textContent='550Hz'; m2lpf.textContent='200Hz'; m3hp.textContent='100Hz';
+                m4Freq.textContent='5.5/18.5Hz'; mComplex.textContent='75%';
+                ch4_thetaFreqDisplay.textContent='5.5 Hz'; ch4_betaFreqDisplay.textContent='18.5 Hz';
+                document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width='69%';
+                document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width='40%';
+                document.querySelectorAll('.monitor-item .m-bar-fill')[2].style.width='50%';
+                document.querySelectorAll('.monitor-item .m-bar-fill')[3].style.width='65%';
+                document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width='75%';
                 updateQualityDisplay();
-                statusDetail.textContent = '已重置 · 四通道默认';
+                statusDetail.textContent='已重置 · 四通道默认';
             }
 
             // ========== 事件绑定 ==========
             function setType(selector, baseKey, startFn) {
-                const btns = document.querySelectorAll(selector + ' button');
-                btns.forEach(b => b.addEventListener('click', () => {
-                    btns.forEach(x => x.classList.remove('active'));
+                const btns = document.querySelectorAll(selector+' button');
+                btns.forEach(b=>b.addEventListener('click',()=>{
+                    btns.forEach(x=>x.classList.remove('active'));
                     b.classList.add('active');
                     baseParams[baseKey].type = b.dataset.type;
                     updateQualityDisplay();
-                    if (isPlaying) startFn();
+                    if(isPlaying) startFn();
                 }));
             }
             setType('#ch1_type', 'ch1', startCh1);
             setType('#ch2_type', 'ch2', startCh2);
             setType('#ch3_type', 'ch3', startCh3);
 
-            const allInputs = [ch1_hp, ch1_volMin, ch1_volMax, ch1_q, ch2_lpf, ch2_vol, ch2_sub, ch3_hp, ch3_vol,
-                ch3_phaseDelay, ch4_thetaVol, ch4_betaVol, ch4_mixVol, globalMutate, globalDepth, globalGain
-            ];
+            const allInputs = [ch1_hp, ch1_volMin, ch1_volMax, ch1_q, ch2_lpf, ch2_vol, ch2_sub, ch3_hp, ch3_vol, ch3_phaseDelay, ch4_thetaVol, ch4_betaVol, ch4_mixVol, globalMutate, globalDepth, globalGain];
             allInputs.forEach(el => {
                 el.addEventListener('input', onInputChange);
                 el.addEventListener('change', onInputChange);
@@ -1242,20 +812,17 @@
             resetBtn.addEventListener('click', resetToDefaults);
 
             function init() {
-                document.querySelectorAll('#ch1_type button').forEach(b => b.classList.toggle('active', b.dataset.type ===
-                    'pink'));
-                document.querySelectorAll('#ch2_type button').forEach(b => b.classList.toggle('active', b.dataset.type ===
-                    'pink'));
-                document.querySelectorAll('#ch3_type button').forEach(b => b.classList.toggle('active', b.dataset.type ===
-                    'chaos'));
+                document.querySelectorAll('#ch1_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
+                document.querySelectorAll('#ch2_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
+                document.querySelectorAll('#ch3_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='chaos'));
                 syncDriftedFromInputs();
                 updateQualityDisplay();
                 initAudio();
-                statusDetail.textContent = '🎛️ 四通道抗学习 · 防催眠';
-                mComplex.textContent = '75%';
-                document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width = '75%';
+                statusDetail.textContent='🎛️ 四通道抗学习 · 防催眠';
+                mComplex.textContent='75%';
+                document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width='75%';
             }
-            if (document.readyState === 'complete') init();
+            if(document.readyState==='complete') init();
             else window.addEventListener('load', init);
         })();
     </script>
