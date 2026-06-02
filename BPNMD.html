@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>人声带多通道抗学习掩蔽器 · 白色主题</title>
+    <title>多通道抗学习掩蔽器 · 白色主题</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', 'PingFang SC', Roboto, system-ui, sans-serif;
-            background: #f4f6fa; /* 白色调背景 */
+            background: #f4f6fa;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -155,8 +155,8 @@
         <div class="header">
             <div class="header-left">
                 <span class="icon">🧩</span>
-                <h1>人声带噪声掩蔽器</h1>
-                <span class="sub"> ·多通道抗学习·</span>
+                <h1>多通道抗学习</h1>
+                <span class="sub">· 3通道 · 白色主题</span>
             </div>
             <div class="status-badge" id="statusBadge">
                 <span class="dot" id="statusDot"></span>
@@ -164,9 +164,7 @@
             </div>
         </div>
 
-        <!-- 三通道 -->
         <div class="channels-grid">
-            <!-- 通道1：主高通 -->
             <div class="channel-card">
                 <div class="ch-title"><span class="ch-num">1</span> 主高通·中高频</div>
                 <div class="ch-controls">
@@ -194,7 +192,6 @@
                     <div class="hint">高通±120Hz 飘移 · Q值随机</div>
                 </div>
             </div>
-            <!-- 通道2：低频掩蔽 -->
             <div class="channel-card">
                 <div class="ch-title"><span class="ch-num">2</span> 低频专杀·基频</div>
                 <div class="ch-controls">
@@ -222,7 +219,6 @@
                     <div class="hint">LPF 80~350Hz 飘移 · 含次低频振荡</div>
                 </div>
             </div>
-            <!-- 通道3：辅助混沌 -->
             <div class="channel-card">
                 <div class="ch-title"><span class="ch-num">3</span> 辅助混沌·全频</div>
                 <div class="ch-controls">
@@ -251,7 +247,6 @@
             </div>
         </div>
 
-        <!-- 全局控制 -->
         <div class="global-controls">
             <div class="g-item">
                 <label>⏱️ 突变概率</label>
@@ -273,7 +268,6 @@
             </div>
         </div>
 
-        <!-- 实时监测 -->
         <div class="monitor-grid">
             <div class="monitor-item"><div class="m-label">通道1 HP</div><div class="m-value" id="m1hp">550Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:69%;"></div></div></div>
             <div class="monitor-item"><div class="m-label">通道2 LPF</div><div class="m-value" id="m2lpf">200Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:40%;"></div></div></div>
@@ -309,20 +303,16 @@
             const m1hp = $('m1hp'), m2lpf = $('m2lpf'), m3hp = $('m3hp'), mComplex = $('mComplex');
             const qualityDisp = $('qualityDisp');
 
-            // ========== 音频状态 ==========
             let isPlaying = false;
             let audioCtx = null;
             let masterGain = null;
             let analyser = null, dataArray = null;
-            // 三个通道的节点
             let ch1_gain = null, ch1_filter = null, ch1_source = null;
             let ch2_gain = null, ch2_filter = null, ch2_source = null;
             let ch3_gain = null, ch3_filter = null, ch3_source = null;
-            // 低频次声振荡器 (ch2)
             let ch2_subOsc = null, ch2_subGain = null;
             let isInit = false;
 
-            // 基础参数与漂移后值
             const baseParams = {
                 ch1: { hp:550, volMin:20, volMax:70, q:0.7, type:'pink' },
                 ch2: { lpf:200, vol:50, sub:40, type:'pink' },
@@ -334,18 +324,25 @@
                 ch2: { lpf:200, vol:50, sub:40 },
                 ch3: { hp:100, vol:35, phaseDelay:0 }
             };
+            // 完善 lastValid，包含所有输入字段
             const lastValid = {
-                ch1_hp:550, ch1_q:0.7,
+                ch1_hp:550, ch1_volMin:20, ch1_volMax:70, ch1_q:0.7,
                 ch2_lpf:200, ch2_vol:50, ch2_sub:40,
-                ch3_hp:100, ch3_vol:35, ch3_phase:0
+                ch3_hp:100, ch3_vol:35, ch3_phase:0,
+                globalMutate:75, globalDepth:100, globalGain:75
             };
 
-            let driftTimer = null, mutateTimer = null, updateTimer = null, animId = null;
+            let driftTimer = null, updateTimer = null;
             let totalComplexity = 0;
 
-            // ========== 工具 ==========
             function clamp(v,min,max) { return Math.min(Math.max(v,min),max); }
             function rand(min,max) { return min + Math.random()*(max-min); }
+
+            // ========== 安全获取数值 ==========
+            function safeParse(val, fallback) {
+                const n = parseFloat(val);
+                return isNaN(n) ? fallback : n;
+            }
 
             // ========== 噪声生成 ==========
             function generatePinkBuffer(ctx, lenSec=4) {
@@ -415,13 +412,11 @@
                     masterGain.connect(analyser); analyser.connect(audioCtx.destination);
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
 
-                    // 通道1
                     ch1_gain = audioCtx.createGain(); ch1_gain.gain.value=0;
                     ch1_filter = audioCtx.createBiquadFilter(); ch1_filter.type='highpass';
                     ch1_filter.frequency.value=baseParams.ch1.hp; ch1_filter.Q.value=baseParams.ch1.q;
                     ch1_gain.connect(ch1_filter); ch1_filter.connect(masterGain);
 
-                    // 通道2
                     ch2_gain = audioCtx.createGain(); ch2_gain.gain.value=0;
                     ch2_filter = audioCtx.createBiquadFilter(); ch2_filter.type='lowpass';
                     ch2_filter.frequency.value=baseParams.ch2.lpf; ch2_filter.Q.value=1;
@@ -430,7 +425,6 @@
                     ch2_subOsc.connect(ch2_subGain); ch2_subGain.connect(ch2_gain); ch2_subOsc.start();
                     ch2_gain.connect(ch2_filter); ch2_filter.connect(masterGain);
 
-                    // 通道3
                     ch3_gain = audioCtx.createGain(); ch3_gain.gain.value=0;
                     ch3_filter = audioCtx.createBiquadFilter(); ch3_filter.type='highpass';
                     ch3_filter.frequency.value=baseParams.ch3.hp; ch3_filter.Q.value=0.5;
@@ -441,8 +435,8 @@
                 }catch(e){console.error(e);statusDetail.textContent='⚠️ 音频初始化失败';}
             }
 
-            // ========== 启动/重启噪声源 ==========
             function startCh1() {
+                if(!audioCtx) return;
                 if(ch1_source){try{ch1_source.stop();}catch(e){}ch1_source.disconnect();}
                 let buf;
                 const t=baseParams.ch1.type;
@@ -453,6 +447,7 @@
                 ch1_source.connect(ch1_gain); ch1_source.start();
             }
             function startCh2() {
+                if(!audioCtx) return;
                 if(ch2_source){try{ch2_source.stop();}catch(e){}ch2_source.disconnect();}
                 let buf;
                 const t=baseParams.ch2.type;
@@ -463,6 +458,7 @@
                 ch2_source.connect(ch2_gain); ch2_source.start();
             }
             function startCh3() {
+                if(!audioCtx) return;
                 if(ch3_source){try{ch3_source.stop();}catch(e){}ch3_source.disconnect();}
                 let buf;
                 const t=baseParams.ch3.type;
@@ -472,96 +468,163 @@
                 ch3_source=audioCtx.createBufferSource(); ch3_source.buffer=buf; ch3_source.loop=true;
                 ch3_source.connect(ch3_gain); ch3_source.start();
             }
-            function restartAllSources(){
-                if(!isPlaying||!audioCtx) return;
-                startCh1(); startCh2(); startCh3();
+
+            // ========== 核心：从输入同步 drifted 值（防 NaN） ==========
+            function syncDriftedFromInputs() {
+                // 通道1
+                let v = safeParse(ch1_hp.value, lastValid.ch1_hp);
+                drifted.ch1.hp = clamp(v, 50, 800); lastValid.ch1_hp = drifted.ch1.hp;
+
+                v = safeParse(ch1_volMin.value, lastValid.ch1_volMin);
+                drifted.ch1.volMin = clamp(v, 0, 100); lastValid.ch1_volMin = drifted.ch1.volMin;
+
+                v = safeParse(ch1_volMax.value, lastValid.ch1_volMax);
+                drifted.ch1.volMax = clamp(v, 0, 100); lastValid.ch1_volMax = drifted.ch1.volMax;
+                // 确保 volMin <= volMax
+                if (drifted.ch1.volMin > drifted.ch1.volMax) {
+                    drifted.ch1.volMax = drifted.ch1.volMin;
+                }
+
+                v = safeParse(ch1_q.value, lastValid.ch1_q);
+                drifted.ch1.q = clamp(v, 0.1, 10); lastValid.ch1_q = drifted.ch1.q;
+
+                // 通道2
+                v = safeParse(ch2_lpf.value, lastValid.ch2_lpf);
+                drifted.ch2.lpf = clamp(v, 30, 500); lastValid.ch2_lpf = drifted.ch2.lpf;
+
+                v = safeParse(ch2_vol.value, lastValid.ch2_vol);
+                drifted.ch2.vol = clamp(v, 0, 100); lastValid.ch2_vol = drifted.ch2.vol;
+
+                v = safeParse(ch2_sub.value, lastValid.ch2_sub);
+                drifted.ch2.sub = clamp(v, 0, 100); lastValid.ch2_sub = drifted.ch2.sub;
+
+                // 通道3
+                v = safeParse(ch3_hp.value, lastValid.ch3_hp);
+                drifted.ch3.hp = clamp(v, 10, 800); lastValid.ch3_hp = drifted.ch3.hp;
+
+                v = safeParse(ch3_vol.value, lastValid.ch3_vol);
+                drifted.ch3.vol = clamp(v, 0, 100); lastValid.ch3_vol = drifted.ch3.vol;
+
+                v = safeParse(ch3_phaseDelay.value, lastValid.ch3_phase);
+                drifted.ch3.phaseDelay = clamp(v, 0, 500); lastValid.ch3_phase = drifted.ch3.phaseDelay;
+
+                // 全局
+                v = safeParse(globalMutate.value, lastValid.globalMutate);
+                baseParams.global.mutate = clamp(v, 0, 100); lastValid.globalMutate = baseParams.global.mutate;
+
+                v = safeParse(globalDepth.value, lastValid.globalDepth);
+                baseParams.global.depth = clamp(v, 10, 100); lastValid.globalDepth = baseParams.global.depth;
+
+                v = safeParse(globalGain.value, lastValid.globalGain);
+                baseParams.global.gain = clamp(v, 0, 100); lastValid.globalGain = baseParams.global.gain;
+
+                // 类型
+                const active1 = document.querySelector('#ch1_type button.active');
+                if(active1) baseParams.ch1.type = active1.dataset.type;
+                const active2 = document.querySelector('#ch2_type button.active');
+                if(active2) baseParams.ch2.type = active2.dataset.type;
+                const active3 = document.querySelector('#ch3_type button.active');
+                if(active3) baseParams.ch3.type = active3.dataset.type;
             }
 
-            // ========== 应用参数 ==========
+            // ========== 应用音频参数（所有 NaN 已防护） ==========
             function applyCh1(hp, volMin, volMax, q) {
+                if(!audioCtx || !ch1_filter || !ch1_gain) return;
                 const now=audioCtx.currentTime;
-                ch1_filter.frequency.setTargetAtTime(hp, now, 0.08);
+                ch1_filter.frequency.setTargetAtTime(clamp(hp,50,800), now, 0.08);
                 ch1_filter.Q.setTargetAtTime(clamp(q,0.1,10), now, 0.1);
-                const targetVol = (volMin+volMax)/2;
-                const gainVal = (targetVol/100)*0.7 * (globalGain.value/100);
-                ch1_gain.gain.setTargetAtTime(gainVal, now, 0.12);
+                const targetVol = (clamp(volMin,0,100) + clamp(volMax,0,100)) / 2;
+                const gainVal = (targetVol/100) * 0.7 * (clamp(baseParams.global.gain,0,100)/100);
+                ch1_gain.gain.setTargetAtTime(clamp(gainVal,0,1), now, 0.12);
             }
             function applyCh2(lpf, vol, sub) {
+                if(!audioCtx || !ch2_filter || !ch2_gain) return;
                 const now=audioCtx.currentTime;
-                ch2_filter.frequency.setTargetAtTime(lpf, now, 0.08);
-                const gainVal = (vol/100)*0.6 * (globalGain.value/100);
-                ch2_gain.gain.setTargetAtTime(gainVal, now, 0.12);
-                if(ch2_subGain) ch2_subGain.gain.setTargetAtTime(clamp(sub/100 * 0.4, 0, 0.4), now, 0.15);
+                ch2_filter.frequency.setTargetAtTime(clamp(lpf,30,500), now, 0.08);
+                const gainVal = (clamp(vol,0,100)/100) * 0.6 * (clamp(baseParams.global.gain,0,100)/100);
+                ch2_gain.gain.setTargetAtTime(clamp(gainVal,0,1), now, 0.12);
+                if(ch2_subGain) ch2_subGain.gain.setTargetAtTime(clamp(clamp(sub,0,100)/100 * 0.4, 0, 0.4), now, 0.15);
                 if(ch2_subOsc) ch2_subOsc.frequency.setTargetAtTime(30+Math.random()*30, now, 0.2);
             }
             function applyCh3(hp, vol, phaseMs) {
+                if(!audioCtx || !ch3_filter || !ch3_gain) return;
                 const now=audioCtx.currentTime;
-                ch3_filter.frequency.setTargetAtTime(hp, now, 0.08);
-                const gainVal = (vol/100)*0.5 * (globalGain.value/100);
-                ch3_gain.gain.setTargetAtTime(gainVal, now, 0.12);
+                ch3_filter.frequency.setTargetAtTime(clamp(hp,10,800), now, 0.08);
+                const gainVal = (clamp(vol,0,100)/100) * 0.5 * (clamp(baseParams.global.gain,0,100)/100);
+                ch3_gain.gain.setTargetAtTime(clamp(gainVal,0,1), now, 0.12);
             }
             function applyGlobalGain() {
                 if(!audioCtx||!masterGain) return;
                 const now=audioCtx.currentTime;
-                masterGain.gain.setTargetAtTime(clamp(globalGain.value/100,0,1)*0.85, now, 0.1);
+                masterGain.gain.setTargetAtTime(clamp(baseParams.global.gain/100,0,1)*0.85, now, 0.1);
             }
 
-            // ========== 漂移系统（三通道独立+全局突变） ==========
+            function applyAllChannels() {
+                if(!isPlaying||!audioCtx) return;
+                applyCh1(drifted.ch1.hp, drifted.ch1.volMin, drifted.ch1.volMax, drifted.ch1.q);
+                applyCh2(drifted.ch2.lpf, drifted.ch2.vol, drifted.ch2.sub);
+                applyCh3(drifted.ch3.hp, drifted.ch3.vol, drifted.ch3.phaseDelay);
+                applyGlobalGain();
+            }
+
+            // ========== 漂移系统 ==========
             function startDrift() {
                 stopDrift();
-                const depth = (globalDepth.value/100);
-                const mutateProb = globalMutate.value/100;
+                const depth = baseParams.global.depth / 100;
+                const mutateProb = baseParams.global.mutate / 100;
 
                 function driftUpdate() {
                     if(!isPlaying) return;
-                    // 通道1
-                    const base1hp = parseFloat(ch1_hp.value)||lastValid.ch1_hp;
-                    const off1 = (Math.random()-0.5)*240*depth; // ±120Hz
-                    let newHp1 = clamp(base1hp+off1, base1hp-120, base1hp+120); newHp1 = clamp(newHp1,50,800);
+                    // 使用 safeParse 防止 NaN
+                    const base1hp = safeParse(ch1_hp.value, lastValid.ch1_hp);
+                    const off1 = (Math.random()-0.5)*240*depth;
+                    let newHp1 = clamp(base1hp+off1, 50, 800);
                     drifted.ch1.hp = newHp1;
-                    const qOff = (Math.random()-0.5)*2*depth; let newQ = parseFloat(ch1_q.value)||lastValid.ch1_q; newQ = clamp(newQ+qOff, 0.1, 10);
-                    drifted.ch1.q = newQ;
-                    // vol范围飘移
-                    const baseVmin=parseFloat(ch1_volMin.value)||lastValid.ch1_volMin;
-                    const baseVmax=parseFloat(ch1_volMax.value)||lastValid.ch1_volMax;
+
+                    const baseQ = safeParse(ch1_q.value, lastValid.ch1_q);
+                    const qOff = (Math.random()-0.5)*2*depth;
+                    drifted.ch1.q = clamp(baseQ+qOff, 0.1, 10);
+
+                    const baseVmin = safeParse(ch1_volMin.value, lastValid.ch1_volMin);
+                    const baseVmax = safeParse(ch1_volMax.value, lastValid.ch1_volMax);
                     const vOff=(Math.random()-0.5)*20*depth;
                     let vm=clamp(baseVmin+vOff,0,100), vx=clamp(baseVmax+vOff,0,100);
                     if(vm>=vx-2){vm=clamp(baseVmin-5,0,100);vx=clamp(baseVmax+5,0,100);}
                     drifted.ch1.volMin=vm; drifted.ch1.volMax=vx;
-                    applyCh1(newHp1, vm, vx, newQ);
 
-                    // 通道2
-                    const base2lpf = parseFloat(ch2_lpf.value)||lastValid.ch2_lpf;
-                    const off2 = (Math.random()-0.5)*280*depth; // ±140Hz
-                    let newLpf = clamp(base2lpf+off2, base2lpf-140, base2lpf+140); newLpf = clamp(newLpf,30,500);
+                    const base2lpf = safeParse(ch2_lpf.value, lastValid.ch2_lpf);
+                    const off2 = (Math.random()-0.5)*280*depth;
+                    let newLpf = clamp(base2lpf+off2, 30, 500);
                     drifted.ch2.lpf = newLpf;
+
+                    const baseV2 = safeParse(ch2_vol.value, lastValid.ch2_vol);
                     const v2off=(Math.random()-0.5)*20*depth;
-                    let newV2=clamp((parseFloat(ch2_vol.value)||lastValid.ch2_vol)+v2off,0,100);
-                    drifted.ch2.vol = newV2;
+                    drifted.ch2.vol = clamp(baseV2+v2off, 0, 100);
+
+                    const baseSub2 = safeParse(ch2_sub.value, lastValid.ch2_sub);
                     const subOff=(Math.random()-0.5)*20*depth;
-                    let newSub=clamp((parseFloat(ch2_sub.value)||lastValid.ch2_sub)+subOff,0,100);
-                    drifted.ch2.sub = newSub;
-                    applyCh2(newLpf, newV2, newSub);
+                    drifted.ch2.sub = clamp(baseSub2+subOff, 0, 100);
 
-                    // 通道3
-                    const base3hp = parseFloat(ch3_hp.value)||lastValid.ch3_hp;
-                    const off3 = (Math.random()-0.5)*300*depth; // ±150Hz
-                    let newHp3 = clamp(base3hp+off3, base3hp-150, base3hp+150); newHp3 = clamp(newHp3,10,800);
+                    const base3hp = safeParse(ch3_hp.value, lastValid.ch3_hp);
+                    const off3 = (Math.random()-0.5)*300*depth;
+                    let newHp3 = clamp(base3hp+off3, 10, 800);
                     drifted.ch3.hp = newHp3;
+
+                    const baseV3 = safeParse(ch3_vol.value, lastValid.ch3_vol);
                     const v3off=(Math.random()-0.5)*20*depth;
-                    let newV3=clamp((parseFloat(ch3_vol.value)||lastValid.ch3_vol)+v3off,0,100);
-                    drifted.ch3.vol = newV3;
+                    drifted.ch3.vol = clamp(baseV3+v3off, 0, 100);
+
+                    const basePhase = safeParse(ch3_phaseDelay.value, lastValid.ch3_phase);
                     const phaseOff = (Math.random()-0.5)*100*depth;
-                    let newPhase=clamp((parseFloat(ch3_phaseDelay.value)||lastValid.ch3_phase)+phaseOff,0,500);
-                    drifted.ch3.phaseDelay = newPhase;
-                    applyCh3(newHp3, newV3, newPhase);
+                    drifted.ch3.phaseDelay = clamp(basePhase+phaseOff, 0, 500);
 
-                    // 全局增益微调
                     const gainOff = (Math.random()-0.5)*10*depth;
-                    const newGain=clamp(globalGain.value/100+gainOff/100,0,1)*100;
-                    globalGain.value=Math.round(newGain); applyGlobalGain();
+                    const newGain=clamp(baseParams.global.gain + gainOff, 0, 100);
+                    baseParams.global.gain = newGain;
+                    globalGain.value = Math.round(newGain);
 
-                    // 突变
+                    applyAllChannels();
+
                     if(Math.random()<mutateProb*0.15){
                         const types=['pink','white','chaos'];
                         baseParams.ch1.type=types[Math.floor(Math.random()*3)];
@@ -581,16 +644,15 @@
                         if(isPlaying) startCh3();
                     }
 
-                    // 更新显示
-                    m1hp.textContent = Math.round(newHp1)+'Hz';
-                    m2lpf.textContent = Math.round(newLpf)+'Hz';
-                    m3hp.textContent = Math.round(newHp3)+'Hz';
+                    m1hp.textContent = Math.round(drifted.ch1.hp)+'Hz';
+                    m2lpf.textContent = Math.round(drifted.ch2.lpf)+'Hz';
+                    m3hp.textContent = Math.round(drifted.ch3.hp)+'Hz';
                     totalComplexity = (depth*100)*(0.5+Math.random()*0.5)+mutateProb*30;
                     totalComplexity = clamp(totalComplexity,0,100);
                     mComplex.textContent = Math.round(totalComplexity)+'%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width=(clamp(newHp1/800*100,0,100))+'%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width=(clamp(newLpf/500*100,0,100))+'%';
-                    document.querySelectorAll('.monitor-item .m-bar-fill')[2].style.width=(clamp(newHp3/800*100,0,100))+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width=(clamp(drifted.ch1.hp/800*100,0,100))+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width=(clamp(drifted.ch2.lpf/500*100,0,100))+'%';
+                    document.querySelectorAll('.monitor-item .m-bar-fill')[2].style.width=(clamp(drifted.ch3.hp/800*100,0,100))+'%';
                     document.querySelectorAll('.monitor-item .m-bar-fill')[3].style.width=totalComplexity+'%';
 
                     const delay = 300+Math.random()*600;
@@ -602,61 +664,28 @@
                 if(driftTimer){clearTimeout(driftTimer);driftTimer=null;}
             }
 
-            // ========== 主循环 ==========
-            function startUpdateLoop() {
-                stopUpdateLoop();
-                function step() {
-                    if(!isPlaying) return;
-                    const v1 = rand(drifted.ch1.volMin, drifted.ch1.volMax);
-                    const v2 = rand(0, drifted.ch2.vol);
-                    const v3 = rand(0, drifted.ch3.vol);
-                    applyCh1(drifted.ch1.hp, drifted.ch1.volMin||20, drifted.ch1.volMax||70, drifted.ch1.q);
-                    applyCh2(drifted.ch2.lpf, v2, drifted.ch2.sub);
-                    applyCh3(drifted.ch3.hp, v3, drifted.ch3.phaseDelay);
-                    updateTimer = setTimeout(step, 800+Math.random()*800);
-                }
-                step();
-            }
-            function stopUpdateLoop() {
-                if(updateTimer){clearTimeout(updateTimer);updateTimer=null;}
-            }
-
-            // ========== 启动/停止（含iOS修复） ==========
+            // ========== 启动/停止 ==========
             function startEngine() {
                 if(isPlaying) return;
                 if(!isInit){initAudio();if(!isInit) return;}
-                // 关键：确保 AudioContext 处于运行状态（iOS Safari 需要 resume）
                 if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().then(() => {
-                        proceedStart();
-                    }).catch(e => {
-                        console.warn('AudioContext resume failed:', e);
-                        proceedStart(); // 尝试继续
-                    });
+                    audioCtx.resume().then(() => { proceedStart(); }).catch(e => { proceedStart(); });
                 } else {
                     proceedStart();
                 }
             }
             function proceedStart() {
                 if(isPlaying) return;
-                collectParams();
-                drifted.ch1.hp = baseParams.ch1.hp; drifted.ch2.lpf = baseParams.ch2.lpf; drifted.ch3.hp = baseParams.ch3.hp;
-                drifted.ch1.volMin = baseParams.ch1.volMin; drifted.ch1.volMax = baseParams.ch1.volMax;
-                drifted.ch2.vol = baseParams.ch2.vol; drifted.ch2.sub = baseParams.ch2.sub;
-                drifted.ch3.vol = baseParams.ch3.vol; drifted.ch3.phaseDelay = baseParams.ch3.phaseDelay;
+                syncDriftedFromInputs();
                 startCh1(); startCh2(); startCh3();
-                applyCh1(drifted.ch1.hp, drifted.ch1.volMin, drifted.ch1.volMax, baseParams.ch1.q);
-                applyCh2(drifted.ch2.lpf, drifted.ch2.vol, drifted.ch2.sub);
-                applyCh3(drifted.ch3.hp, drifted.ch3.vol, drifted.ch3.phaseDelay);
-                applyGlobalGain();
+                applyAllChannels();
                 isPlaying = true;
                 statusBadge.classList.add('active');
                 statusText.textContent = '掩蔽中';
-                statusDetail.textContent = '🔄 三通道 | 抗学习深度 '+globalDepth.value+'%';
+                statusDetail.textContent = '🔄 三通道 | 抗学习深度 '+baseParams.global.depth+'%';
                 toggleLabel.textContent = '停止掩蔽';
                 mainToggle.classList.add('active');
                 mainToggle.querySelector('.icon-btn').textContent = '■';
-                startUpdateLoop();
                 startDrift();
                 updateQualityDisplay();
             }
@@ -664,7 +693,6 @@
             function stopEngine() {
                 if(!isPlaying) return;
                 isPlaying = false;
-                stopUpdateLoop();
                 stopDrift();
                 if(ch1_source){try{ch1_source.stop();}catch(e){}ch1_source.disconnect();}
                 if(ch2_source){try{ch2_source.stop();}catch(e){}ch2_source.disconnect();}
@@ -679,30 +707,19 @@
             }
             function togglePlay(){ if(isPlaying) stopEngine(); else startEngine(); }
 
-            // ========== 参数收集 ==========
-            function collectParams() {
-                const hp1 = parseFloat(ch1_hp.value); if(!isNaN(hp1)){baseParams.ch1.hp=clamp(hp1,50,800);lastValid.ch1_hp=baseParams.ch1.hp;}
-                const vm1=parseFloat(ch1_volMin.value); if(!isNaN(vm1)){baseParams.ch1.volMin=clamp(vm1,0,100);}
-                const vx1=parseFloat(ch1_volMax.value); if(!isNaN(vx1)){baseParams.ch1.volMax=clamp(vx1,0,100);}
-                const q1 = parseFloat(ch1_q.value); if(!isNaN(q1)){baseParams.ch1.q=clamp(q1,0.1,10);lastValid.ch1_q=baseParams.ch1.q;}
-                const lpf2=parseFloat(ch2_lpf.value); if(!isNaN(lpf2)){baseParams.ch2.lpf=clamp(lpf2,30,500);lastValid.ch2_lpf=baseParams.ch2.lpf;}
-                const v2=parseFloat(ch2_vol.value); if(!isNaN(v2)){baseParams.ch2.vol=clamp(v2,0,100);lastValid.ch2_vol=baseParams.ch2.vol;}
-                const sub2=parseFloat(ch2_sub.value); if(!isNaN(sub2)){baseParams.ch2.sub=clamp(sub2,0,100);lastValid.ch2_sub=baseParams.ch2.sub;}
-                const hp3=parseFloat(ch3_hp.value); if(!isNaN(hp3)){baseParams.ch3.hp=clamp(hp3,10,800);lastValid.ch3_hp=baseParams.ch3.hp;}
-                const v3=parseFloat(ch3_vol.value); if(!isNaN(v3)){baseParams.ch3.vol=clamp(v3,0,100);lastValid.ch3_vol=baseParams.ch3.vol;}
-                const ph3=parseFloat(ch3_phaseDelay.value); if(!isNaN(ph3)){baseParams.ch3.phaseDelay=clamp(ph3,0,500);lastValid.ch3_phase=baseParams.ch3.phaseDelay;}
-                // 类型
-                const active1 = document.querySelector('#ch1_type button.active');
-                if(active1) baseParams.ch1.type = active1.dataset.type;
-                const active2 = document.querySelector('#ch2_type button.active');
-                if(active2) baseParams.ch2.type = active2.dataset.type;
-                const active3 = document.querySelector('#ch3_type button.active');
-                if(active3) baseParams.ch3.type = active3.dataset.type;
-                // 全局
-                const mut = parseFloat(globalMutate.value); if(!isNaN(mut)) baseParams.global.mutate = clamp(mut,0,100);
-                const dep = parseFloat(globalDepth.value); if(!isNaN(dep)) baseParams.global.depth = clamp(dep,10,100);
-                const gn = parseFloat(globalGain.value); if(!isNaN(gn)) baseParams.global.gain = clamp(gn,0,100);
+            // ========== 输入事件处理（核心修复） ==========
+            function onInputChange() {
+                // 先同步 drifted 值（从输入读取，防 NaN）
+                syncDriftedFromInputs();
+                // 再应用到音频
+                if(isPlaying) applyAllChannels();
+                // 更新显示
+                updateQualityDisplay();
+                statusDetail.textContent = isPlaying ? 
+                    '🔄 已同步 | 抗学习深度 '+baseParams.global.depth+'%' :
+                    '🎛️ 参数已更新';
             }
+
             function updateQualityDisplay() {
                 const mainTypes = baseParams.ch1.type + '/' + baseParams.ch2.type + '/' + baseParams.ch3.type;
                 qualityDisp.textContent = `📊 三通道 | ${mainTypes}`;
@@ -718,10 +735,8 @@
                 document.querySelectorAll('#ch1_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
                 document.querySelectorAll('#ch2_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
                 document.querySelectorAll('#ch3_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='chaos'));
-                collectParams();
-                drifted.ch1.hp=550; drifted.ch1.volMin=20; drifted.ch1.volMax=70; drifted.ch1.q=0.7;
-                drifted.ch2.lpf=200; drifted.ch2.vol=50; drifted.ch2.sub=40;
-                drifted.ch3.hp=100; drifted.ch3.vol=35; drifted.ch3.phaseDelay=0;
+                syncDriftedFromInputs();
+                baseParams.global.mutate = 75; baseParams.global.depth = 100; baseParams.global.gain = 75;
                 m1hp.textContent='550Hz'; m2lpf.textContent='200Hz'; m3hp.textContent='100Hz'; mComplex.textContent='75%';
                 document.querySelectorAll('.monitor-item .m-bar-fill')[0].style.width='69%';
                 document.querySelectorAll('.monitor-item .m-bar-fill')[1].style.width='40%';
@@ -732,13 +747,6 @@
             }
 
             // ========== 事件绑定 ==========
-            function applyAllChannels() {
-                if(!isPlaying||!audioCtx) return;
-                applyCh1(drifted.ch1.hp, drifted.ch1.volMin, drifted.ch1.volMax, drifted.ch1.q);
-                applyCh2(drifted.ch2.lpf, drifted.ch2.vol, drifted.ch2.sub);
-                applyCh3(drifted.ch3.hp, drifted.ch3.vol, drifted.ch3.phaseDelay);
-                applyGlobalGain();
-            }
             function setType(selector, baseKey, startFn) {
                 const btns = document.querySelectorAll(selector+' button');
                 btns.forEach(b=>b.addEventListener('click',()=>{
@@ -753,9 +761,11 @@
             setType('#ch2_type', 'ch2', startCh2);
             setType('#ch3_type', 'ch3', startCh3);
 
-            [ch1_hp, ch1_volMin, ch1_volMax, ch1_q, ch2_lpf, ch2_vol, ch2_sub, ch3_hp, ch3_vol, ch3_phaseDelay, globalMutate, globalDepth, globalGain].forEach(el=>{
-                el.addEventListener('input', ()=>{collectParams(); if(isPlaying) applyAllChannels();});
-                el.addEventListener('change', ()=>{collectParams(); if(isPlaying) applyAllChannels();});
+            // 所有输入框统一绑定（核心修复：任何输入变化都同步 drifted 并应用）
+            const allInputs = [ch1_hp, ch1_volMin, ch1_volMax, ch1_q, ch2_lpf, ch2_vol, ch2_sub, ch3_hp, ch3_vol, ch3_phaseDelay, globalMutate, globalDepth, globalGain];
+            allInputs.forEach(el => {
+                el.addEventListener('input', onInputChange);
+                el.addEventListener('change', onInputChange);
             });
 
             mainToggle.addEventListener('click', togglePlay);
@@ -763,16 +773,14 @@
 
             // ========== 初始化 ==========
             function init() {
-                // 默认值已设为 75 和 75
                 document.querySelectorAll('#ch1_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
                 document.querySelectorAll('#ch2_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='pink'));
                 document.querySelectorAll('#ch3_type button').forEach(b=>b.classList.toggle('active',b.dataset.type==='chaos'));
-                collectParams();
+                syncDriftedFromInputs();
                 updateQualityDisplay();
                 initAudio();
                 statusDetail.textContent='🎛️ 三通道抗学习 · 白色主题';
                 mComplex.textContent='75%';
-                // 确保全局显示
                 document.querySelectorAll('.monitor-item .m-bar-fill')[3].style.width='75%';
             }
             if(document.readyState==='complete') init();
