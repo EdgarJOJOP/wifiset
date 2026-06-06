@@ -763,9 +763,10 @@
                     drifted.ch4.thetaFreq = clamp(4 + Math.random()*3, 4, 7);
                     drifted.ch4.betaFreq = clamp(18 + Math.random()*1, 18, 19);
 
-                    // 全局增益微调
+                    // 全局增益微调（围绕用户输入值摆动，不累积）
+                    let baseGain = lastValid.globalGain;
                     let gainOff = (Math.random()-0.5)*10*depth;
-                    let newGain = clamp(baseParams.global.gain + gainOff, 0, 100);
+                    let newGain = clamp(baseGain + gainOff, 0, 100);
                     baseParams.global.gain = newGain;
                     globalGain.value = Math.round(newGain);
 
