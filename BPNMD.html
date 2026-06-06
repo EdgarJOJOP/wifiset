@@ -345,6 +345,8 @@
             // 通道4
             let ch4_gain = null, ch4_osc1 = null, ch4_osc2 = null;
             let ch4_gain1 = null, ch4_gain2 = null;
+            // 保活心跳
+            let keeperOsc = null, keeperGain = null;
             let isInit = false;
 
             const baseParams = {
@@ -394,6 +396,7 @@
                 ch2_subOsc=null; ch2_subGain=null;
                 ch4_osc1=null; ch4_osc2=null; ch4_gain1=null; ch4_gain2=null; ch4_gain=null;
                 masterGain=null; analyser=null; dataArray=null;
+                keeperOsc=null; keeperGain=null;
                 isInit = false;
                 audioCtx = null;
                 initAudio();
@@ -466,11 +469,30 @@
             function initAudio() {
                 if(isInit) return;
                 try{
-                    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+                    audioCtx = new (window.AudioContext||window.webkitAudioContext)({latencyHint:'playback'});
                     masterGain = audioCtx.createGain(); masterGain.gain.value=0;
                     analyser = audioCtx.createAnalyser(); analyser.fftSize=256; analyser.smoothingTimeConstant=0.8;
                     masterGain.connect(analyser); analyser.connect(audioCtx.destination);
                     dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                    // ===== AudioContext 保活心跳（19Hz，-50dB，人耳几乎听不见）=====
+                    keeperOsc = audioCtx.createOscillator();
+                    keeperOsc.type = 'sine';
+                    keeperOsc.frequency.value = 19;
+                    keeperGain = audioCtx.createGain();
+                    keeperGain.gain.value = 0.003; // -50dB
+                    keeperOsc.connect(keeperGain);
+                    keeperGain.connect(audioCtx.destination);
+                    keeperOsc.start();
+
+                    // ===== statechange 实时监听：后台被杀后立即重建 =====
+                    audioCtx.onstatechange = () => {
+                        if(audioCtx.state === 'closed') {
+                            ensureAudioContext();
+                        } else if(audioCtx.state === 'interrupted' || audioCtx.state === 'suspended') {
+                            if(isPlaying) audioCtx.resume();
+                        }
+                    };
 
                     // 通道1
                     ch1_gain = audioCtx.createGain(); ch1_gain.gain.value=0;
