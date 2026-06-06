@@ -613,6 +613,8 @@
 
                 function driftUpdate() {
                     if(!isPlaying) return;
+                    // 自动恢复 AudioContext（浏览器挂起后恢复声音）
+                    if(audioCtx && audioCtx.state==='suspended'){audioCtx.resume();}
                     // 通道1
                     let base1hp = safeParse(ch1_hp.value, lastValid.ch1_hp);
                     drifted.ch1.hp = clamp(base1hp + (Math.random()-0.5)*240*depth, 50, 800);
@@ -818,6 +820,12 @@
                 syncDriftedFromInputs();
                 updateQualityDisplay();
                 initAudio();
+                // 页面可见性变化时自动恢复 AudioContext
+                document.addEventListener('visibilitychange',()=>{
+                    if(!document.hidden && audioCtx && audioCtx.state==='suspended'){
+                        audioCtx.resume();
+                    }
+                });
                 statusDetail.textContent='🎛️ 四通道抗学习 · 防催眠';
                 mComplex.textContent='75%';
                 document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width='75%';
