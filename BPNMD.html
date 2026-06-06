@@ -378,6 +378,32 @@
                 return isNaN(n) ? fallback : n;
             }
 
+            // ========== AudioContext 保活/重建（移动端后台挂起/关闭后恢复） ==========
+            function ensureAudioContext() {
+                if(audioCtx && audioCtx.state === 'running') return true;
+                if(audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                    return true;
+                }
+                // state === 'closed' 或 audioCtx === null：浏览器已销毁 AudioContext，需要重建
+                try { if(audioCtx) audioCtx.close(); } catch(e) {}
+                // 清空旧引用，让 GC 回收
+                ch1_source=null; ch2_source=null; ch3_source=null;
+                ch1_gain=null; ch2_gain=null; ch3_gain=null;
+                ch1_filter=null; ch2_filter=null; ch3_filter=null;
+                ch2_subOsc=null; ch2_subGain=null;
+                ch4_osc1=null; ch4_osc2=null; ch4_gain1=null; ch4_gain2=null; ch4_gain=null;
+                masterGain=null; analyser=null; dataArray=null;
+                isInit = false;
+                audioCtx = null;
+                initAudio();
+                if(isPlaying) {
+                    startCh1(); startCh2(); startCh3();
+                    applyAllChannels();
+                }
+                return audioCtx && audioCtx.state === 'running';
+            }
+
             // 噪声生成（原三通道）
             function generatePinkBuffer(ctx, lenSec=4) {
                 const sr=ctx.sampleRate, L=sr*lenSec;
@@ -613,8 +639,8 @@
 
                 function driftUpdate() {
                     if(!isPlaying) return;
-                    // 自动恢复 AudioContext（浏览器挂起后恢复声音）
-                    if(audioCtx && audioCtx.state==='suspended'){audioCtx.resume();}
+                    // 确保 AudioContext 活跃（处理后台挂起/关闭后重建）
+                    if(audioCtx) ensureAudioContext();
                     // 通道1
                     let base1hp = safeParse(ch1_hp.value, lastValid.ch1_hp);
                     drifted.ch1.hp = clamp(base1hp + (Math.random()-0.5)*240*depth, 50, 800);
@@ -723,6 +749,8 @@
                 // 通道4是振荡器，已经启动
                 applyAllChannels();
                 isPlaying = true;
+                // 记录播放状态，用于页面被杀后自动恢复
+                try{sessionStorage.setItem('bpnmd_active','1');}catch(e){}
                 statusBadge.classList.add('active');
                 statusText.textContent = '掩蔽中';
                 statusDetail.textContent = '🔄 四通道 | 抗学习深度 '+baseParams.global.depth+'%';
@@ -735,6 +763,8 @@
             function stopEngine() {
                 if(!isPlaying) return;
                 isPlaying = false;
+                // 清除自动恢复标记
+                try{sessionStorage.removeItem('bpnmd_active');}catch(e){}
                 stopDrift();
                 if(ch1_source){try{ch1_source.stop();}catch(e){}ch1_source.disconnect();}
                 if(ch2_source){try{ch2_source.stop();}catch(e){}ch2_source.disconnect();}
@@ -820,15 +850,20 @@
                 syncDriftedFromInputs();
                 updateQualityDisplay();
                 initAudio();
-                // 页面可见性变化时自动恢复 AudioContext
+                // 页面可见性变化时自动恢复 AudioContext（处理挂起/关闭/全量重建）
                 document.addEventListener('visibilitychange',()=>{
-                    if(!document.hidden && audioCtx && audioCtx.state==='suspended'){
-                        audioCtx.resume();
-                    }
+                    if(!document.hidden) ensureAudioContext();
                 });
                 statusDetail.textContent='🎛️ 四通道抗学习 · 防催眠';
                 mComplex.textContent='75%';
                 document.querySelectorAll('.monitor-item .m-bar-fill')[4].style.width='75%';
+                // sessionStorage 自动恢复：页面被杀后重建时自动启动
+                try {
+                    if(sessionStorage.getItem('bpnmd_active')==='1'){
+                        statusDetail.textContent='↻ 正在自动恢复播放...';
+                        setTimeout(()=>{startEngine();},300);
+                    }
+                }catch(e){}
             }
             if(document.readyState==='complete') init();
             else window.addEventListener('load', init);
