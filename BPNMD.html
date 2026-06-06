@@ -347,6 +347,10 @@
             let ch4_gain1 = null, ch4_gain2 = null;
             // 保活心跳
             let keeperOsc = null, keeperGain = null;
+            // SW保活+通知
+            let swRegistration = null;
+            let keepWorker = null;
+            let wakeLockSentinel = null;
             let isInit = false;
 
             const baseParams = {
@@ -405,6 +409,64 @@
                     applyAllChannels();
                 }
                 return audioCtx && audioCtx.state === 'running';
+            }
+
+            // ========== 后台保活：Service Worker + Web Worker + Wake Lock ==========
+            async function initKeepalive() {
+                // 1) Service Worker 注册（需要同目录下的 sw.js）
+                try {
+                    swRegistration = await navigator.serviceWorker.register('sw.js', {scope:'./'});
+                } catch(e) { /* 不支持或已存在 */ }
+                // 2) 内联 Web Worker 心跳（不需要额外文件）
+                if(window.Worker && !keepWorker) {
+                    const blob = new Blob([`
+                        setInterval(function(){ self.postMessage('ping'); }, 1000);
+                    `], {type:'application/javascript'});
+                    keepWorker = new Worker(URL.createObjectURL(blob));
+                    keepWorker.onmessage = () => {}; // 保持 Worker 活跃
+                }
+            }
+            async function showKeepaliveNotification(show) {
+                if(show) {
+                    // 显示通知 → Android 将进程标记为前台服务
+                    try {
+                        if(Notification.permission==='granted' && swRegistration) {
+                            await swRegistration.showNotification('生物防护掩蔽中', {
+                                body: '后台保活中 · 返回页面可查看状态',
+                                icon: '',
+                                tag: 'bpnmd-keepalive',
+                                silent: true,
+                                requireInteraction: false,
+                                vibrate: []
+                            });
+                        } else if(Notification.permission==='default') {
+                            const perm = await Notification.requestPermission();
+                            if(perm==='granted' && swRegistration) {
+                                await swRegistration.showNotification('生物防护掩蔽中', {
+                                    body: '后台保活中',
+                                    tag: 'bpnmd-keepalive',
+                                    silent: true
+                                });
+                            }
+                        }
+                    } catch(e) {}
+                    // 3) Wake Lock：页面可见时保持屏幕常亮
+                    try {
+                        if(navigator.wakeLock) {
+                            wakeLockSentinel = await navigator.wakeLock.request('screen');
+                            wakeLockSentinel.addEventListener('release', () => { wakeLockSentinel = null; });
+                        }
+                    } catch(e) {}
+                } else {
+                    // 停止：关闭通知 + 释放 Wake Lock
+                    try {
+                        if(swRegistration) {
+                            const notifs = await swRegistration.getNotifications({tag:'bpnmd-keepalive'});
+                            notifs.forEach(n => n.close());
+                        }
+                    } catch(e) {}
+                    try { if(wakeLockSentinel) { wakeLockSentinel.release(); wakeLockSentinel = null; } } catch(e) {}
+                }
             }
 
             // 噪声生成（原三通道）
@@ -773,6 +835,8 @@
                 isPlaying = true;
                 // 记录播放状态，用于页面被杀后自动恢复
                 try{sessionStorage.setItem('bpnmd_active','1');}catch(e){}
+                // 启动后台保活（通知 + Wake Lock）
+                showKeepaliveNotification(true);
                 statusBadge.classList.add('active');
                 statusText.textContent = '掩蔽中';
                 statusDetail.textContent = '🔄 四通道 | 抗学习深度 '+baseParams.global.depth+'%';
@@ -787,6 +851,8 @@
                 isPlaying = false;
                 // 清除自动恢复标记
                 try{sessionStorage.removeItem('bpnmd_active');}catch(e){}
+                // 停止后台保活（通知 + Wake Lock）
+                showKeepaliveNotification(false);
                 stopDrift();
                 if(ch1_source){try{ch1_source.stop();}catch(e){}ch1_source.disconnect();}
                 if(ch2_source){try{ch2_source.stop();}catch(e){}ch2_source.disconnect();}
@@ -872,9 +938,17 @@
                 syncDriftedFromInputs();
                 updateQualityDisplay();
                 initAudio();
-                // 页面可见性变化时自动恢复 AudioContext（处理挂起/关闭/全量重建）
+                // 初始化后台保活（SW + Web Worker + Wake Lock）
+                initKeepalive();
+                // 页面可见性变化时自动恢复 AudioContext + Wake Lock
                 document.addEventListener('visibilitychange',()=>{
-                    if(!document.hidden) ensureAudioContext();
+                    if(!document.hidden) {
+                        ensureAudioContext();
+                        // 重新获取 Wake Lock
+                        if(isPlaying && navigator.wakeLock && !wakeLockSentinel) {
+                            navigator.wakeLock.request('screen').then(s=>{wakeLockSentinel=s;}).catch(()=>{});
+                        }
+                    }
                 });
                 statusDetail.textContent='🎛️ 四通道抗学习 · 防催眠';
                 mComplex.textContent='75%';
