@@ -5,7 +5,9 @@ https://edgarjojop.github.io/wifiset/
 备用域名: jinyingziyuan.com jyzy1.com jyzy2.com jyzy3.com
 
 
-# 人声（心语/语音）的全部基频
+# 目标：防所有"恶魔低语"，使深度学习模型无法利用相邻或规律样本的统计关系进行滤波。
+
+## 人声（心语/语音）的全部基频
 
 人类语音的频率结构如下：
 
