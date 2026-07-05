@@ -369,7 +369,8 @@ p.ch2_sub=(drifted.ch2.sub/100)*0.4;
 p.ch3_gain=(drifted.ch3.vol/100)*0.6;
 p.ch4_gain=(drifted.ch4.vol/100)*0.5;
 p.ch4_modRate=(drifted.ch4.modRate/100)*0.5;
-p.master_gain=baseParams.global.gain/100;
+// [v3.4] 增益下限保护：防止随机漂移到0%导致无声
+p.master_gain=Math.max(0.12, baseParams.global.gain/100);
 p.depth=baseParams.global.depth/100;
 p.crypto_inject=0.10+baseParams.global.depth/100*0.30;
 p.crypto_direct=0.08+baseParams.global.depth/100*0.25;
@@ -440,7 +441,8 @@ drifted.ch4.vol=clamp(drifted.ch4.vol,0,100);
 drifted.ch4.modRate+=(_cr()-0.5)*md.ch4_mod.r*depth;
 drifted.ch4.modRate=clamp(drifted.ch4.modRate,0,100);
 let gainOff=(_cr()-0.5)*md.gain.r*depth;
-let newGain=clamp(lastValid.globalGain+gainOff,0,100);
+// [v3.4] 增益下限保护：clamp下界改为12而非0，确保不会无声
+let newGain=clamp(lastValid.globalGain+gainOff,12,100);
 baseParams.global.gain=newGain;
 globalGain.value=Math.round(newGain);
 sendWorkletParams();
@@ -488,7 +490,8 @@ else{proceedStart()}
 function proceedStart(){
 if(isPlaying)return;
 syncDriftedFromInputs();sendWorkletParams();
-if(masterGain)masterGain.gain.setTargetAtTime(baseParams.global.gain/100*0.85,audioCtx.currentTime,0.1);
+// [v3.4] 启动时增益也加入下限保护
+if(masterGain)masterGain.gain.setTargetAtTime(Math.max(0.10, baseParams.global.gain/100*0.85),audioCtx.currentTime,0.1);
 isPlaying=true;
 try{sessionStorage.setItem("bpnmd_active","1")}catch(e){}
 showKeepaliveNotification(true);
