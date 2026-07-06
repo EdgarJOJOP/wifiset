@@ -7,7 +7,13 @@ https://edgarjojop.github.io/wifiset/
 
 # 目标：防所有"恶魔低语"，使深度学习模型无法利用相邻或规律样本的统计关系进行滤波。
 
-__注意：安卓和鸿蒙手机的浏览器记得使用桌面模式运行BPNMD.html网址(不开启会锁优先级和性能),苹果任何浏览器只能在前台运行__
+__注意：安卓和鸿蒙手机的浏览器记得点击添加到桌面然后点击[BPNMD.html](https://edgarjojop.github.io/wifiset/BPNMD.html)或[BPNMD_bata.html](https://edgarjojop.github.io/wifiset/BPNMD_bata.html)网页中 开始 (不开启屏蔽声是电报类型断断续续的),苹果任何浏览器只能在前台运行__
+
+如图：
+
+<img width="400" height="800" alt="_cgi-bin_mmwebwx-bin_webwxgetmsgimg__ MsgID=68143105785995870 skey=@crypt_eb4bb176_d398243bbc93bc2fe2bd7e153f095d24 mmweb_appid=wx_webfilehelper" src="https://github.com/user-attachments/assets/6d0de3dd-da32-463e-b2db-38284378d6d2" />
+
+__一定要看见下面的添加到主屏幕中有添加按钮出现才算添加成功，运行网页才能完整使用全部功能__
 
 ## 人声（心语/语音）的全部基频
 
