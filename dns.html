@@ -409,8 +409,12 @@
                         <i class="fas fa-server"></i> 引导解析器 IP (ServerAddresses)
                     </div>
                     <div class="ip-row">
-                        <input type="text" id="bootstrapIp1" placeholder="主IP 例如：101.198.198.198" value="101.198.198.198">
-                        <input type="text" id="bootstrapIp2" placeholder="备用IP 例如：101.198.199.200" value="101.198.199.200">
+                        <input type="text" id="bootstrapIp1" placeholder="IPv4 主 例如：101.198.198.198" value="101.198.198.198">
+                        <input type="text" id="bootstrapIp2" placeholder="IPv4 备用 例如：101.198.199.200" value="101.198.199.200">
+                    </div>
+                    <div class="ip-row" style="margin-top: 8px;">
+                        <input type="text" id="bootstrapIp3" placeholder="IPv6 主 例如：2400:3200::1" value="2400:3200::1">
+                        <input type="text" id="bootstrapIp4" placeholder="IPv6 备用 例如：2400:3200:baba::1" value="2400:3200:baba::1">
                     </div>
                     <div class="ip-hint">
                         <i class="fas fa-lightbulb"></i> 
@@ -495,6 +499,8 @@
             const dohPath = document.getElementById('dohPath');
             const bootstrapIp1 = document.getElementById('bootstrapIp1');
             const bootstrapIp2 = document.getElementById('bootstrapIp2');
+            const bootstrapIp3 = document.getElementById('bootstrapIp3');
+            const bootstrapIp4 = document.getElementById('bootstrapIp4');
             const generateBtn = document.getElementById('generateBtn');
             const successMessage = document.getElementById('successMessage');
             const configPreview = document.getElementById('configPreview');
@@ -549,6 +555,8 @@
                 const port = portInput.value || (protocolType === 'TLS' ? '853' : '443');
                 const ip1 = bootstrapIp1.value || '101.198.198.198';
                 const ip2 = bootstrapIp2.value || '101.198.199.200';
+                const ip3 = bootstrapIp3.value || '2400:3200::1';
+                const ip4 = bootstrapIp4.value || '2400:3200:baba::1';
                 
                 let dnsSettings = '';
                 if (protocolType === 'TLS') {
@@ -574,6 +582,8 @@
                 &lt;array&gt;
                     &lt;string&gt;${escapeXml(ip1)}&lt;/string&gt;
                     &lt;string&gt;${escapeXml(ip2)}&lt;/string&gt;
+                    &lt;string&gt;${escapeXml(ip3)}&lt;/string&gt;
+                    &lt;string&gt;${escapeXml(ip4)}&lt;/string&gt;
                 &lt;/array&gt;`;
                 
                 configPreview.innerHTML = `
@@ -602,6 +612,8 @@
             dohPath.addEventListener('input', updatePreview);
             bootstrapIp1.addEventListener('input', updatePreview);
             bootstrapIp2.addEventListener('input', updatePreview);
+            bootstrapIp3.addEventListener('input', updatePreview);
+            bootstrapIp4.addEventListener('input', updatePreview);
             
             // 生成并下载配置文件
             generateBtn.addEventListener('click', function() {
@@ -625,6 +637,8 @@
                 const port = portInput.value || (protocolType === 'TLS' ? '853' : '443');
                 const ip1 = bootstrapIp1.value || '101.198.198.198';
                 const ip2 = bootstrapIp2.value || '101.198.199.200';
+                const ip3 = bootstrapIp3.value || '2400:3200::1';
+                const ip4 = bootstrapIp4.value || '2400:3200:baba::1';
                 
                 let dnsSettings = '';
                 let displayNameWithPort = displayName;
@@ -658,6 +672,8 @@
                     <array>
                         <string>${ip1}</string>
                         <string>${ip2}</string>
+                        <string>${ip3}</string>
+                        <string>${ip4}</string>
                     </array>`;
                 
                 const configContent = `<?xml version="1.0" encoding="UTF-8"?>
