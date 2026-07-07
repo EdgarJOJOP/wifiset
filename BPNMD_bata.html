@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
-<title>生物防护抗AI学习系统 v3.5</title>
+<title>生物防护抗AI学习系统 v3.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:"Segoe UI","PingFang SC",Roboto,system-ui,sans-serif;background:#f4f6fa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:14px;color:#222}
 .app-container{max-width:1300px;width:100%;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:36px;padding:24px 24px 28px;box-shadow:0 20px 60px rgba(0,0,0,.08),0 8px 20px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.04)}
@@ -16,7 +16,7 @@ const $=id=>document.getElementById(id);
 const ch1_hp=$("ch1_hp"),ch1_volMin=$("ch1_volMin"),ch1_volMax=$("ch1_volMax"),ch1_q=$("ch1_q"),ch2_lpf=$("ch2_lpf"),ch2_vol=$("ch2_vol"),ch2_sub=$("ch2_sub"),ch3_hp=$("ch3_hp"),ch3_vol=$("ch3_vol"),ch3_phaseDelay=$("ch3_phaseDelay"),ch4_vol=$("ch4_vol"),ch4_modRate=$("ch4_modRate"),ch4_freqDisplay=$("ch4_freqDisplay"),globalMutate=$("globalMutate"),globalDepth=$("globalDepth"),globalGain=$("globalGain"),statusBadge=$("statusBadge"),statusText=$("statusText"),statusDetail=$("statusDetail"),mainToggle=$("mainToggle"),toggleLabel=$("toggleLabel"),resetBtn=$("resetBtn"),m1hp=$("m1hp"),m2lpf=$("m2lpf"),m3hp=$("m3hp"),m4Freq=$("m4Freq"),mComplex=$("mComplex"),qualityDisp=$("qualityDisp");
 let isPlaying=false,audioCtx=null,masterGain=null,noiseNode=null,workletReady=false,driftTimer=null,keepWorker=null,wakeLockSentinel=null,swRegistration=null,isInit=false,totalComplexity=0;
 const _isMobile=/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
-let _healthTimer=null;
+let _healthTimer=null; let _updateCounter=0;
 const baseParams={ch1:{hp:60,volMin:30,volMax:70,q:0.7,type:"pink"},ch2:{lpf:250,vol:55,sub:30,type:"pink"},ch3:{hp:20,vol:45,phaseDelay:0,type:"chaos"},ch4:{vol:50,modRate:60,type:"chaos"},global:{mutate:75,depth:100,gain:75,driftSpeed:80}};
 const drifted={ch1:{hp:60,volMin:30,volMax:70,q:0.7},ch2:{lpf:250,vol:55,sub:30},ch3:{hp:20,vol:45,phaseDelay:0},ch4:{vol:50,modRate:60}};
 const lastValid={ch1_hp:60,ch1_volMin:30,ch1_volMax:70,ch1_q:0.7,ch2_lpf:250,ch2_vol:55,ch2_sub:30,ch3_hp:20,ch3_vol:45,ch3_phase:0,ch4_vol:50,ch4_modRate:60,globalMutate:75,globalDepth:100,globalGain:75,driftSpeed:80};
@@ -53,9 +53,9 @@ fake_heart:0.01
 };
 this.sampleCount=0;
 this.cryptoCountdown=0;
-// [v3.4] 扩容crypto缓冲区 256→8192，减少音频线程crypto调用频率32倍
-this._cryptoBuf=new Float64Array(8192);
-this._cryptoIdx=8192;
+//扩容crypto缓冲区 8192->65536
+this._cryptoBuf=new Float64Array(65536);
+this._cryptoIdx=65536;
 this._pinkState=new Float64Array(7);
 this._formant=new Float64Array(4);
 this._subbandPhase=new Float64Array(8);
@@ -78,17 +78,17 @@ for(const k in msg.params){if(k in this.p)this.p[k]=msg.params[k]}
 // [v3.4] 扩容crypto缓冲区 256→8192
 _refreshCrypto(){
 try{
-const arr=new Uint32Array(8192);
+const arr=new Uint32Array(65536);
 crypto.getRandomValues(arr);
-for(let i=0;i<8192;i++)this._cryptoBuf[i]=arr[i]/4294967296
+for(let i=0;i<65536;i++)this._cryptoBuf[i]=arr[i]/4294967296
 }catch(e){
-for(let i=0;i<8192;i++)this._cryptoBuf[i]=Math.random()
+for(let i=0;i<65536;i++)this._cryptoBuf[i]=Math.random()
 }
 this._cryptoIdx=0
 }
 // [v3.4] 修复索引越界：先读取再自增，确保不访问未定义
 _rand(){
-if(this._cryptoIdx>=8192)this._refreshCrypto();
+if(this._cryptoIdx>=65536)this._refreshCrypto();
 const val=this._cryptoBuf[this._cryptoIdx];
 this._cryptoIdx++;
 return val
@@ -322,7 +322,7 @@ async function initAudio(){
 if(isInit)return;
 try{
 audioCtx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:"playback"});
-// [v3.5] 记录创建时间，用于Android PWA健康检测
+// [v3.6] 记录创建时间，用于Android PWA健康检测
 audioCtx._createdAt=Date.now();
 masterGain=audioCtx.createGain();masterGain.gain.value=0;masterGain.connect(audioCtx.destination);
 const blob=new Blob([processorCode],{type:"application/javascript"});
@@ -332,7 +332,7 @@ URL.revokeObjectURL(url);
 noiseNode=new AudioWorkletNode(audioCtx,"noise-processor");
 noiseNode.connect(masterGain);
 workletReady=true;isInit=true;
-statusDetail.textContent="音频就绪|v3.5抗中断";
+statusDetail.textContent="音频就绪|v3.6抗中断";
 // [v3.4] 添加resume冷却，防止后台快速suspend/resume循环
 audioCtx._lastResumeTime=0;
 audioCtx._resumeCooldownMs=3000;
@@ -340,7 +340,7 @@ audioCtx.onstatechange=async()=>{
 if(audioCtx._bpnmdResuming)return;
 if(audioCtx.state==="closed"&&isPlaying){ensureAudioContext();return}
 if((audioCtx.state==="interrupted"||audioCtx.state==="suspended")&&isPlaying){
-// [v3.5] 如果5秒内反复中断，说明浏览器强制挂起，直接重建
+// [v3.6] 如果5秒内反复中断，说明浏览器强制挂起，直接重建
 const now=Date.now();
 if(audioCtx._lastInterruptTime&&(now-audioCtx._lastInterruptTime<5000)){
 statusDetail.textContent="后台重建中...";
@@ -468,6 +468,9 @@ let newGain=clamp(lastValid.globalGain+gainOff,12,100);
 baseParams.global.gain=newGain;
 globalGain.value=Math.round(newGain);
 sendWorkletParams();
+// [v3.6] DOM节流：参数每次都发，DOM每3次刷新1次
+_updateCounter++;
+if(_updateCounter % 3 === 1){
 if(_cr()<mutateProb*0.20){
 const types=["pink","white","chaos"];
 baseParams.ch1.type=types[Math.floor(_cr()*3)];
@@ -495,6 +498,7 @@ m4Freq.textContent=Math.round(baseParams.global.depth)+"%";
 totalComplexity=(depth*100)*(0.5+_cr()*0.5)+mutateProb*30;
 totalComplexity=clamp(totalComplexity,0,100);
 mComplex.textContent=Math.round(totalComplexity)+"%";
+}
 const driftSpDelay=clamp(driftSp,5,95);
 const minD=30+(100-driftSpDelay)*17;
 const maxD=minD+400+_cr()*300;
@@ -505,7 +509,7 @@ driftTimer=setTimeout(driftUpdate,400)
 }
 async function startEngine(){
 if(isPlaying)return;
-// [v3.5] 处理所有AudioContext状态：closed/未初始化时重建
+// [v3.6] 处理所有AudioContext状态：closed/未初始化时重建
 if(!isInit||!audioCtx||audioCtx.state==="closed"){
 await initAudio();if(!isInit)return
 }
@@ -522,7 +526,7 @@ proceedStart()
 function proceedStart(){
 if(isPlaying)return;
 syncDriftedFromInputs();sendWorkletParams();
-// [v3.5] 修复stopEngine断开音频图后忘记重连的bug
+// [v3.6] 修复stopEngine断开音频图后忘记重连的bug
 if(audioCtx&&noiseNode&&masterGain){
 try{noiseNode.connect(masterGain)}catch(e){}
 try{masterGain.connect(audioCtx.destination)}catch(e){}
@@ -533,12 +537,12 @@ try{sessionStorage.setItem("bpnmd_active","1")}catch(e){}
 showKeepaliveNotification(true);
 statusBadge.classList.add("active");
 statusText.textContent="掩蔽中";
-statusDetail.textContent="*4Ch|v3.5抗中断";
+statusDetail.textContent="*4Ch|v3.6抗中断";
 toggleLabel.textContent="停止";
 mainToggle.classList.add("active");
 mainToggle.querySelector(".icon-btn").textContent="■";
 startDrift();
-qualityDisp.textContent="*4Ch v3.5 Crypto Anti-AI"
+qualityDisp.textContent="*4Ch v3.6 Crypto Anti-AI"
 }
 function stopEngine(){
 if(!isPlaying)return;
@@ -623,9 +627,11 @@ document.querySelectorAll("#ch2_type button").forEach(b=>b.classList.toggle("act
 document.querySelectorAll("#ch3_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="chaos"));
 document.querySelectorAll("#ch4_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="chaos"));
 syncDriftedFromInputs();initAudio();initKeepalive();
-// [v3.5] 增强visibilitychange：Android前台强制重建音频图
+// [v3.6] 增强visibilitychange：Android前台强制重建音频图
 document.addEventListener("visibilitychange",()=>{
 if(!document.hidden){
+// [v3.6] 回到前台：停止后台保活HEAD fetch
+if(window._netKeepaliveTimer){clearInterval(window._netKeepaliveTimer);window._netKeepaliveTimer=null}
 if(audioCtx)audioCtx._lastResumeTime=0;
 // [v3.5] Android前台恢复：强制重建音频图以防止僵尸状态
 if(_isMobile&&isPlaying&&audioCtx){
@@ -639,13 +645,46 @@ ensureAudioContext();
 }
 if(isPlaying&&navigator.wakeLock&&!wakeLockSentinel){navigator.wakeLock.request("screen").then(s=>{wakeLockSentinel=s}).catch(()=>{})}
 statusDetail.textContent="前台恢复";
+}else{
+// [v3.6] 进入后台：启动HEAD fetch每30秒保活
+if(!window._netKeepaliveTimer){
+window._netKeepaliveTimer=setInterval(()=>{
+fetch(location.href,{method:"HEAD",cache:"no-store"}).catch(()=>{});
+if(navigator.serviceWorker&&swRegistration&&navigator.serviceWorker.controller){
+navigator.serviceWorker.controller.postMessage("keepalive-ping")}
+},30000);
+}
 }});
-statusDetail.textContent="*4Ch v3.5 Anti-AI";
-try{if(sessionStorage.getItem("bpnmd_active")==="1"){statusDetail.textContent="Restoring...";setTimeout(()=>{startEngine()},300)}}catch(e){}
+statusDetail.textContent="*4Ch v3.6 Anti-AI";
+try{
+if(sessionStorage.getItem("bpnmd_active")==="1"){
+statusDetail.textContent="Restoring...";
+// [v3.6] 自适应自启动：等待AudioContext就绪后启动，最多重试5次
+const tryRestore=(retries)=>{
+if(audioCtx&&audioCtx.state==="running"&&!isPlaying){
+startEngine();
+}else if(retries>0){
+setTimeout(()=>tryRestore(retries-1),1000);
+}
+};
+setTimeout(()=>tryRestore(5),1000);
+}
+}catch(e){}
 }
 if(document.readyState==="complete")init();else window.addEventListener("load",init);
 async function initKeepalive(){
-try{swRegistration=await navigator.serviceWorker.register("sw.js",{scope:"./"})}catch(e){}
+try{
+const swPath=new URL("sw.js",location.href).href;
+swRegistration=await navigator.serviceWorker.register(swPath,{type:"classic",scope:"./"});
+if(swRegistration){
+swRegistration.addEventListener("updatefound",()=>{
+const sw=swRegistration.installing||swRegistration.waiting||swRegistration.active;
+if(sw)sw.addEventListener("statechange",()=>{
+if(sw.state==="activated"){statusDetail.textContent="SW已激活"}
+});
+});
+}
+}catch(e){}
 if(window.Worker&&!keepWorker){
 const blob=new Blob(["setInterval(function(){self.postMessage('ping')},5000)"],{type:"application/javascript"});
 const blobUrl=URL.createObjectURL(blob);
@@ -653,11 +692,6 @@ keepWorker=new Worker(blobUrl);
 URL.revokeObjectURL(blobUrl);
 keepWorker.onmessage=()=>{}
 }
-if(window._netKeepaliveTimer)clearInterval(window._netKeepaliveTimer);
-window._netKeepaliveTimer=setInterval(()=>{
-fetch(location.href,{method:"HEAD",cache:"no-store"}).catch(()=>{});
-if(navigator.serviceWorker&&swRegistration&&navigator.serviceWorker.controller){navigator.serviceWorker.controller.postMessage("keepalive-ping")}
-},20000);
 if(window.BroadcastChannel&&!window._keepChannel){
 window._keepChannel=new BroadcastChannel("bpnmd-keepalive");
 let lastBeat=Date.now();
@@ -672,10 +706,10 @@ async function showKeepaliveNotification(show){
 if(show){
 try{
 if(Notification.permission==="granted"&&swRegistration){
-await swRegistration.showNotification("生物防护",{body:"v3.5 抗中断优化版",tag:"bpnmd",silent:true})
+await swRegistration.showNotification("生物防护",{body:"v3.6 抗中断优化版",tag:"bpnmd",silent:true})
 }else if(Notification.permission==="default"){
 const perm=await Notification.requestPermission();
-if(perm==="granted"&&swRegistration){await swRegistration.showNotification("生物防护",{body:"v3.5 抗中断优化版",tag:"bpnmd",silent:true})}
+if(perm==="granted"&&swRegistration){await swRegistration.showNotification("生物防护",{body:"v3.6 抗中断优化版",tag:"bpnmd",silent:true})}
 }
 }catch(e){}
 try{if(navigator.wakeLock){
