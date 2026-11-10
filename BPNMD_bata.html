@@ -11,7 +11,7 @@
 .status-badge{font-size:11px;padding:4px 12px;border-radius:30px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);color:#5a6a7a;display:flex;align-items:center;gap:4px}.status-badge .dot{width:8px;height:8px;border-radius:50%;background:#b0b8c8;transition:.3s}.status-badge.active .dot{background:#27ae60;box-shadow:0 0 12px rgba(39,174,96,.35)}.channels-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px 14px;margin-bottom:14px}@media(max-width:900px){.channels-grid{grid-template-columns:1fr 1fr}}@media(max-width:500px){.channels-grid{grid-template-columns:1fr}}.channel-card{background:#fff;border-radius:20px;padding:14px 12px 12px;border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 8px rgba(0,0,0,.02)}.ch-title{font-size:11px;font-weight:600;color:#2c3e50;margin-bottom:8px;display:flex;align-items:center;gap:6px}.ch-title .ch-num{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;background:#eef2f7;border-radius:50%;font-size:10px}.ch-controls{display:flex;flex-direction:column;gap:5px}.ch-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap}.ch-row label{font-size:9px;color:#6c7a8a;min-width:30px}.ch-row input[type="number"]{background:#f0f2f5;border:1px solid #d0d6e0;border-radius:8px;padding:4px;color:#222;font-size:11px;font-weight:500;width:44px;text-align:center;-moz-appearance:textfield;outline:none}.ch-row input[type="number"]:focus{border-color:#3498db;box-shadow:0 0 0 2px rgba(52,152,219,.15)}.ch-row .unit-label{font-size:9px;color:#8a9aaa}.ch-row .freq-pill{display:inline-block;padding:1px 8px;background:#eef2f7;border-radius:30px;font-size:9px;color:#2c3e50;font-weight:500}.aux-chooser{display:flex;gap:3px;margin-top:3px}.aux-chooser button{background:#eef2f7;border:1px solid #d0d6e0;color:#2c3e50;padding:2px 6px;border-radius:14px;font-size:8px;cursor:pointer;font-weight:500;transition:.15s;flex:1}.aux-chooser button.active{background:#3498db;border-color:#3498db;color:#fff}
 .global-controls{display:flex;gap:10px 18px;flex-wrap:wrap;background:#f8faff;border-radius:20px;padding:10px 14px;margin-bottom:12px;align-items:center;border:1px solid rgba(0,0,0,.04)}.global-controls .g-item{display:flex;align-items:center;gap:4px}.global-controls .g-item label{font-size:10px;color:#5a6a7a}.global-controls .g-item input[type="number"]{background:#f0f2f5;border:1px solid #d0d6e0;border-radius:8px;padding:3px 5px;color:#222;font-size:11px;width:42px;text-align:center;-moz-appearance:textfield}.monitor-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px 12px;margin-bottom:10px}@media(max-width:700px){.monitor-grid{grid-template-columns:1fr 1fr 1fr}}.monitor-item{background:#fff;border-radius:12px;padding:6px 10px 8px;text-align:center;border:1px solid rgba(0,0,0,.04)}.monitor-item .m-label{font-size:9px;color:#6c7a8a}.monitor-item .m-value{font-size:16px;font-weight:600;color:#2c3e50}.monitor-item .m-bar{margin-top:2px;height:2px;background:#e0e6ee;border-radius:4px;overflow:hidden}.monitor-item .m-bar-fill{height:100%;background:linear-gradient(90deg,#3498db,#9b59b6)}.action-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.btn{padding:6px 16px;border:none;border-radius:40px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.04);color:#2c3e50;border:1px solid rgba(0,0,0,.06)}.btn-primary{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;box-shadow:0 4px 20px rgba(52,152,219,.3)}.btn-primary.active{background:linear-gradient(135deg,#e74c3c,#c0392b)}.btn-secondary{background:rgba(0,0,0,.04);color:#5a6a7a}.action-info{font-size:9px;color:#6c7a8a;margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}.hint{font-size:7px;color:#8a9aaa;margin-top:2px}.no-select{user-select:none}.ch-row input[type="number"]::-webkit-inner-spin-button,.ch-row input[type="number"]::-webkit-outer-spin-button,.global-controls .g-item input[type="number"]::-webkit-inner-spin-button,.global-controls .g-item input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 /* [v3.7] 日志面板 - 深色终端风格 */
-#logPanel{display:none;margin-top:8px;background:#1a1a2e;color:#c8e6c9;border-radius:10px;padding:6px 8px;font:11px/1.5 "Consolas","Courier New",monospace;max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,.08);-webkit-user-select:text;user-select:text}#logPanel .log-info{color:#81d4fa}#logPanel .log-warn{color:#ffcc80}#logPanel .log-error{color:#ef9a9a}#logPanel .log-recovery{color:#a5d6a7}#logPanel .log-time{color:#78909c;margin-right:4px}.log-toggle{cursor:pointer;border-bottom:1px dashed rgba(0,0,0,.15)}.log-toggle:hover{border-bottom-color:#3498db}</style></head><body><div class="app-container no-select"><div class="header"><div class="header-left"><span class="icon">🧩</span><h1>生物防护抗AI学习系统</h1><span class="sub">· 4通道实时防深度学习滤波</span></div><div class="status-badge" id="statusBadge"><span class="dot" id="statusDot"></span><span id="statusText">待命</span></div></div><div class="channels-grid"><div class="channel-card"><div class="ch-title"><span class="ch-num">1</span> 主高通·全频</div><div class="ch-controls"><div class="ch-row"><label>HP</label><input type="number" id="ch1_hp" value="60" min="1" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch1_volMin" value="30" min="0" max="100" step="1" style="width:32px" /><span class="range-sep">—</span><input type="number" id="ch1_volMax" value="70" min="0" max="100" step="1" style="width:32px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Q</label><input type="number" id="ch1_q" value="0.7" min="0.1" max="10" step="0.1" style="width:36px" /></div><div class="aux-chooser" id="ch1_type"><button data-type="pink" class="active">粉红</button><button data-type="white">白</button><button data-type="chaos">混沌</button></div><div class="hint">1-800Hz全随机 · 频谱Crypto包络</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">2</span> 低频专杀·基频</div><div class="ch-controls"><div class="ch-row"><label>LPF</label><input type="number" id="ch2_lpf" value="250" min="20" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch2_vol" value="55" min="0" max="100" step="1" style="width:44px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Sub</label><input type="number" id="ch2_sub" value="30" min="0" max="100" step="1" style="width:36px" /><span class="unit-label">%</span><span style="font-size:8px;color:#8a9aaa">(低频调制)</span></div><div class="aux-chooser" id="ch2_type"><button data-type="pink" class="active">粉红</button><button data-type="water">水流</button><button data-type="chaos">混沌</button></div><div class="hint">LPF上限800Hz · 包络Crypto</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">3</span> 辅助混沌·全频</div><div class="ch-controls"><div class="ch-row"><label>HP</label><input type="number" id="ch3_hp" value="20" min="1" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch3_vol" value="45" min="0" max="100" step="1" style="width:44px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Phase</label><input type="number" id="ch3_phaseDelay" value="0" min="0" max="500" step="10" style="width:40px" /><span class="unit-label">ms</span></div><div class="aux-chooser" id="ch3_type"><button data-type="chaos" class="active">混沌</button><button data-type="white">白噪</button><button data-type="water">水流</button></div><div class="hint">1-800Hz全随机 · 包络Crypto</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">4</span> 防滤波 · 调制噪声</div><div class="ch-controls"><div class="ch-row"><label>噪</label><input type="number" id="ch4_vol" value="50" min="0" max="100" step="1" style="width:36px" /><span class="unit-label">%</span><span class="freq-pill" id="ch4_freqDisplay">Crypto饱和</span></div><div class="ch-row"><label>Mod</label><input type="number" id="ch4_modRate" value="60" min="0" max="100" step="5" style="width:36px" /><span class="unit-label">%</span></div><div class="aux-chooser" id="ch4_type"><button data-type="chaos" class="active">混沌</button><button data-type="pink">粉红</button><button data-type="white">白噪</button></div><div class="hint">频谱Crypto随机 · 防滤波建模</div></div></div></div><div class="global-controls"><div class="g-item"><label>⏱️ 突变</label><input type="number" id="globalMutate" value="75" min="0" max="100" step="5" /><span class="unit-label">%</span></div><div class="g-item"><label>🌀 抗学习</label><input type="number" id="globalDepth" value="100" min="10" max="100" step="5" /><span class="unit-label">%</span></div><div class="g-item"><label>🎚️ 增益</label><input type="number" id="globalGain" value="75" min="0" max="100" step="1" /><span class="unit-label">%</span></div><div style="display:flex;gap:6px;margin-left:auto"><span style="font-size:9px;color:#8a9aaa" id="complexityInfo">抗AI深度: 极高</span></div><div class="g-item"><label>🌊 漂移</label><input type="number" id="driftSpeed" value="80" min="0" max="100" step="5" /><span class="unit-label">%</span></div></div><div class="monitor-grid"><div class="monitor-item"><div class="m-label">通道1 HP</div><div class="m-value" id="m1hp">60Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:38%"></div></div></div><div class="monitor-item"><div class="m-label">通道2 LPF</div><div class="m-value" id="m2lpf">250Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:30%"></div></div></div><div class="monitor-item"><div class="m-label">通道3 HP</div><div class="m-value" id="m3hp">20Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:15%"></div></div></div><div class="monitor-item"><div class="m-label">频谱包络</div><div class="m-value" id="m4Freq">Crypto随机</div><div class="m-bar"><div class="m-bar-fill" style="width:99%"></div></div></div><div class="monitor-item"><div class="m-label">抗AI强度</div><div class="m-value" id="mComplex">99%</div><div class="m-bar"><div class="m-bar-fill" style="width:99%"></div></div></div></div><div class="action-row"><button class="btn btn-primary" id="mainToggle"><span class="icon-btn">▶</span><span id="toggleLabel">启动掩蔽</span></button><button class="btn btn-secondary" id="resetBtn">↺ 重置</button><div class="action-info"><span id="qualityDisp">📊 频谱Crypto随机化</span><span class="fade" id="statusDetail">Crypto护盾 100%</span><span id="logToggleBtn" style="font-size:12px;color:#5a6a7a;cursor:pointer;border:1px solid #b0b8c8;border-radius:12px;padding:2px 10px;font-weight:500" title="点击切换日志面板 (双击标题也可)">📋日志</span></div></div>
+#logPanel{display:none;margin-top:8px;background:#1a1a2e;color:#c8e6c9;border-radius:10px;padding:6px 8px;font:11px/1.5 "Consolas","Courier New",monospace;max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,.08);-webkit-user-select:text;user-select:text}#logPanel .log-info{color:#81d4fa}#logPanel .log-warn{color:#ffcc80}#logPanel .log-error{color:#ef9a9a}#logPanel .log-recovery{color:#a5d6a7}#logPanel .log-time{color:#78909c;margin-right:4px}.log-toggle{cursor:pointer;border-bottom:1px dashed rgba(0,0,0,.15)}.log-toggle:hover{border-bottom-color:#3498db}</style></head><body><div class="app-container no-select"><div class="header"><div class="header-left"><span class="icon">🧩</span><h1>生物防护抗AI学习系统</h1><span class="sub">· 4通道实时防深度学习滤波</span></div><div class="status-badge" id="statusBadge"><span class="dot" id="statusDot"></span><span id="statusText">待命</span></div></div><div class="channels-grid"><div class="channel-card"><div class="ch-title"><span class="ch-num">1</span> 主高通·全频</div><div class="ch-controls"><div class="ch-row"><label>HP</label><input type="number" id="ch1_hp" value="60" min="1" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch1_volMin" value="30" min="0" max="100" step="1" style="width:32px" /><span class="range-sep">—</span><input type="number" id="ch1_volMax" value="70" min="0" max="100" step="1" style="width:32px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Q</label><input type="number" id="ch1_q" value="0.7" min="0.1" max="10" step="0.1" style="width:36px" /></div><div class="aux-chooser" id="ch1_type"><button data-type="pink" class="active">粉红</button><button data-type="white">白</button><button data-type="chaos">混沌</button></div><div class="hint">1-800Hz全随机 · 频谱Crypto包络</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">2</span> 低频专杀·基频</div><div class="ch-controls"><div class="ch-row"><label>LPF</label><input type="number" id="ch2_lpf" value="800" min="20" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch2_vol" value="55" min="0" max="100" step="1" style="width:44px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Sub</label><input type="number" id="ch2_sub" value="30" min="0" max="100" step="1" style="width:36px" /><span class="unit-label">%</span><span style="font-size:8px;color:#8a9aaa">(低频调制)</span></div><div class="aux-chooser" id="ch2_type"><button data-type="pink" class="active">粉红</button><button data-type="water">水流</button><button data-type="chaos">混沌</button></div><div class="hint">LPF上限800Hz · 包络Crypto</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">3</span> 辅助混沌·全频</div><div class="ch-controls"><div class="ch-row"><label>HP</label><input type="number" id="ch3_hp" value="20" min="1" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch3_vol" value="45" min="0" max="100" step="1" style="width:44px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Phase</label><input type="number" id="ch3_phaseDelay" value="0" min="0" max="500" step="10" style="width:40px" /><span class="unit-label">ms</span></div><div class="aux-chooser" id="ch3_type"><button data-type="chaos" class="active">混沌</button><button data-type="white">白噪</button><button data-type="water">水流</button></div><div class="hint">1-800Hz全随机 · 包络Crypto</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">4</span> 防滤波 · 调制噪声</div><div class="ch-controls"><div class="ch-row"><label>噪</label><input type="number" id="ch4_vol" value="50" min="0" max="100" step="1" style="width:36px" /><span class="unit-label">%</span><span class="freq-pill" id="ch4_freqDisplay">Crypto饱和</span></div><div class="ch-row"><label>Mod</label><input type="number" id="ch4_modRate" value="60" min="0" max="100" step="5" style="width:36px" /><span class="unit-label">%</span></div><div class="aux-chooser" id="ch4_type"><button data-type="chaos" class="active">混沌</button><button data-type="pink">粉红</button><button data-type="white">白噪</button></div><div class="hint">频谱Crypto随机 · 防滤波建模</div></div></div></div><div class="global-controls"><div class="g-item"><label>⏱️ 突变</label><input type="number" id="globalMutate" value="75" min="0" max="100" step="5" /><span class="unit-label">%</span></div><div class="g-item"><label>🌀 抗学习</label><input type="number" id="globalDepth" value="100" min="10" max="100" step="5" /><span class="unit-label">%</span></div><div class="g-item"><label>🎚️ 增益</label><input type="number" id="globalGain" value="75" min="0" max="100" step="1" /><span class="unit-label">%</span></div><div style="display:flex;gap:6px;margin-left:auto"><span style="font-size:9px;color:#8a9aaa" id="complexityInfo">抗AI深度: 极高</span></div><div class="g-item"><label>🌊 漂移</label><input type="number" id="driftSpeed" value="80" min="0" max="100" step="5" /><span class="unit-label">%</span></div></div><div class="monitor-grid"><div class="monitor-item"><div class="m-label">通道1 HP</div><div class="m-value" id="m1hp">60Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:38%"></div></div></div><div class="monitor-item"><div class="m-label">通道2 LPF</div><div class="m-value" id="m2lpf">800Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:30%"></div></div></div><div class="monitor-item"><div class="m-label">通道3 HP</div><div class="m-value" id="m3hp">20Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:15%"></div></div></div><div class="monitor-item"><div class="m-label">频谱包络</div><div class="m-value" id="m4Freq">Crypto随机</div><div class="m-bar"><div class="m-bar-fill" style="width:99%"></div></div></div><div class="monitor-item"><div class="m-label">抗AI强度</div><div class="m-value" id="mComplex">99%</div><div class="m-bar"><div class="m-bar-fill" style="width:99%"></div></div></div></div><div class="action-row"><button class="btn btn-primary" id="mainToggle"><span class="icon-btn">▶</span><span id="toggleLabel">启动掩蔽</span></button><button class="btn btn-secondary" id="resetBtn">↺ 重置</button><div class="action-info"><span id="qualityDisp">📊 频谱Crypto随机化</span><span class="fade" id="statusDetail">Crypto护盾 100%</span><span id="logToggleBtn" style="font-size:12px;color:#5a6a7a;cursor:pointer;border:1px solid #b0b8c8;border-radius:12px;padding:2px 10px;font-weight:500" title="点击切换日志面板 (双击标题也可)">📋日志</span></div></div>
 <!-- [v3.7] 日志面板：双击"· 4通道实时..."文字切换显示/隐藏 -->
 <div id="logPanel"></div></div>
 <script>
@@ -41,9 +41,9 @@ el.appendChild(line);el.scrollTop=el.scrollHeight;
 // 页面加载时恢复持久化日志
 try{const _saved=JSON.parse(sessionStorage.getItem('bpnmd_log')||'[]');_saved.forEach(function(e){_logRing.push(e)})}catch(e){}
 log('I','系统启动 v3.7');
-const baseParams={ch1:{hp:60,volMin:30,volMax:70,q:0.7,type:"pink"},ch2:{lpf:250,vol:55,sub:30,type:"pink"},ch3:{hp:20,vol:45,phaseDelay:0,type:"chaos"},ch4:{vol:50,modRate:60,type:"chaos"},global:{mutate:75,depth:100,gain:75,driftSpeed:80}};
-const drifted={ch1:{hp:60,volMin:30,volMax:70,q:0.7},ch2:{lpf:250,vol:55,sub:30},ch3:{hp:20,vol:45,phaseDelay:0},ch4:{vol:50,modRate:60}};
-const lastValid={ch1_hp:60,ch1_volMin:30,ch1_volMax:70,ch1_q:0.7,ch2_lpf:250,ch2_vol:55,ch2_sub:30,ch3_hp:20,ch3_vol:45,ch3_phase:0,ch4_vol:50,ch4_modRate:60,globalMutate:75,globalDepth:100,globalGain:75,driftSpeed:80};
+const baseParams={ch1:{hp:60,volMin:30,volMax:70,q:0.7,type:"pink"},ch2:{lpf:800,vol:55,sub:30,type:"pink"},ch3:{hp:20,vol:45,phaseDelay:0,type:"chaos"},ch4:{vol:50,modRate:60,type:"chaos"},global:{mutate:75,depth:100,gain:75,driftSpeed:80}};
+const drifted={ch1:{hp:60,volMin:30,volMax:70,q:0.7},ch2:{lpf:800,vol:55,sub:30},ch3:{hp:20,vol:45,phaseDelay:0},ch4:{vol:50,modRate:60}};
+const lastValid={ch1_hp:60,ch1_volMin:30,ch1_volMax:70,ch1_q:0.7,ch2_lpf:800,ch2_vol:55,ch2_sub:30,ch3_hp:20,ch3_vol:45,ch3_phase:0,ch4_vol:50,ch4_modRate:60,globalMutate:75,globalDepth:100,globalGain:75,driftSpeed:80};
 function clamp(v,mn,mx){return Math.min(Math.max(v,mn),mx)}
 function safeParse(v,fb){const n=parseFloat(v);return isNaN(n)?fb:n}
 // [v3.8] 通道类型表：UI 按钮、参数映射、漂移突变、重置共用一份，避免五处重复与映射错位
@@ -67,7 +67,7 @@ this._bitFlipSV=new Float32Array(1);
 this._bitFlipSB=new Uint32Array(this._bitFlipSV.buffer);
 this.p={
 ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,
-ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:250,
+ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:800,
 ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,
 ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,
 master_gain:0.70,depth:1.0,
@@ -92,8 +92,12 @@ this._cryptoIdx=65536;
 this._cryptoWarned=false;
 // [v3.8] 每通道频段状态（此前 HP/LP/Q/Phase 只改 UI 与漂移值，从未进入音频链）
 this._flt=new Float64Array(6);
-this._f1=0.00855;this._q1=1.43;this._f2=0.0356;this._q2=1.414;this._f3=0.00285;this._q3=1.43;
+this._f3=0.00285;this._q3=1.43;
 this._dl3=new Float32Array(32768);this._dl3Idx=0;this._dly3=0;
+// [v3.9] 主带限：ch1 HP/Q + ch2 LPF 决定 1–800Hz 目标带，4 阶低通(24dB/oct)
+this._bp=new Float64Array(6);
+this._bpF1=1.4e-4;this._bpF2=0.114;this._bpQ1=1.414;this._bpQ2=1.414;this._bpQ3=1.414;
+this._makeup=4.0;
 this._pinkState=new Float64Array(7);
 this._formant=new Float64Array(4);
 this._subbandPhase=new Float64Array(8);
@@ -228,6 +232,14 @@ sh[1]=sh[1]*aHp+sh[0]*(1-aHp);
 const bandpass=hpSig-sh[1];
 return signal*(1-ss)+bandpass*(1+ss*2)
 }
+// ---- 主带限：ch1 高通(Q) + 800Hz/主低通 4 阶低通 ----
+_band(x){
+const st=this._bp;
+st[0]+=this._bpF1*st[1];const hp=x-st[0]-this._bpQ1*st[1];st[1]+=this._bpF1*hp;
+st[2]+=this._bpF2*st[3];const l1=hp-st[2]-this._bpQ2*st[3];st[3]+=this._bpF2*l1;
+st[4]+=this._bpF2*st[5];const l2=st[2]-st[4]-this._bpQ3*st[5];st[5]+=this._bpF2*l2;
+return st[4]
+}
 // ---- 主处理循环 ----
 process(inputs,outputs){
 try{
@@ -251,12 +263,14 @@ this._satFcLp=400+this._rand()*1200;
 this._satFcHp=1+this._rand()*79;
 this._satCoefLp=Math.exp(-2*Math.PI*this._satFcLp/_sr);
 this._satCoefHp=Math.exp(-2*Math.PI*this._satFcHp/_sr);
-// [v3.8] 频段控制系数：HP/LP/Q/Phase 真正接入音频链
+// [v3.9] 主带限系数：ch1 高通(含 Q) + ch2 低通，真正决定输出频带
 const _hp1f=Math.min(800,Math.max(1,p.ch1_hp||60)),_q1f=Math.min(10,Math.max(0.1,p.ch1_q||0.7));
-const _lp2f=Math.min(800,Math.max(20,p.ch2_lpf||250));
+const _lp2f=Math.min(800,Math.max(20,p.ch2_lpf||800));
 const _hp3f=Math.min(800,Math.max(1,p.ch3_hp||20));
-this._f1=2*Math.sin(Math.PI*_hp1f/_sr);this._q1=1/_q1f;
-this._f2=2*Math.sin(Math.PI*_lp2f/_sr);
+// 高通边缘不允许高于低通边缘，避免 HP>LP 时整条链静音
+const _hpEff=Math.min(_hp1f,_lp2f*0.9);
+this._bpF1=2*Math.sin(Math.PI*_hpEff/_sr);this._bpQ1=1/_q1f;
+this._bpF2=2*Math.sin(Math.PI*_lp2f/_sr);
 this._f3=2*Math.sin(Math.PI*_hp3f/_sr);
 this._dly3=Math.min(32767,Math.round(Math.min(500,Math.max(0,p.ch3_phase||0))/1000*_sr));
 }
@@ -287,11 +301,9 @@ case 0:ch4=this._chaosStep()*(0.2+0.3*thetaEnv+0.3*betaEnv)+this._randn()*0.15*p
 case 1:ch4=this._pinkNoise()*(0.4+0.3*thetaEnv+0.3*betaEnv)+this._randn()*0.1*p.ch4_modRate*(1+p.crypto_direct);break;
 default:ch4=this._randn()*(0.3+0.3*thetaEnv+0.3*betaEnv)+this._randn()*0.15*p.ch4_modRate*(1+p.crypto_direct);break
 };
-// [v3.8] 频谱整形：ch1 高通、ch2 低通、ch3 高通+相位延迟（状态变量滤波器，ch1 的 Q 生效）
+// [v3.9] ch3 通道整形（ch1 主高通 / ch2 主低通在末端统一应用）
 const _flt=this._flt;
-_flt[0]+=this._f1*_flt[1];const _hp1s=ch1-_flt[0]-this._q1*_flt[1];_flt[1]+=this._f1*_hp1s;ch1=_hp1s;
-_flt[2]+=this._f2*_flt[3];const _bp2s=ch2-_flt[2]-this._q2*_flt[3];_flt[3]+=this._f2*_bp2s;ch2=_flt[2];
-this._dl3[this._dl3Idx&32767]=ch3;ch3=this._dl3[(this._dl3Idx-this._dly3)&32767];this._dl3Idx=(this._dl3Idx+1)&32767;
+this._dl3[this._dl3Idx&32767]=ch3;const _dl3s=this._dl3[(this._dl3Idx-this._dly3)&32767];this._dl3Idx=(this._dl3Idx+1)&32767;ch3=ch3*0.5+_dl3s*0.5;
 _flt[4]+=this._f3*_flt[5];const _hp3s=ch3-_flt[4]-this._q3*_flt[5];_flt[5]+=this._f3*_hp3s;ch3=_hp3s;
 const nl=p.nonlinear_mix,im=p.intermod;
 const m1=(1-nl)*ch1+nl*Math.tanh(ch2*ch3*2);
@@ -330,6 +342,8 @@ this._bitFlipSB[0]^=(this._rand()<0.008)?1:0;
 sample=this._bitFlipSV[0];
 sample*=this._frameGain;
 sample=Math.tanh(sample*1.8)*0.85;
+// [v3.9] 主带限放在所有非线性之后，保证最终输出真的落在 1–800Hz；软限幅防止 Q 共振削顶
+sample=Math.max(-0.95,Math.min(0.95,this._band(sample)*this._makeup));
 // [v3.5] 静音自检：每1000采样注入极低振幅测试信号(-80dB)，用于Android PWA健康检测
 if(this.sampleCount%1000<5){sample+=0.00012*Math.sin(this.sampleCount*0.0005)}
 for(let c=0;c<ch;c++)out[c][i]=sample;
@@ -351,7 +365,7 @@ for(let s=0;s<8;s++)this.state[s]=Math.random();
 }
 // [v3.8] 强制下次刷新 crypto，并清空可能已变成 NaN 的滤波器/延迟线状态
 this._cryptoIdx=this._cryptoBuf.length;
-this._flt.fill(0);this._dl3.fill(0);this._dl3Idx=0;
+this._flt.fill(0);this._dl3.fill(0);this._dl3Idx=0;this._bp.fill(0);
 this._frameGain=1;this._frameGainCounter=0;
 }
 return true
@@ -412,8 +426,10 @@ var _ps=new Float64Array(7),_fm=new Float64Array(4),_sbP=new Float64Array(8);
 var _wp=0,_wv=0,_fg=1.0,_fgc=0,_samp=0;
 var _cb=new Float64Array(16384),_ci=16384,_ca=new Uint32Array(16384);
 // [v3.8] 频段控制状态（与 Worklet 引擎同一套 SVF，保证降级路径音色一致）
-var _flt=new Float64Array(6),_f1=0.00855,_q1=1.43,_f2=0.0356,_q2=1.414,_f3=0.00285,_q3=1.43,_dl3=new Float32Array(32768),_dl3i=0,_dly3=0,_sr=ctx.sampleRate||44100;
-var _p={ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:250,ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,master_gain:0.70,depth:1.0,nonlinear_mix:0.35,intermod:0.25,chaos_rate:0.015,crypto_inject:0.30,crypto_direct:0.25,spectral_saturate:0.40,formant_mix:0.15,subband_depth:0.20,hos_exponent:0.10,adversarial:0.10,fake_heart:0.01};
+var _flt=new Float64Array(6),_f3=0.00285,_q3=1.43,_dl3=new Float32Array(32768),_dl3i=0,_dly3=0,_sr=ctx.sampleRate||44100;
+// [v3.9] 主带限状态与增益（与 Worklet 一致）
+var _bp=new Float64Array(6),_bpF1=1.4e-4,_bpF2=0.114,_bpQ1=1.414,_bpQ2=1.414,_bpQ3=1.414,_makeup=4.0;
+var _p={ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:800,ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,master_gain:0.70,depth:1.0,nonlinear_mix:0.35,intermod:0.25,chaos_rate:0.015,crypto_inject:0.30,crypto_direct:0.25,spectral_saturate:0.40,formant_mix:0.15,subband_depth:0.20,hos_exponent:0.10,adversarial:0.10,fake_heart:0.01};
 _spn._updateParams=function(np){for(var k in np){var v=np[k];if(k in _p&&typeof v==="number"&&isFinite(v))_p[k]=v}};
 // [v3.7] 按需填充crypto缓冲区
 function _r(){
@@ -458,10 +474,13 @@ function _pn(){var w=_rn();_ps[0]=0.99886*_ps[0]+w*0.0555179;_ps[1]=0.99332*_ps[
 function _wn(){var mod=0.5+0.5*Math.sin(_st[4]*40+_st[5]*30+_dl[(_di-5)&511]*10);if(_wp<=0){if(_r()<0.02){_wv=_rn()*(0.3+_r()*0.7);_wp=Math.floor(30+_r()*150)}else{_wv=0;_wp=1+Math.floor(_r()*15)}}_wp--;var base=_rn();return Math.max(-1,Math.min(1,base*mod*0.6+_wv*0.3+_rn()*0.1))}
 function _sat(signal){var ss=_p.spectral_saturate;if(ss<0.01)return signal;_sc++;if(_sc>=64){_sc=0;_sfLp=400+_r()*1200;_sfHp=1+_r()*79;_cLp=Math.exp(-2*Math.PI*_sfLp/_sr);_cHp=Math.exp(-2*Math.PI*_sfHp/_sr);
 // [v3.8] 同步刷新频段控制系数
-var _h1=Math.min(800,Math.max(1,_p.ch1_hp||60)),_Q1=Math.min(10,Math.max(0.1,_p.ch1_q||0.7)),_l2=Math.min(800,Math.max(20,_p.ch2_lpf||250)),_h3=Math.min(800,Math.max(1,_p.ch3_hp||20));
-_f1=2*Math.sin(Math.PI*_h1/_sr);_q1=1/_Q1;_f2=2*Math.sin(Math.PI*_l2/_sr);_f3=2*Math.sin(Math.PI*_h3/_sr);
+var _h1=Math.min(800,Math.max(1,_p.ch1_hp||60)),_Q1=Math.min(10,Math.max(0.1,_p.ch1_q||0.7)),_l2=Math.min(800,Math.max(20,_p.ch2_lpf||800)),_h3=Math.min(800,Math.max(1,_p.ch3_hp||20));
+var _h1e=Math.min(_h1,_l2*0.9);
+_bpF1=2*Math.sin(Math.PI*_h1e/_sr);_bpQ1=1/_Q1;_bpF2=2*Math.sin(Math.PI*_l2/_sr);_f3=2*Math.sin(Math.PI*_h3/_sr);
 _dly3=Math.min(32767,Math.round(Math.min(500,Math.max(0,_p.ch3_phase||0))/1000*_sr))}
 _sl[0]=_sl[0]*_cLp+signal*(1-_cLp);_sl[1]=_sl[1]*_cLp+_sl[0]*(1-_cLp);var lp=_sl[1];var hpSig=signal-lp;_sh[0]=_sh[0]*_cHp+hpSig*(1-_cHp);_sh[1]=_sh[1]*_cHp+_sh[0]*(1-_cHp);var bandpass=hpSig-_sh[1];return signal*(1-ss)+bandpass*(1+ss*2)}
+// [v3.9] 主带限：1Hz 高通 + 800Hz 4 阶低通
+function _band(x){var st=_bp;st[0]+=_bpF1*st[1];var hp=x-st[0]-_bpQ1*st[1];st[1]+=_bpF1*hp;st[2]+=_bpF2*st[3];var l1=hp-st[2]-_bpQ2*st[3];st[3]+=_bpF2*l1;st[4]+=_bpF2*st[5];var l2=st[2]-st[4]-_bpQ3*st[5];st[5]+=_bpF2*l2;return st[4]}
 _spn.onaudioprocess=function(e){
 var out=e.outputBuffer,len=out.length;
 var ch0=out.getChannelData(0),ch1=len>1?out.getChannelData(1):ch0;
@@ -475,10 +494,7 @@ ch3v=ch3v*(1-p.crypto_direct*0.25)+(_r()-0.5)*p.crypto_direct*0.5;
 var theta=0.5+0.5*Math.sin(_st[4]*60+_samp*(4.5+_st[7]*2.5)*0.0001);
 var beta=0.5+0.5*Math.cos(_st[5]*80+_samp*(18+_st[6])*0.0001);
 switch(p.ch4_type){case 0:ch4v=_cs()*(0.2+0.3*theta+0.3*beta)+_rn()*0.15*p.ch4_modRate*(1+p.crypto_direct);break;case 1:ch4v=_pn()*(0.4+0.3*theta+0.3*beta)+_rn()*0.1*p.ch4_modRate*(1+p.crypto_direct);break;default:ch4v=_rn()*(0.3+0.3*theta+0.3*beta)+_rn()*0.15*p.ch4_modRate*(1+p.crypto_direct)}
-// [v3.8] 与 Worklet 引擎相同的频谱整形（ch1 HP / ch2 LP / ch3 HP+延迟）
-_flt[0]+=_f1*_flt[1];var _hp1s=ch1v-_flt[0]-_q1*_flt[1];_flt[1]+=_f1*_hp1s;ch1v=_hp1s;
-_flt[2]+=_f2*_flt[3];var _bp2s=ch2v-_flt[2]-_q2*_flt[3];_flt[3]+=_f2*_bp2s;ch2v=_flt[2];
-_dl3[_dl3i&32767]=ch3v;ch3v=_dl3[(_dl3i-_dly3)&32767];_dl3i=(_dl3i+1)&32767;
+// [v3.9] ch3 通道整形（ch1 主高通 / ch2 主低通在末端统一应用）
 _flt[4]+=_f3*_flt[5];var _hp3s=ch3v-_flt[4]-_q3*_flt[5];_flt[5]+=_f3*_hp3s;ch3v=_hp3s;
 var nl=p.nonlinear_mix,im=p.intermod;
 var m1=(1-nl)*ch1v+nl*Math.tanh(ch2v*ch3v*2),m2=(1-nl)*ch2v+nl*Math.tanh(ch3v*ch4v*1.8);
@@ -496,6 +512,8 @@ sample+=adv*Math.sin(st[0]*400+st[1]*200)*0.003+_rn()*adv*0.015;
 sample+=Math.sin(st[3]*1000+_samp*(1.2+st[4]*0.3)*0.0001)*fh*0.035;
 _fgc++;if(_fgc>=64){_fgc=0;_fg=_fg*0.5+0.5*(0.78+_r()*0.44)}
 sample*=_fg;sample=Math.tanh(sample*1.8)*0.85;
+// [v3.9] 主带限（与 Worklet 一致）+ 软限幅
+sample=Math.max(-0.95,Math.min(0.95,_band(sample)*_makeup));
 if(_samp%1000<5)sample+=0.00012*Math.sin(_samp*0.0005);
 ch0[i]=sample;if(len>1)ch1[i]=sample;_samp++
 }
@@ -649,9 +667,9 @@ const _driftId=currentDriftId;
 const _crBuf=new Uint32Array(1);
 const _cr=()=>{crypto.getRandomValues(_crBuf);return _crBuf[0]/4294967296};
 let metaDrift={
-ch1_hp:{r:120,b:0},ch1_vol:{r:40,b:0},
-ch2_lpf:{r:140,b:0},ch2_vol:{r:40,b:0},
-ch3_hp:{r:150,b:0},ch3_vol:{r:40,b:0},
+ch1_vol:{r:40,b:0},
+ch2_vol:{r:40,b:0},
+ch3_hp:{r:60,b:0},ch3_vol:{r:40,b:0},
 ch4_vol:{r:40,b:0},ch4_mod:{r:40,b:0},
 gain:{r:20,b:0},speed:{r:60,b:0}
 };
@@ -669,8 +687,7 @@ const md=metaDrift;
 const baseSp=safeParse(driftSpeed.value,50);
 const driftSp=clamp(baseSp+md.speed.b*10+(_cr()-0.5)*md.speed.r,0,100);
 driftSpeed.value=Math.round(driftSp);
-drifted.ch1.hp+=(_cr()-0.5)*md.ch1_hp.r*depth+(_cr()-0.5)*md.ch1_hp.b;
-drifted.ch1.hp=clamp(drifted.ch1.hp,1,800);
+// [v3.9] ch1 HP / ch2 LPF 现在是主频带边缘，不再参与漂移（避免漂到无声区）
 drifted.ch1.volMin+=(_cr()-0.5)*md.ch1_vol.r*depth*0.5;
 drifted.ch1.volMax+=(_cr()-0.5)*md.ch1_vol.r*depth*0.5;
 drifted.ch1.volMin=clamp(drifted.ch1.volMin,0,100);
@@ -678,8 +695,6 @@ drifted.ch1.volMax=clamp(drifted.ch1.volMax,0,100);
 if(drifted.ch1.volMin>=drifted.ch1.volMax-2){drifted.ch1.volMax=drifted.ch1.volMin+5}
 drifted.ch1.q+=(_cr()-0.5)*1.5*depth;
 drifted.ch1.q=clamp(drifted.ch1.q,0.1,10);
-drifted.ch2.lpf+=(_cr()-0.5)*md.ch2_lpf.r*depth+(_cr()-0.5)*md.ch2_lpf.b;
-drifted.ch2.lpf=clamp(drifted.ch2.lpf,20,800);
 drifted.ch2.vol+=(_cr()-0.5)*md.ch2_vol.r*depth;
 drifted.ch2.vol=clamp(drifted.ch2.vol,0,100);
 drifted.ch2.sub+=(_cr()-0.5)*15*depth;
@@ -897,14 +912,14 @@ _checkAudioHealth();
 function resetToDefaults(){
 if(isPlaying)stopEngine();
 ch1_hp.value=60;ch1_volMin.value=30;ch1_volMax.value=70;ch1_q.value=0.7;
-ch2_lpf.value=250;ch2_vol.value=55;ch2_sub.value=30;
+ch2_lpf.value=800;ch2_vol.value=55;ch2_sub.value=30;
 ch3_hp.value=20;ch3_vol.value=45;ch3_phaseDelay.value=0;
 ch4_vol.value=50;ch4_modRate.value=60;
 globalMutate.value=75;globalDepth.value=100;globalGain.value=75;driftSpeed.value=80;
 CH_KEYS.forEach(k=>{setChType(k,CH_DEFAULT[k])});
 syncDriftedFromInputs();
 baseParams.global.mutate=75;baseParams.global.depth=100;baseParams.global.gain=75;
-m1hp.textContent="60Hz";m2lpf.textContent="250Hz";m3hp.textContent="20Hz";
+m1hp.textContent="60Hz";m2lpf.textContent="800Hz";m3hp.textContent="20Hz";
 m4Freq.textContent=Math.round(baseParams.global.depth)+"%";mComplex.textContent="85%";
 statusDetail.textContent="已重置";
 log('I','参数已重置为默认值');
