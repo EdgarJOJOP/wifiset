@@ -17,7 +17,7 @@
 <script>
 (function(){
 const $=id=>document.getElementById(id);
-const ch1_hp=$("ch1_hp"),ch1_volMin=$("ch1_volMin"),ch1_volMax=$("ch1_volMax"),ch1_q=$("ch1_q"),ch2_lpf=$("ch2_lpf"),ch2_vol=$("ch2_vol"),ch2_sub=$("ch2_sub"),ch3_hp=$("ch3_hp"),ch3_vol=$("ch3_vol"),ch3_phaseDelay=$("ch3_phaseDelay"),ch4_vol=$("ch4_vol"),ch4_modRate=$("ch4_modRate"),ch4_freqDisplay=$("ch4_freqDisplay"),globalMutate=$("globalMutate"),globalDepth=$("globalDepth"),globalGain=$("globalGain"),statusBadge=$("statusBadge"),statusText=$("statusText"),statusDetail=$("statusDetail"),mainToggle=$("mainToggle"),toggleLabel=$("toggleLabel"),resetBtn=$("resetBtn"),m1hp=$("m1hp"),m2lpf=$("m2lpf"),m3hp=$("m3hp"),m4Freq=$("m4Freq"),mComplex=$("mComplex"),qualityDisp=$("qualityDisp");
+const ch1_hp=$("ch1_hp"),ch1_volMin=$("ch1_volMin"),ch1_volMax=$("ch1_volMax"),ch1_q=$("ch1_q"),ch2_lpf=$("ch2_lpf"),ch2_vol=$("ch2_vol"),ch2_sub=$("ch2_sub"),ch3_hp=$("ch3_hp"),ch3_vol=$("ch3_vol"),ch3_phaseDelay=$("ch3_phaseDelay"),ch4_vol=$("ch4_vol"),ch4_modRate=$("ch4_modRate"),globalMutate=$("globalMutate"),globalDepth=$("globalDepth"),globalGain=$("globalGain"),statusBadge=$("statusBadge"),statusText=$("statusText"),statusDetail=$("statusDetail"),mainToggle=$("mainToggle"),toggleLabel=$("toggleLabel"),resetBtn=$("resetBtn"),m1hp=$("m1hp"),m2lpf=$("m2lpf"),m3hp=$("m3hp"),m4Freq=$("m4Freq"),mComplex=$("mComplex"),qualityDisp=$("qualityDisp");
 let isPlaying=false,audioCtx=null,masterGain=null,noiseNode=null,workletReady=false,driftTimer=null,keepWorker=null,wakeLockSentinel=null,swRegistration=null,isInit=false,totalComplexity=0;
 const _isMobile=/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
 let _healthTimer=null; let _updateCounter=0;
@@ -46,6 +46,13 @@ const drifted={ch1:{hp:60,volMin:30,volMax:70,q:0.7},ch2:{lpf:250,vol:55,sub:30}
 const lastValid={ch1_hp:60,ch1_volMin:30,ch1_volMax:70,ch1_q:0.7,ch2_lpf:250,ch2_vol:55,ch2_sub:30,ch3_hp:20,ch3_vol:45,ch3_phase:0,ch4_vol:50,ch4_modRate:60,globalMutate:75,globalDepth:100,globalGain:75,driftSpeed:80};
 function clamp(v,mn,mx){return Math.min(Math.max(v,mn),mx)}
 function safeParse(v,fb){const n=parseFloat(v);return isNaN(n)?fb:n}
+// [v3.8] 通道类型表：UI 按钮、参数映射、漂移突变、重置共用一份，避免五处重复与映射错位
+const CH_TYPES={ch1:["pink","white","chaos"],ch2:["pink","water","chaos"],ch3:["chaos","white","water"],ch4:["chaos","pink","white"]};
+const CH_KEYS=["ch1","ch2","ch3","ch4"];
+const CH_DEFAULT={ch1:"pink",ch2:"pink",ch3:"chaos",ch4:"chaos"};
+function chType(ch){const b=document.querySelector("#"+ch+"_type button.active");return b&&CH_TYPES[ch].indexOf(b.dataset.type)>=0?b.dataset.type:CH_TYPES[ch][0]}
+function chTypeIndex(ch){return CH_TYPES[ch].indexOf(chType(ch))}
+function setChType(ch,t){baseParams[ch].type=t;document.querySelectorAll("#"+ch+"_type button").forEach(b=>b.classList.toggle("active",b.dataset.type===t))}
 // ===== AudioWorkletProcessor v3.7: 后台抗中断+防内存泄漏优化版 =====
 const processorCode=`
 class NoiseProcessor extends AudioWorkletProcessor{
@@ -59,9 +66,9 @@ this.delayIdx=0;
 this._bitFlipSV=new Float32Array(1);
 this._bitFlipSB=new Uint32Array(this._bitFlipSV.buffer);
 this.p={
-ch1_type:2,ch1_gain:0.45,
-ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,
-ch3_type:2,ch3_gain:0.45,
+ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,
+ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:250,
+ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,
 ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,
 master_gain:0.70,depth:1.0,
 nonlinear_mix:0.35,intermod:0.25,
@@ -77,10 +84,16 @@ fake_heart:0.01
 };
 this.sampleCount=0;
 this.cryptoCountdown=0;
-//扩容crypto缓冲区 8192->65536
-this._cryptoBuf=new Float64Array(65536);
-this._cryptoArr=new Uint32Array(65536);
+// [v3.8] WebCrypto 单次上限 65536 字节（16384 个 uint32），改为 4 个分块视图直接写入 uint32 缓冲区
+this._cryptoBuf=new Uint32Array(65536);
+this._cryptoViews=[];
+for(let _v=0;_v<65536;_v+=16384)this._cryptoViews.push(this._cryptoBuf.subarray(_v,_v+16384));
 this._cryptoIdx=65536;
+this._cryptoWarned=false;
+// [v3.8] 每通道频段状态（此前 HP/LP/Q/Phase 只改 UI 与漂移值，从未进入音频链）
+this._flt=new Float64Array(6);
+this._f1=0.00855;this._q1=1.43;this._f2=0.0356;this._q2=1.414;this._f3=0.00285;this._q3=1.43;
+this._dl3=new Float32Array(32768);this._dl3Idx=0;this._dly3=0;
 this._pinkState=new Float64Array(7);
 this._formant=new Float64Array(4);
 this._subbandPhase=new Float64Array(8);
@@ -96,37 +109,40 @@ this._satCoefHp=Math.exp(-2*Math.PI*1/44100);
 this.port.onmessage=(evt)=>{
 const msg=evt.data;
 if(msg.type==="params"){
-for(const k in msg.params){if(k in this.p)this.p[k]=msg.params[k]}
+for(const k in msg.params){
+// [v3.8] 只接受已知的有限数值，避免 NaN/字符串参数把整个音频链污染成 NaN
+const v=msg.params[k];
+if(k in this.p&&typeof v==="number"&&isFinite(v))this.p[k]=v
+}
 }
 };
 }
-// [v3.7] 复用cryptoArr避免每次分配，后备使用混沌混合防PRNG预测
+// [v3.8] 分块填充 crypto；后备改为 sfc32 快速填充，避免音频线程每 30ms 做 65536 次混沌迭代
 _refreshCrypto(){
+let _ok=false;
 try{
-crypto.getRandomValues(this._cryptoArr);
-for(let i=0;i<65536;i++)this._cryptoBuf[i]=this._cryptoArr[i]/4294967296
-}catch(e){
-    try{console.log('BPNMD: AW使用混沌混合Math.random后备随机源')}catch(_){}
-// [v3.7] 防PRNG预测：混沌系统混合Math.random()+高精度时间戳
-const _cs=[Math.random(),Math.random(),Math.random(),Math.random()];
-const _t=(performance.now()*2654435761)>>>0;
+for(let i=0;i<this._cryptoViews.length;i++)crypto.getRandomValues(this._cryptoViews[i]);
+_ok=true
+}catch(e){}
+if(!_ok){
+// 后备随机源：Math.random+时间戳播种 sfc32（非密码学安全，但足够快且不会卡住音频线程）
+let _a=(Math.random()*4294967296)>>>0,_b=(Math.random()*4294967296)>>>0,_c=(Math.random()*4294967296)>>>0,_d=(Math.random()*4294967296)>>>0;
+const _t=(typeof performance!=='undefined'&&performance.now?performance.now():this.sampleCount)>>>0;
+_a^=_t;_b^=_t<<8;_c^=_t<<16;_d^=_t<<24;
+const _buf=this._cryptoBuf;
 for(let i=0;i<65536;i++){
-const _r=Math.random();
-_cs[0]=(3.9*_cs[0]*(1-_cs[0])+_r*0.05+(_t&255)*0.004)%1.0;
-_cs[1]=(3.8*_cs[1]*(1-_cs[1])+_cs[0]*0.08+((_t>>8)&255)*0.004)%1.0;
-_cs[2]=(3.7*_cs[2]*(1-_cs[2])+_cs[1]*0.06+((_t>>16)&255)*0.004)%1.0;
-_cs[3]=(3.6*_cs[3]*(1-_cs[3])+_cs[2]*0.07+((_t>>24)&255)*0.004)%1.0;
-this._cryptoBuf[i]=(_cs[3]+_r*0.3+_cs[0]*0.2)%1.0;
+let _s=(_a+_b)|0;
+_a=_b^_b>>>9;_b=(_c+(_c<<3))|0;_c=(_c<<21|_c>>>11);_d=(_d+1)|0;
+_s=(_s+_d)|0;_c=(_c+_s)|0;
+_buf[i]=_s>>>0
 }
+if(!this._cryptoWarned){this._cryptoWarned=true;try{console.log('BPNMD: WebCrypto 不可用，使用 sfc32+时间戳后备随机源')}catch(_){}}
 }
 this._cryptoIdx=0
 }
-// [v3.4] 修复索引越界：先读取再自增，确保不访问未定义
 _rand(){
 if(this._cryptoIdx>=65536)this._refreshCrypto();
-const val=this._cryptoBuf[this._cryptoIdx];
-this._cryptoIdx++;
-return val
+return this._cryptoBuf[this._cryptoIdx++]/4294967296
 }
 _randn(){
 const u1=this._rand(),u2=this._rand();
@@ -230,10 +246,19 @@ for(let i=0;i<len;i++){
 this._satRefreshCounter++;
 if(this._satRefreshCounter>=64){
 this._satRefreshCounter=0;
+const _sr=(typeof sampleRate==='number'&&sampleRate>0)?sampleRate:44100;
 this._satFcLp=400+this._rand()*1200;
 this._satFcHp=1+this._rand()*79;
-this._satCoefLp=Math.exp(-2*Math.PI*this._satFcLp/44100);
-this._satCoefHp=Math.exp(-2*Math.PI*this._satFcHp/44100);
+this._satCoefLp=Math.exp(-2*Math.PI*this._satFcLp/_sr);
+this._satCoefHp=Math.exp(-2*Math.PI*this._satFcHp/_sr);
+// [v3.8] 频段控制系数：HP/LP/Q/Phase 真正接入音频链
+const _hp1f=Math.min(800,Math.max(1,p.ch1_hp||60)),_q1f=Math.min(10,Math.max(0.1,p.ch1_q||0.7));
+const _lp2f=Math.min(800,Math.max(20,p.ch2_lpf||250));
+const _hp3f=Math.min(800,Math.max(1,p.ch3_hp||20));
+this._f1=2*Math.sin(Math.PI*_hp1f/_sr);this._q1=1/_q1f;
+this._f2=2*Math.sin(Math.PI*_lp2f/_sr);
+this._f3=2*Math.sin(Math.PI*_hp3f/_sr);
+this._dly3=Math.min(32767,Math.round(Math.min(500,Math.max(0,p.ch3_phase||0))/1000*_sr));
 }
 let ch1,ch2,ch3,ch4;
 switch(p.ch1_type){
@@ -262,6 +287,12 @@ case 0:ch4=this._chaosStep()*(0.2+0.3*thetaEnv+0.3*betaEnv)+this._randn()*0.15*p
 case 1:ch4=this._pinkNoise()*(0.4+0.3*thetaEnv+0.3*betaEnv)+this._randn()*0.1*p.ch4_modRate*(1+p.crypto_direct);break;
 default:ch4=this._randn()*(0.3+0.3*thetaEnv+0.3*betaEnv)+this._randn()*0.15*p.ch4_modRate*(1+p.crypto_direct);break
 };
+// [v3.8] 频谱整形：ch1 高通、ch2 低通、ch3 高通+相位延迟（状态变量滤波器，ch1 的 Q 生效）
+const _flt=this._flt;
+_flt[0]+=this._f1*_flt[1];const _hp1s=ch1-_flt[0]-this._q1*_flt[1];_flt[1]+=this._f1*_hp1s;ch1=_hp1s;
+_flt[2]+=this._f2*_flt[3];const _bp2s=ch2-_flt[2]-this._q2*_flt[3];_flt[3]+=this._f2*_bp2s;ch2=_flt[2];
+this._dl3[this._dl3Idx&32767]=ch3;ch3=this._dl3[(this._dl3Idx-this._dly3)&32767];this._dl3Idx=(this._dl3Idx+1)&32767;
+_flt[4]+=this._f3*_flt[5];const _hp3s=ch3-_flt[4]-this._q3*_flt[5];_flt[5]+=this._f3*_hp3s;ch3=_hp3s;
 const nl=p.nonlinear_mix,im=p.intermod;
 const m1=(1-nl)*ch1+nl*Math.tanh(ch2*ch3*2);
 const m2=(1-nl)*ch2+nl*Math.tanh(ch3*ch4*1.8);
@@ -316,10 +347,12 @@ out[c][i]=0
 }
 // [v3.4] 重置内部状态，防止NaN持续传播
 if(this.state){
-for(let s=0;s<4;s++)this.state[s]=Math.random();
+for(let s=0;s<8;s++)this.state[s]=Math.random();
 }
-// [v3.4] 强制下次刷新crypto缓冲
-this._cryptoIdx=8192;
+// [v3.8] 强制下次刷新 crypto，并清空可能已变成 NaN 的滤波器/延迟线状态
+this._cryptoIdx=this._cryptoBuf.length;
+this._flt.fill(0);this._dl3.fill(0);this._dl3Idx=0;
+this._frameGain=1;this._frameGainCounter=0;
 }
 return true
 }
@@ -360,7 +393,6 @@ log('R','音频上下文重建中...');
 try{if(audioCtx)try{audioCtx.close()}catch(e){};if(noiseNode)try{noiseNode.disconnect()}catch(e){};if(masterGain)try{masterGain.disconnect()}catch(e){}}catch(e){}
 noiseNode=null;masterGain=null;audioCtx=null;isInit=false;
 pendingInit=initAudio().then(()=>{
-if(audioCtx)audioCtx._healthChecked=false;
 if(isPlaying&&noiseNode&&masterGain){
 try{noiseNode.connect(masterGain)}catch(e){}
 masterGain.gain.setValueAtTime(Math.max(0.10,baseParams.global.gain/100*0.85),audioCtx.currentTime);
@@ -378,18 +410,20 @@ var _sfLp=800,_sfHp=1,_cLp=Math.exp(-2*Math.PI*800/44100),_cHp=Math.exp(-2*Math.
 var _sl=new Float64Array(2),_sh=new Float64Array(2);
 var _ps=new Float64Array(7),_fm=new Float64Array(4),_sbP=new Float64Array(8);
 var _wp=0,_wv=0,_fg=1.0,_fgc=0,_samp=0;
-var _cb=new Float64Array(2048),_ci=2048,_ca=new Uint32Array(2048);
-var _p={ch1_type:2,ch1_gain:0.45,ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch3_type:2,ch3_gain:0.45,ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,master_gain:0.70,depth:1.0,nonlinear_mix:0.35,intermod:0.25,chaos_rate:0.015,crypto_inject:0.30,crypto_direct:0.25,spectral_saturate:0.40,formant_mix:0.15,subband_depth:0.20,hos_exponent:0.10,adversarial:0.10,fake_heart:0.01};
-_spn._updateParams=function(np){for(var k in np){if(k in _p)_p[k]=np[k]}};
+var _cb=new Float64Array(16384),_ci=16384,_ca=new Uint32Array(16384);
+// [v3.8] 频段控制状态（与 Worklet 引擎同一套 SVF，保证降级路径音色一致）
+var _flt=new Float64Array(6),_f1=0.00855,_q1=1.43,_f2=0.0356,_q2=1.414,_f3=0.00285,_q3=1.43,_dl3=new Float32Array(32768),_dl3i=0,_dly3=0,_sr=ctx.sampleRate||44100;
+var _p={ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:250,ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,master_gain:0.70,depth:1.0,nonlinear_mix:0.35,intermod:0.25,chaos_rate:0.015,crypto_inject:0.30,crypto_direct:0.25,spectral_saturate:0.40,formant_mix:0.15,subband_depth:0.20,hos_exponent:0.10,adversarial:0.10,fake_heart:0.01};
+_spn._updateParams=function(np){for(var k in np){var v=np[k];if(k in _p&&typeof v==="number"&&isFinite(v))_p[k]=v}};
 // [v3.7] 按需填充crypto缓冲区
 function _r(){
-if(_ci>=2048){
+if(_ci>=16384){
 try{
 crypto.getRandomValues(_ca);
-for(var _fi=0;_fi<2048;_fi++)_cb[_fi]=_ca[_fi]/4294967296;
+for(var _fi=0;_fi<16384;_fi++)_cb[_fi]=_ca[_fi]/4294967296;
 }catch(e){
-for(var _fi=0;_fi<2048;_fi++)_cb[_fi]=Math.random();
-try{console.log('BPNMD: SPN降级引擎使用Math.random后备随机源')}catch(_){}
+for(var _fi=0;_fi<16384;_fi++)_cb[_fi]=Math.random();
+if(!_spn._warned){_spn._warned=true;try{console.log('BPNMD: SPN降级引擎使用Math.random后备随机源')}catch(_){}}
 }
 _ci=0
 }
@@ -422,7 +456,12 @@ return Math.max(-1,Math.min(1,out))
 }
 function _pn(){var w=_rn();_ps[0]=0.99886*_ps[0]+w*0.0555179;_ps[1]=0.99332*_ps[1]+w*0.0750759;_ps[2]=0.96900*_ps[2]+w*0.1538520;_ps[3]=0.86650*_ps[3]+w*0.3104856;_ps[4]=0.55000*_ps[4]+w*0.5329522;_ps[5]=-0.7616*_ps[5]-w*0.0168980;var p=(_ps[0]+_ps[1]+_ps[2]+_ps[3]+_ps[4]+_ps[5]+_ps[6]+w*0.5362)*0.11;_ps[6]=w*0.115926;return Math.max(-1,Math.min(1,p))}
 function _wn(){var mod=0.5+0.5*Math.sin(_st[4]*40+_st[5]*30+_dl[(_di-5)&511]*10);if(_wp<=0){if(_r()<0.02){_wv=_rn()*(0.3+_r()*0.7);_wp=Math.floor(30+_r()*150)}else{_wv=0;_wp=1+Math.floor(_r()*15)}}_wp--;var base=_rn();return Math.max(-1,Math.min(1,base*mod*0.6+_wv*0.3+_rn()*0.1))}
-function _sat(signal){var ss=_p.spectral_saturate;if(ss<0.01)return signal;_sc++;if(_sc>=64){_sc=0;_sfLp=400+_r()*1200;_sfHp=1+_r()*79;_cLp=Math.exp(-2*Math.PI*_sfLp/44100);_cHp=Math.exp(-2*Math.PI*_sfHp/44100)}_sl[0]=_sl[0]*_cLp+signal*(1-_cLp);_sl[1]=_sl[1]*_cLp+_sl[0]*(1-_cLp);var lp=_sl[1];var hpSig=signal-lp;_sh[0]=_sh[0]*_cHp+hpSig*(1-_cHp);_sh[1]=_sh[1]*_cHp+_sh[0]*(1-_cHp);var bandpass=hpSig-_sh[1];return signal*(1-ss)+bandpass*(1+ss*2)}
+function _sat(signal){var ss=_p.spectral_saturate;if(ss<0.01)return signal;_sc++;if(_sc>=64){_sc=0;_sfLp=400+_r()*1200;_sfHp=1+_r()*79;_cLp=Math.exp(-2*Math.PI*_sfLp/_sr);_cHp=Math.exp(-2*Math.PI*_sfHp/_sr);
+// [v3.8] 同步刷新频段控制系数
+var _h1=Math.min(800,Math.max(1,_p.ch1_hp||60)),_Q1=Math.min(10,Math.max(0.1,_p.ch1_q||0.7)),_l2=Math.min(800,Math.max(20,_p.ch2_lpf||250)),_h3=Math.min(800,Math.max(1,_p.ch3_hp||20));
+_f1=2*Math.sin(Math.PI*_h1/_sr);_q1=1/_Q1;_f2=2*Math.sin(Math.PI*_l2/_sr);_f3=2*Math.sin(Math.PI*_h3/_sr);
+_dly3=Math.min(32767,Math.round(Math.min(500,Math.max(0,_p.ch3_phase||0))/1000*_sr))}
+_sl[0]=_sl[0]*_cLp+signal*(1-_cLp);_sl[1]=_sl[1]*_cLp+_sl[0]*(1-_cLp);var lp=_sl[1];var hpSig=signal-lp;_sh[0]=_sh[0]*_cHp+hpSig*(1-_cHp);_sh[1]=_sh[1]*_cHp+_sh[0]*(1-_cHp);var bandpass=hpSig-_sh[1];return signal*(1-ss)+bandpass*(1+ss*2)}
 _spn.onaudioprocess=function(e){
 var out=e.outputBuffer,len=out.length;
 var ch0=out.getChannelData(0),ch1=len>1?out.getChannelData(1):ch0;
@@ -436,6 +475,11 @@ ch3v=ch3v*(1-p.crypto_direct*0.25)+(_r()-0.5)*p.crypto_direct*0.5;
 var theta=0.5+0.5*Math.sin(_st[4]*60+_samp*(4.5+_st[7]*2.5)*0.0001);
 var beta=0.5+0.5*Math.cos(_st[5]*80+_samp*(18+_st[6])*0.0001);
 switch(p.ch4_type){case 0:ch4v=_cs()*(0.2+0.3*theta+0.3*beta)+_rn()*0.15*p.ch4_modRate*(1+p.crypto_direct);break;case 1:ch4v=_pn()*(0.4+0.3*theta+0.3*beta)+_rn()*0.1*p.ch4_modRate*(1+p.crypto_direct);break;default:ch4v=_rn()*(0.3+0.3*theta+0.3*beta)+_rn()*0.15*p.ch4_modRate*(1+p.crypto_direct)}
+// [v3.8] 与 Worklet 引擎相同的频谱整形（ch1 HP / ch2 LP / ch3 HP+延迟）
+_flt[0]+=_f1*_flt[1];var _hp1s=ch1v-_flt[0]-_q1*_flt[1];_flt[1]+=_f1*_hp1s;ch1v=_hp1s;
+_flt[2]+=_f2*_flt[3];var _bp2s=ch2v-_flt[2]-_q2*_flt[3];_flt[3]+=_f2*_bp2s;ch2v=_flt[2];
+_dl3[_dl3i&32767]=ch3v;ch3v=_dl3[(_dl3i-_dly3)&32767];_dl3i=(_dl3i+1)&32767;
+_flt[4]+=_f3*_flt[5];var _hp3s=ch3v-_flt[4]-_q3*_flt[5];_flt[5]+=_f3*_hp3s;ch3v=_hp3s;
 var nl=p.nonlinear_mix,im=p.intermod;
 var m1=(1-nl)*ch1v+nl*Math.tanh(ch2v*ch3v*2),m2=(1-nl)*ch2v+nl*Math.tanh(ch3v*ch4v*1.8);
 var m3=(1-nl)*ch3v+nl*Math.sin(ch1v*ch4v*2.5+ch2v*1.2),m4=(1-nl)*ch4v+nl*Math.tanh((ch1v+ch2v)*ch3v*1.5);
@@ -458,8 +502,15 @@ ch0[i]=sample;if(len>1)ch1[i]=sample;_samp++
 };
 return _spn
 }
+let _initPromise=null;
 async function initAudio(){
 if(isInit)return;
+if(_initPromise)return _initPromise;
+_initPromise=initAudioOnce().finally(()=>{_initPromise=null});
+return _initPromise
+}
+// [v3.8] 初始化串行化：页面加载与双击“启动”并发时不再创建两个 AudioContext
+async function initAudioOnce(){
 try{
 audioCtx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:"playback"});
 // [v3.7] 记录创建时间，用于Android PWA健康检测
@@ -556,27 +607,24 @@ v=safeParse(globalMutate.value,lastValid.globalMutate);baseParams.global.mutate=
 v=safeParse(globalDepth.value,lastValid.globalDepth);baseParams.global.depth=clamp(v,10,100);lastValid.globalDepth=baseParams.global.depth;
 v=safeParse(globalGain.value,lastValid.globalGain);baseParams.global.gain=clamp(v,0,100);lastValid.globalGain=baseParams.global.gain;
 v=safeParse(driftSpeed.value,lastValid.driftSpeed);baseParams.global.driftSpeed=clamp(v,0,100);lastValid.driftSpeed=baseParams.global.driftSpeed;
-const t1=document.querySelector("#ch1_type button.active");if(t1)baseParams.ch1.type=t1.dataset.type;
-const t2=document.querySelector("#ch2_type button.active");if(t2)baseParams.ch2.type=t2.dataset.type;
-const t3=document.querySelector("#ch3_type button.active");if(t3)baseParams.ch3.type=t3.dataset.type;
-const t4=document.querySelector("#ch4_type button.active");if(t4)baseParams.ch4.type=t4.dataset.type
+CH_KEYS.forEach(k=>{baseParams[k].type=chType(k)})
 }
 function sendWorkletParams(){
 if(!noiseNode)return;
 const p={};
-const t1=document.querySelector("#ch1_type button.active");if(t1)p.ch1_type=["pink","white","chaos"].indexOf(t1.dataset.type);
-const t2=document.querySelector("#ch2_type button.active");if(t2)p.ch2_type=["pink","water","chaos"].indexOf(t2.dataset.type);
-const t3=document.querySelector("#ch3_type button.active");if(t3)p.ch3_type=["chaos","white","water"].indexOf(t3.dataset.type);
-const t4=document.querySelector("#ch4_type button.active");if(t4)p.ch4_type=["chaos","pink","white"].indexOf(t4.dataset.type);
+p.ch1_type=chTypeIndex("ch1");p.ch2_type=chTypeIndex("ch2");p.ch3_type=chTypeIndex("ch3");p.ch4_type=chTypeIndex("ch4");
 p.ch1_gain=((drifted.ch1.volMin+drifted.ch1.volMax)/2/100)*0.7;
 p.ch2_gain=(drifted.ch2.vol/100)*0.6;
 p.ch2_sub=(drifted.ch2.sub/100)*0.4;
 p.ch3_gain=(drifted.ch3.vol/100)*0.6;
 p.ch4_gain=(drifted.ch4.vol/100)*0.5;
 p.ch4_modRate=(drifted.ch4.modRate/100)*0.5;
+// [v3.8] 把此前只存在于 UI/漂移里的频段参数真正送进音频引擎
+p.ch1_hp=drifted.ch1.hp;p.ch1_q=drifted.ch1.q;
+p.ch2_lpf=drifted.ch2.lpf;
+p.ch3_hp=drifted.ch3.hp;p.ch3_phase=drifted.ch3.phaseDelay;
 // [v3.4] 增益下限保护：防止随机漂移到0%导致无声
 p.master_gain=Math.max(0.12, baseParams.global.gain/100);
-p.depth=baseParams.global.depth/100;
 p.crypto_inject=0.10+baseParams.global.depth/100*0.30;
 p.crypto_direct=0.08+baseParams.global.depth/100*0.25;
 p.spectral_saturate=0.10+baseParams.global.depth/100*0.35;
@@ -592,14 +640,11 @@ p.fake_heart=0.005+baseParams.global.depth/100*0.01;
 if(noiseNode.port){try{noiseNode.port.postMessage({type:"params",params:p})}catch(e){}}
 else if(noiseNode._updateParams){noiseNode._updateParams(p)}
 }
-function applyAllChannels(){if(!isPlaying||!noiseNode)return;sendWorkletParams()}
 function stopDrift(){if(driftTimer){clearTimeout(driftTimer);driftTimer=null}}
 let currentDriftId=0;
 function startDrift(){
 stopDrift();currentDriftId++;
 const _driftId=currentDriftId;
-const depth=baseParams.global.depth/100;
-const mutateProb=baseParams.global.mutate/100;
 // [v3.3] 复用_crBuf，避免每次分配Uint32Array
 const _crBuf=new Uint32Array(1);
 const _cr=()=>{crypto.getRandomValues(_crBuf);return _crBuf[0]/4294967296};
@@ -613,6 +658,8 @@ gain:{r:20,b:0},speed:{r:60,b:0}
 function driftUpdate(){
 if(!isPlaying)return;
 if(audioCtx){_ensureCtxLight();if(!isPlaying)return;if(_driftId!==currentDriftId)return}
+// [v3.8] 每个漂移周期读取当前“抗学习/突变”值，用户中途调参立即生效
+const depth=baseParams.global.depth/100,mutateProb=baseParams.global.mutate/100;
 for(let k in metaDrift){
 let m=metaDrift[k];
 m.r+=(_cr()-0.5)*20;m.r=Math.max(10,Math.min(300,m.r));
@@ -656,26 +703,8 @@ sendWorkletParams();
 // [v3.7] DOM节流：参数每次都发，DOM每3次刷新1次
 _updateCounter++;
 if(_updateCounter % 3 === 1){
-if(_cr()<mutateProb*0.20){
-const types=["pink","white","chaos"];
-baseParams.ch1.type=types[Math.floor(_cr()*3)];
-document.querySelectorAll("#ch1_type button").forEach(b=>b.classList.toggle("active",b.dataset.type===baseParams.ch1.type))
-}
-if(_cr()<mutateProb*0.16){
-const types2=["pink","water","chaos"];
-baseParams.ch2.type=types2[Math.floor(_cr()*3)];
-document.querySelectorAll("#ch2_type button").forEach(b=>b.classList.toggle("active",b.dataset.type===baseParams.ch2.type))
-}
-if(_cr()<mutateProb*0.14){
-const types3=["chaos","white","water"];
-baseParams.ch3.type=types3[Math.floor(_cr()*3)];
-document.querySelectorAll("#ch3_type button").forEach(b=>b.classList.toggle("active",b.dataset.type===baseParams.ch3.type))
-}
-if(_cr()<mutateProb*0.12){
-const types4=["chaos","pink","white"];
-baseParams.ch4.type=types4[Math.floor(_cr()*3)];
-document.querySelectorAll("#ch4_type button").forEach(b=>b.classList.toggle("active",b.dataset.type===baseParams.ch4.type))
-}
+const MUT_P=[0.20,0.16,0.14,0.12];
+CH_KEYS.forEach((k,i)=>{if(_cr()<mutateProb*MUT_P[i])setChType(k,CH_TYPES[k][Math.floor(_cr()*3)])});
 m1hp.textContent=Math.round(drifted.ch1.hp)+"Hz";
 m2lpf.textContent=Math.round(drifted.ch2.lpf)+"Hz";
 m3hp.textContent=Math.round(drifted.ch3.hp)+"Hz";
@@ -694,8 +723,10 @@ driftTimer=setTimeout(driftUpdate,400)
 }
 async function startEngine(){
 if(isPlaying)return;
+// [v3.8] 上下文已 closed 时必须真正重建：initAudio 的 isInit 守卫会直接返回，导致重新启动无声
+if(audioCtx&&audioCtx.state==="closed"){isInit=false;workletReady=false;noiseNode=null;masterGain=null;audioCtx=null}
 // [v3.7] 处理所有AudioContext状态：closed/未初始化时重建
-if(!isInit||!audioCtx||audioCtx.state==="closed"){
+if(!isInit||!audioCtx){
 await initAudio();if(!isInit)return
 }
 if(audioCtx.state==="suspended"||audioCtx.state==="interrupted"){
@@ -724,6 +755,10 @@ try{masterGain.connect(audioCtx.destination)}catch(e){}
 masterGain.gain.setTargetAtTime(Math.max(0.10, baseParams.global.gain/100*0.85),audioCtx.currentTime,0.1);
 }
 isPlaying=true;
+_silentFailCount=0;
+// [v3.8] 移动端健康检测此前只在 ensureAudioContext 里启动，正常启动路径根本不会执行
+if(_isMobile&&!_healthTimer){_startHealthCheck();if(audioCtx)audioCtx._healthTimerStarted=true}
+if(!keepWorker||!window._keepChannel)initKeepalive();
 log('I','掩蔽已启动');
 try{sessionStorage.setItem("bpnmd_active","1")}catch(e){}
 showKeepaliveNotification(true);
@@ -743,8 +778,12 @@ log('I','掩蔽已停止');
 try{sessionStorage.removeItem("bpnmd_active")}catch(e){}
 showKeepaliveNotification(false);
 stopDrift();
-if(masterGain&&audioCtx){masterGain.gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
-try{if(noiseNode)noiseNode.disconnect();masterGain.disconnect()}catch(e){}}
+// [v3.8] 先淡出再断开，避免 stop 时爆音；若 150ms 内重新启动则取消断开
+const _mg=masterGain,_nn=noiseNode;
+if(_mg&&audioCtx){
+_mg.gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
+setTimeout(()=>{if(!isPlaying){try{if(_nn)_nn.disconnect();_mg.disconnect()}catch(e){}}},150)
+}
 if(keepWorker){keepWorker.terminate();keepWorker=null}
 if(window._keepChannel){window._keepChannel.close();window._keepChannel=null}
 if(window._keepInterval){clearInterval(window._keepInterval);window._keepInterval=null}
@@ -752,7 +791,10 @@ if(window._netKeepaliveTimer){clearInterval(window._netKeepaliveTimer);window._n
 // [v3.7] 修复：stop时清理健康检测定时器和AnalyserNode
 if(_healthTimer){clearInterval(_healthTimer);_healthTimer=null}
 if(audioCtx)audioCtx._healthTimerStarted=false;
-_healthAnalyser=null;_healthBuf=null;
+if(_healthAnalyser){try{_healthAnalyser.disconnect()}catch(e){}}
+if(_healthSink){try{_healthSink.disconnect()}catch(e){}}
+_healthAnalyser=null;_healthBuf=null;_healthSink=null;_healthSrc=null;_healthPrimed=false;
+_silentFailCount=0;
 statusBadge.classList.remove("active");
 statusText.textContent="已停止";
 statusDetail.textContent="Stopped";
@@ -763,7 +805,7 @@ mainToggle.querySelector(".icon-btn").textContent="▶"
 function togglePlay(){if(isPlaying){log('I','用户点击: 停止');stopEngine()}else{log('I','用户点击: 启动');startEngine()}}
 function onInputChange(){syncDriftedFromInputs();if(isPlaying)sendWorkletParams();statusDetail.textContent=isPlaying?"Synced":"Updated"}
 // [v3.7] 音频健康检测：单例AnalyserNode复用，防止24h后内存泄漏
-let _healthAnalyser=null,_healthBuf=null;
+let _healthAnalyser=null,_healthBuf=null,_healthSink=null,_healthSrc=null,_healthPrimed=false;
 // [v3.7] 连续静音重建失败计数，防止死循环
 let _silentFailCount=0;
 async function _checkAudioHealth(){
@@ -773,10 +815,14 @@ if(!_healthAnalyser){
 _healthAnalyser=audioCtx.createAnalyser();
 _healthAnalyser.fftSize=256;
 _healthBuf=new Uint8Array(_healthAnalyser.frequencyBinCount);
+// [v3.8] Analyser 若不在通往 destination 的链路上可能不被拉动：接一个 0 增益汇点，常驻连接
+_healthSink=audioCtx.createGain();_healthSink.gain.value=0;
+_healthAnalyser.connect(_healthSink);_healthSink.connect(audioCtx.destination);
 }
-noiseNode.connect(_healthAnalyser);
+if(_healthSrc!==noiseNode){try{noiseNode.connect(_healthAnalyser)}catch(e){}_healthSrc=noiseNode;_healthPrimed=false}
 _healthAnalyser.getByteFrequencyData(_healthBuf);
-try{noiseNode.disconnect(_healthAnalyser)}catch(e){}
+// [v3.8] 首次连接后立刻读取必为 0，先跳过一轮，避免误判静音并永久关闭自动恢复
+if(!_healthPrimed){_healthPrimed=true;return}
 const sum=_healthBuf.reduce((a,b)=>a+b,0);
 if(sum<5&&_isMobile){
 _silentFailCount++;
@@ -855,36 +901,31 @@ ch2_lpf.value=250;ch2_vol.value=55;ch2_sub.value=30;
 ch3_hp.value=20;ch3_vol.value=45;ch3_phaseDelay.value=0;
 ch4_vol.value=50;ch4_modRate.value=60;
 globalMutate.value=75;globalDepth.value=100;globalGain.value=75;driftSpeed.value=80;
-document.querySelectorAll("#ch1_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="pink"));
-document.querySelectorAll("#ch2_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="pink"));
-document.querySelectorAll("#ch3_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="chaos"));
-document.querySelectorAll("#ch4_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="chaos"));
+CH_KEYS.forEach(k=>{setChType(k,CH_DEFAULT[k])});
 syncDriftedFromInputs();
 baseParams.global.mutate=75;baseParams.global.depth=100;baseParams.global.gain=75;
 m1hp.textContent="60Hz";m2lpf.textContent="250Hz";m3hp.textContent="20Hz";
-m4Freq.textContent=Math.round(drifted.ch4.modRate)+"%";mComplex.textContent="85%";
+m4Freq.textContent=Math.round(baseParams.global.depth)+"%";mComplex.textContent="85%";
 statusDetail.textContent="已重置";
 log('I','参数已重置为默认值');
 }
-function setType(selector,baseKey){
-const btns=document.querySelectorAll(selector+" button");
+function bindTypeButtons(){
+CH_KEYS.forEach(k=>{
+const btns=document.querySelectorAll("#"+k+"_type button");
 btns.forEach(b=>b.addEventListener("click",()=>{
-btns.forEach(x=>x.classList.remove("active"));b.classList.add("active");
-baseParams[baseKey].type=b.dataset.type;
+setChType(k,b.dataset.type);
 if(isPlaying)sendWorkletParams()
 }))
+})
 }
-setType("#ch1_type","ch1");setType("#ch2_type","ch2");setType("#ch3_type","ch3");setType("#ch4_type","ch4");
+bindTypeButtons();
 var driftSpeed=$("driftSpeed");
 const allInputs=[ch1_hp,ch1_volMin,ch1_volMax,ch1_q,ch2_lpf,ch2_vol,ch2_sub,ch3_hp,ch3_vol,ch3_phaseDelay,ch4_vol,ch4_modRate,globalMutate,globalDepth,globalGain,driftSpeed];
 allInputs.forEach(el=>{el.addEventListener("input",onInputChange);el.addEventListener("change",onInputChange)});
 mainToggle.addEventListener("click",togglePlay);
 resetBtn.addEventListener("click",resetToDefaults);
 async function init(){
-document.querySelectorAll("#ch1_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="pink"));
-document.querySelectorAll("#ch2_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="pink"));
-document.querySelectorAll("#ch3_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="chaos"));
-document.querySelectorAll("#ch4_type button").forEach(b=>b.classList.toggle("active",b.dataset.type==="chaos"));
+CH_KEYS.forEach(k=>{setChType(k,CH_DEFAULT[k])});
 syncDriftedFromInputs();
 // [v3.7] await initAudio()确保音频初始化完成再尝试自动恢复
 log('I','浏览器: '+(navigator.userAgent.match(/Edg\/|Chrome\/|Firefox\/|Safari\/|OPR\//)||['未知'])[0].trim()||'未知');
@@ -946,36 +987,24 @@ window._restoreStart=Date.now();
 setTimeout(()=>tryRestore(20),2000);
 }
 }catch(e){}
-// [v3.7] 双击版本号切换日志面板
-var _subEl=document.querySelector('.sub');
-if(_subEl)_subEl.addEventListener('dblclick',function(){
-var _p=$('logPanel');
+// [v3.8] 日志面板渲染/切换：双击标题与“📋日志”按钮共用一份实现
+function _toggleLogPanel(){
+const _p=$('logPanel');if(!_p)return;
 if(_p.style.display==='none'||!_p.style.display){
-_p.style.display='block';
-_p.innerHTML='';
+_p.style.display='block';_p.innerHTML='';
 _logRing.forEach(function(e){
-var _d=document.createElement('div');
+const _d=document.createElement('div');
 _d.className='log-'+e.l.toLowerCase();
 _d.innerHTML='<span class="log-time">'+_fmtBJTime(e.t)+'</span>['+LOG_LABEL[e.l]+'] '+e.m;
 _p.appendChild(_d);
 });
 _p.scrollTop=_p.scrollHeight;
 }else{_p.style.display='none'}
-});
-// [v3.7] 点击"📋日志"按钮切换日志面板
+}
+var _subEl=document.querySelector('.sub');
+if(_subEl)_subEl.addEventListener('dblclick',_toggleLogPanel);
 var _logBtn=$('logToggleBtn');
-if(_logBtn)_logBtn.addEventListener('click',function(){
-var _p=$('logPanel');
-if(_p.style.display==='none'||!_p.style.display){
-_p.style.display='block';_p.innerHTML='';
-_logRing.forEach(function(e){
-var _d=document.createElement('div');
-_d.className='log-'+e.l.toLowerCase();
-_d.innerHTML='<span class="log-time">'+_fmtBJTime(e.t)+'</span>['+LOG_LABEL[e.l]+'] '+e.m;
-_p.appendChild(_d);
-});_p.scrollTop=_p.scrollHeight;
-}else{_p.style.display='none'}
-});
+if(_logBtn)_logBtn.addEventListener('click',_toggleLogPanel);
 }
 if(document.readyState==="complete")init().catch(()=>{});else window.addEventListener("load",()=>init().catch(()=>{}));
 async function initKeepalive(){
