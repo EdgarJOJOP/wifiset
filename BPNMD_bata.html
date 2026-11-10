@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
-<title>生物防护抗AI学习系统 v3.7</title>
+<title>生物防护抗AI学习系统 v3.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}body{font-family:"Segoe UI","PingFang SC",Roboto,system-ui,sans-serif;background:#f4f6fa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:14px;color:#222}
 .app-container{max-width:1300px;width:100%;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:36px;padding:24px 24px 28px;box-shadow:0 20px 60px rgba(0,0,0,.08),0 8px 20px rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.04)}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:6px}.header-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.header-left .icon{font-size:28px}.header-left h1{font-size:20px;font-weight:600;color:#2c3e50}
 .status-badge{font-size:11px;padding:4px 12px;border-radius:30px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.06);color:#5a6a7a;display:flex;align-items:center;gap:4px}.status-badge .dot{width:8px;height:8px;border-radius:50%;background:#b0b8c8;transition:.3s}.status-badge.active .dot{background:#27ae60;box-shadow:0 0 12px rgba(39,174,96,.35)}.channels-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px 14px;margin-bottom:14px}@media(max-width:900px){.channels-grid{grid-template-columns:1fr 1fr}}@media(max-width:500px){.channels-grid{grid-template-columns:1fr}}.channel-card{background:#fff;border-radius:20px;padding:14px 12px 12px;border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 8px rgba(0,0,0,.02)}.ch-title{font-size:11px;font-weight:600;color:#2c3e50;margin-bottom:8px;display:flex;align-items:center;gap:6px}.ch-title .ch-num{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;background:#eef2f7;border-radius:50%;font-size:10px}.ch-controls{display:flex;flex-direction:column;gap:5px}.ch-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap}.ch-row label{font-size:9px;color:#6c7a8a;min-width:30px}.ch-row input[type="number"]{background:#f0f2f5;border:1px solid #d0d6e0;border-radius:8px;padding:4px;color:#222;font-size:11px;font-weight:500;width:44px;text-align:center;-moz-appearance:textfield;outline:none}.ch-row input[type="number"]:focus{border-color:#3498db;box-shadow:0 0 0 2px rgba(52,152,219,.15)}.ch-row .unit-label{font-size:9px;color:#8a9aaa}.ch-row .freq-pill{display:inline-block;padding:1px 8px;background:#eef2f7;border-radius:30px;font-size:9px;color:#2c3e50;font-weight:500}.aux-chooser{display:flex;gap:3px;margin-top:3px}.aux-chooser button{background:#eef2f7;border:1px solid #d0d6e0;color:#2c3e50;padding:2px 6px;border-radius:14px;font-size:8px;cursor:pointer;font-weight:500;transition:.15s;flex:1}.aux-chooser button.active{background:#3498db;border-color:#3498db;color:#fff}
 .global-controls{display:flex;gap:10px 18px;flex-wrap:wrap;background:#f8faff;border-radius:20px;padding:10px 14px;margin-bottom:12px;align-items:center;border:1px solid rgba(0,0,0,.04)}.global-controls .g-item{display:flex;align-items:center;gap:4px}.global-controls .g-item label{font-size:10px;color:#5a6a7a}.global-controls .g-item input[type="number"]{background:#f0f2f5;border:1px solid #d0d6e0;border-radius:8px;padding:3px 5px;color:#222;font-size:11px;width:42px;text-align:center;-moz-appearance:textfield}.monitor-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px 12px;margin-bottom:10px}@media(max-width:700px){.monitor-grid{grid-template-columns:1fr 1fr 1fr}}.monitor-item{background:#fff;border-radius:12px;padding:6px 10px 8px;text-align:center;border:1px solid rgba(0,0,0,.04)}.monitor-item .m-label{font-size:9px;color:#6c7a8a}.monitor-item .m-value{font-size:16px;font-weight:600;color:#2c3e50}.monitor-item .m-bar{margin-top:2px;height:2px;background:#e0e6ee;border-radius:4px;overflow:hidden}.monitor-item .m-bar-fill{height:100%;background:linear-gradient(90deg,#3498db,#9b59b6)}.action-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.btn{padding:6px 16px;border:none;border-radius:40px;font-size:12px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px;background:rgba(0,0,0,.04);color:#2c3e50;border:1px solid rgba(0,0,0,.06)}.btn-primary{background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;box-shadow:0 4px 20px rgba(52,152,219,.3)}.btn-primary.active{background:linear-gradient(135deg,#e74c3c,#c0392b)}.btn-secondary{background:rgba(0,0,0,.04);color:#5a6a7a}.action-info{font-size:9px;color:#6c7a8a;margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}.hint{font-size:7px;color:#8a9aaa;margin-top:2px}.no-select{user-select:none}.ch-row input[type="number"]::-webkit-inner-spin-button,.ch-row input[type="number"]::-webkit-outer-spin-button,.global-controls .g-item input[type="number"]::-webkit-inner-spin-button,.global-controls .g-item input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-/* [v3.7] 日志面板 - 深色终端风格 */
+/* [v3.9] 日志面板 - 深色终端风格 */
 #logPanel{display:none;margin-top:8px;background:#1a1a2e;color:#c8e6c9;border-radius:10px;padding:6px 8px;font:11px/1.5 "Consolas","Courier New",monospace;max-height:160px;overflow-y:auto;border:1px solid rgba(255,255,255,.08);-webkit-user-select:text;user-select:text}#logPanel .log-info{color:#81d4fa}#logPanel .log-warn{color:#ffcc80}#logPanel .log-error{color:#ef9a9a}#logPanel .log-recovery{color:#a5d6a7}#logPanel .log-time{color:#78909c;margin-right:4px}.log-toggle{cursor:pointer;border-bottom:1px dashed rgba(0,0,0,.15)}.log-toggle:hover{border-bottom-color:#3498db}</style></head><body><div class="app-container no-select"><div class="header"><div class="header-left"><span class="icon">🧩</span><h1>生物防护抗AI学习系统</h1><span class="sub">· 4通道实时防深度学习滤波</span></div><div class="status-badge" id="statusBadge"><span class="dot" id="statusDot"></span><span id="statusText">待命</span></div></div><div class="channels-grid"><div class="channel-card"><div class="ch-title"><span class="ch-num">1</span> 主高通·全频</div><div class="ch-controls"><div class="ch-row"><label>HP</label><input type="number" id="ch1_hp" value="60" min="1" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch1_volMin" value="30" min="0" max="100" step="1" style="width:32px" /><span class="range-sep">—</span><input type="number" id="ch1_volMax" value="70" min="0" max="100" step="1" style="width:32px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Q</label><input type="number" id="ch1_q" value="0.7" min="0.1" max="10" step="0.1" style="width:36px" /></div><div class="aux-chooser" id="ch1_type"><button data-type="pink" class="active">粉红</button><button data-type="white">白</button><button data-type="chaos">混沌</button></div><div class="hint">1-800Hz全随机 · 频谱Crypto包络</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">2</span> 低频专杀·基频</div><div class="ch-controls"><div class="ch-row"><label>LPF</label><input type="number" id="ch2_lpf" value="800" min="20" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch2_vol" value="55" min="0" max="100" step="1" style="width:44px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Sub</label><input type="number" id="ch2_sub" value="30" min="0" max="100" step="1" style="width:36px" /><span class="unit-label">%</span><span style="font-size:8px;color:#8a9aaa">(低频调制)</span></div><div class="aux-chooser" id="ch2_type"><button data-type="pink" class="active">粉红</button><button data-type="water">水流</button><button data-type="chaos">混沌</button></div><div class="hint">LPF上限800Hz · 包络Crypto</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">3</span> 辅助混沌·全频</div><div class="ch-controls"><div class="ch-row"><label>HP</label><input type="number" id="ch3_hp" value="20" min="1" max="800" step="5" /><span class="unit-label">Hz</span></div><div class="ch-row"><label>Vol</label><input type="number" id="ch3_vol" value="45" min="0" max="100" step="1" style="width:44px" /><span class="unit-label">%</span></div><div class="ch-row"><label>Phase</label><input type="number" id="ch3_phaseDelay" value="0" min="0" max="500" step="10" style="width:40px" /><span class="unit-label">ms</span></div><div class="aux-chooser" id="ch3_type"><button data-type="chaos" class="active">混沌</button><button data-type="white">白噪</button><button data-type="water">水流</button></div><div class="hint">1-800Hz全随机 · 包络Crypto</div></div></div><div class="channel-card"><div class="ch-title"><span class="ch-num">4</span> 防滤波 · 调制噪声</div><div class="ch-controls"><div class="ch-row"><label>噪</label><input type="number" id="ch4_vol" value="50" min="0" max="100" step="1" style="width:36px" /><span class="unit-label">%</span><span class="freq-pill" id="ch4_freqDisplay">Crypto饱和</span></div><div class="ch-row"><label>Mod</label><input type="number" id="ch4_modRate" value="60" min="0" max="100" step="5" style="width:36px" /><span class="unit-label">%</span></div><div class="aux-chooser" id="ch4_type"><button data-type="chaos" class="active">混沌</button><button data-type="pink">粉红</button><button data-type="white">白噪</button></div><div class="hint">频谱Crypto随机 · 防滤波建模</div></div></div></div><div class="global-controls"><div class="g-item"><label>⏱️ 突变</label><input type="number" id="globalMutate" value="75" min="0" max="100" step="5" /><span class="unit-label">%</span></div><div class="g-item"><label>🌀 抗学习</label><input type="number" id="globalDepth" value="100" min="10" max="100" step="5" /><span class="unit-label">%</span></div><div class="g-item"><label>🎚️ 增益</label><input type="number" id="globalGain" value="75" min="0" max="100" step="1" /><span class="unit-label">%</span></div><div style="display:flex;gap:6px;margin-left:auto"><span style="font-size:9px;color:#8a9aaa" id="complexityInfo">抗AI深度: 极高</span></div><div class="g-item"><label>🌊 漂移</label><input type="number" id="driftSpeed" value="80" min="0" max="100" step="5" /><span class="unit-label">%</span></div></div><div class="monitor-grid"><div class="monitor-item"><div class="m-label">通道1 HP</div><div class="m-value" id="m1hp">60Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:38%"></div></div></div><div class="monitor-item"><div class="m-label">通道2 LPF</div><div class="m-value" id="m2lpf">800Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:30%"></div></div></div><div class="monitor-item"><div class="m-label">通道3 HP</div><div class="m-value" id="m3hp">20Hz</div><div class="m-bar"><div class="m-bar-fill" style="width:15%"></div></div></div><div class="monitor-item"><div class="m-label">频谱包络</div><div class="m-value" id="m4Freq">Crypto随机</div><div class="m-bar"><div class="m-bar-fill" style="width:99%"></div></div></div><div class="monitor-item"><div class="m-label">抗AI强度</div><div class="m-value" id="mComplex">99%</div><div class="m-bar"><div class="m-bar-fill" style="width:99%"></div></div></div></div><div class="action-row"><button class="btn btn-primary" id="mainToggle"><span class="icon-btn">▶</span><span id="toggleLabel">启动掩蔽</span></button><button class="btn btn-secondary" id="resetBtn">↺ 重置</button><div class="action-info"><span id="qualityDisp">📊 频谱Crypto随机化</span><span class="fade" id="statusDetail">Crypto护盾 100%</span><span id="logToggleBtn" style="font-size:12px;color:#5a6a7a;cursor:pointer;border:1px solid #b0b8c8;border-radius:12px;padding:2px 10px;font-weight:500" title="点击切换日志面板 (双击标题也可)">📋日志</span></div></div>
-<!-- [v3.7] 日志面板：双击"· 4通道实时..."文字切换显示/隐藏 -->
+<!-- [v3.9] 日志面板：双击"· 4通道实时..."文字切换显示/隐藏 -->
 <div id="logPanel"></div></div>
 <script>
 (function(){
@@ -21,7 +21,7 @@ const ch1_hp=$("ch1_hp"),ch1_volMin=$("ch1_volMin"),ch1_volMax=$("ch1_volMax"),c
 let isPlaying=false,audioCtx=null,masterGain=null,noiseNode=null,workletReady=false,driftTimer=null,keepWorker=null,wakeLockSentinel=null,swRegistration=null,isInit=false,totalComplexity=0;
 const _isMobile=/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent);
 let _healthTimer=null; let _updateCounter=0;
-// [v3.7] 中文环形日志系统 - 保留200条，最后50条持久化到sessionStorage
+// [v3.9] 中文环形日志系统 - 保留200条，最后50条持久化到sessionStorage
 const LOG_MAX=200,_logRing=[];
 const LOG_LABEL={I:'信息',W:'警告',E:'错误',R:'恢复'};
 function _fmtBJTime(ts){return new Date(ts).toLocaleString('zh-CN',{hour12:false,timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',second:'2-digit'})}
@@ -40,20 +40,20 @@ el.appendChild(line);el.scrollTop=el.scrollHeight;
 }
 // 页面加载时恢复持久化日志
 try{const _saved=JSON.parse(sessionStorage.getItem('bpnmd_log')||'[]');_saved.forEach(function(e){_logRing.push(e)})}catch(e){}
-log('I','系统启动 v3.7');
+log('I','系统启动 v3.9');
 const baseParams={ch1:{hp:60,volMin:30,volMax:70,q:0.7,type:"pink"},ch2:{lpf:800,vol:55,sub:30,type:"pink"},ch3:{hp:20,vol:45,phaseDelay:0,type:"chaos"},ch4:{vol:50,modRate:60,type:"chaos"},global:{mutate:75,depth:100,gain:75,driftSpeed:80}};
 const drifted={ch1:{hp:60,volMin:30,volMax:70,q:0.7},ch2:{lpf:800,vol:55,sub:30},ch3:{hp:20,vol:45,phaseDelay:0},ch4:{vol:50,modRate:60}};
 const lastValid={ch1_hp:60,ch1_volMin:30,ch1_volMax:70,ch1_q:0.7,ch2_lpf:800,ch2_vol:55,ch2_sub:30,ch3_hp:20,ch3_vol:45,ch3_phase:0,ch4_vol:50,ch4_modRate:60,globalMutate:75,globalDepth:100,globalGain:75,driftSpeed:80};
 function clamp(v,mn,mx){return Math.min(Math.max(v,mn),mx)}
 function safeParse(v,fb){const n=parseFloat(v);return isNaN(n)?fb:n}
-// [v3.8] 通道类型表：UI 按钮、参数映射、漂移突变、重置共用一份，避免五处重复与映射错位
+// [v3.9] 通道类型表：UI 按钮、参数映射、漂移突变、重置共用一份，避免五处重复与映射错位
 const CH_TYPES={ch1:["pink","white","chaos"],ch2:["pink","water","chaos"],ch3:["chaos","white","water"],ch4:["chaos","pink","white"]};
 const CH_KEYS=["ch1","ch2","ch3","ch4"];
 const CH_DEFAULT={ch1:"pink",ch2:"pink",ch3:"chaos",ch4:"chaos"};
 function chType(ch){const b=document.querySelector("#"+ch+"_type button.active");return b&&CH_TYPES[ch].indexOf(b.dataset.type)>=0?b.dataset.type:CH_TYPES[ch][0]}
 function chTypeIndex(ch){return CH_TYPES[ch].indexOf(chType(ch))}
 function setChType(ch,t){baseParams[ch].type=t;document.querySelectorAll("#"+ch+"_type button").forEach(b=>b.classList.toggle("active",b.dataset.type===t))}
-// ===== AudioWorkletProcessor v3.7: 后台抗中断+防内存泄漏优化版 =====
+// ===== AudioWorkletProcessor v3.9: 后台抗中断+防内存泄漏优化版 =====
 const processorCode=`
 class NoiseProcessor extends AudioWorkletProcessor{
 constructor(){
@@ -70,7 +70,7 @@ ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,
 ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:800,
 ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,
 ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,
-master_gain:0.70,depth:1.0,
+master_gain:0.70,
 nonlinear_mix:0.35,intermod:0.25,
 chaos_rate:0.015,
 crypto_inject:0.30,
@@ -84,13 +84,13 @@ fake_heart:0.01
 };
 this.sampleCount=0;
 this.cryptoCountdown=0;
-// [v3.8] WebCrypto 单次上限 65536 字节（16384 个 uint32），改为 4 个分块视图直接写入 uint32 缓冲区
+// [v3.9] WebCrypto 单次上限 65536 字节（16384 个 uint32），改为 4 个分块视图直接写入 uint32 缓冲区
 this._cryptoBuf=new Uint32Array(65536);
 this._cryptoViews=[];
 for(let _v=0;_v<65536;_v+=16384)this._cryptoViews.push(this._cryptoBuf.subarray(_v,_v+16384));
 this._cryptoIdx=65536;
 this._cryptoWarned=false;
-// [v3.8] 每通道频段状态（此前 HP/LP/Q/Phase 只改 UI 与漂移值，从未进入音频链）
+// [v3.9] 每通道频段状态（此前 HP/LP/Q/Phase 只改 UI 与漂移值，从未进入音频链）
 this._flt=new Float64Array(6);
 this._f3=0.00285;this._q3=1.43;
 this._dl3=new Float32Array(32768);this._dl3Idx=0;this._dly3=0;
@@ -107,21 +107,22 @@ this._frameGainCounter=0;
 this._satFcLp=800;this._satFcHp=1;this._satRefreshCounter=0;
 this._satLP=new Float64Array(2);
 this._satHP=new Float64Array(2);
-// [v3.3] 缓存频谱系数，避免每采样Math.exp
-this._satCoefLp=Math.exp(-2*Math.PI*800/44100);
-this._satCoefHp=Math.exp(-2*Math.PI*1/44100);
+// [v3.9] 缓存频谱系数，避免每采样Math.exp
+const _sr0=(typeof sampleRate==='number'&&sampleRate>0)?sampleRate:44100;
+this._satCoefLp=Math.exp(-2*Math.PI*800/_sr0);
+this._satCoefHp=Math.exp(-2*Math.PI*1/_sr0);
 this.port.onmessage=(evt)=>{
 const msg=evt.data;
 if(msg.type==="params"){
 for(const k in msg.params){
-// [v3.8] 只接受已知的有限数值，避免 NaN/字符串参数把整个音频链污染成 NaN
+// [v3.9] 只接受已知的有限数值，避免 NaN/字符串参数把整个音频链污染成 NaN
 const v=msg.params[k];
 if(k in this.p&&typeof v==="number"&&isFinite(v))this.p[k]=v
 }
 }
 };
 }
-// [v3.8] 分块填充 crypto；后备改为 sfc32 快速填充，避免音频线程每 30ms 做 65536 次混沌迭代
+// [v3.9] 分块填充 crypto；后备改为 sfc32 快速填充，避免音频线程每 30ms 做 65536 次混沌迭代
 _refreshCrypto(){
 let _ok=false;
 try{
@@ -215,7 +216,7 @@ this._wPulse--;
 const base=this._randn();
 return Math.max(-1,Math.min(1,base*mod*0.6+this._wPulseVal*0.3+this._randn()*0.1))
 }
-// [v3.3] 使用缓存系数，不再每采样Math.exp
+// [v3.9] 使用缓存系数，不再每采样Math.exp
 _saturate(signal){
 const ss=this.p.spectral_saturate;
 if(ss<0.01)return signal;
@@ -254,7 +255,7 @@ this.state[i]=(this.state[i]+this._rand()*0.15)%1.0
 }
 }
 for(let i=0;i<len;i++){
-// [v3.3] 每64采样刷新频谱系数+同步更新缓存
+// [v3.9] 每64采样刷新频谱系数+同步更新缓存
 this._satRefreshCounter++;
 if(this._satRefreshCounter>=64){
 this._satRefreshCounter=0;
@@ -344,7 +345,7 @@ sample*=this._frameGain;
 sample=Math.tanh(sample*1.8)*0.85;
 // [v3.9] 主带限放在所有非线性之后，保证最终输出真的落在 1–800Hz；软限幅防止 Q 共振削顶
 sample=Math.max(-0.95,Math.min(0.95,this._band(sample)*this._makeup));
-// [v3.5] 静音自检：每1000采样注入极低振幅测试信号(-80dB)，用于Android PWA健康检测
+// [v3.9] 静音自检：每1000采样注入极低振幅测试信号(-80dB)，用于Android PWA健康检测
 if(this.sampleCount%1000<5){sample+=0.00012*Math.sin(this.sampleCount*0.0005)}
 for(let c=0;c<ch;c++)out[c][i]=sample;
 this.sampleCount++
@@ -355,15 +356,15 @@ const out=outputs[0];
 if(out){
 for(let c=0;c<Math.min(out.length,2);c++){
 for(let i=0;i<out[0].length;i++){
-// [v3.4] 异常时静音填充，避免NaN/爆音传播
+// [v3.9] 异常时静音填充，避免NaN/爆音传播
 out[c][i]=0
 }
 }
-// [v3.4] 重置内部状态，防止NaN持续传播
+// [v3.9] 重置内部状态，防止NaN持续传播
 if(this.state){
 for(let s=0;s<8;s++)this.state[s]=Math.random();
 }
-// [v3.8] 强制下次刷新 crypto，并清空可能已变成 NaN 的滤波器/延迟线状态
+// [v3.9] 强制下次刷新 crypto，并清空可能已变成 NaN 的滤波器/延迟线状态
 this._cryptoIdx=this._cryptoBuf.length;
 this._flt.fill(0);this._dl3.fill(0);this._dl3Idx=0;this._bp.fill(0);
 this._frameGain=1;this._frameGainCounter=0;
@@ -375,7 +376,7 @@ return true
 registerProcessor("noise-processor",NoiseProcessor);
 `;
 let pendingInit=null;
-// [v3.7] 轻量音频检查：用于drift等非关键路径，仅resume不重建
+// [v3.9] 轻量音频检查：用于drift等非关键路径，仅resume不重建
 async function _ensureCtxLight(){
 if(!audioCtx)return false;
 if(audioCtx.state==="running")return true;
@@ -384,12 +385,12 @@ try{await audioCtx.resume();return true}catch(e){return false}
 }
 return false
 }
-// [v3.7] 递归防护标志
+// [v3.9] 递归防护标志
 let _rebuildingCtx=false;
 async function ensureAudioContext(){
 if(_rebuildingCtx){return true}
 if(audioCtx&&audioCtx.state==="running"){
-// [v3.7] Android PWA：启动周期性音频健康检测（每30秒）
+// [v3.9] Android PWA：启动周期性音频健康检测（每30秒）
 if(_isMobile&&!audioCtx._healthTimerStarted){
 audioCtx._healthTimerStarted=true;
 log('I','启动音频健康检测（每30秒）');
@@ -406,6 +407,7 @@ _rebuildingCtx=true;
 log('R','音频上下文重建中...');
 try{if(audioCtx)try{audioCtx.close()}catch(e){};if(noiseNode)try{noiseNode.disconnect()}catch(e){};if(masterGain)try{masterGain.disconnect()}catch(e){}}catch(e){}
 noiseNode=null;masterGain=null;audioCtx=null;isInit=false;
+_resetHealthState();
 pendingInit=initAudio().then(()=>{
 if(isPlaying&&noiseNode&&masterGain){
 try{noiseNode.connect(masterGain)}catch(e){}
@@ -415,7 +417,7 @@ sendWorkletParams()
 }).finally(()=>{pendingInit=null;_rebuildingCtx=false;log('R','音频上下文重建完成')});
 await pendingInit;return true
 }
-// [v3.7] ScriptProcessorNode降级引擎：完整噪声算法，兼容Firefox/Safari
+// [v3.9] ScriptProcessorNode降级引擎：完整噪声算法，兼容Firefox/Safari
 function _createSPNNoise(ctx){
 var _spn=ctx.createScriptProcessor(4096,0,2);
 var _st=new Float64Array(8);_st[4]=0.5;_st[5]=0.5;_st[6]=0.5;_st[7]=0.5;
@@ -425,13 +427,13 @@ var _sl=new Float64Array(2),_sh=new Float64Array(2);
 var _ps=new Float64Array(7),_fm=new Float64Array(4),_sbP=new Float64Array(8);
 var _wp=0,_wv=0,_fg=1.0,_fgc=0,_samp=0;
 var _cb=new Float64Array(16384),_ci=16384,_ca=new Uint32Array(16384);
-// [v3.8] 频段控制状态（与 Worklet 引擎同一套 SVF，保证降级路径音色一致）
+// [v3.9] 频段控制状态（与 Worklet 引擎同一套 SVF，保证降级路径音色一致）
 var _flt=new Float64Array(6),_f3=0.00285,_q3=1.43,_dl3=new Float32Array(32768),_dl3i=0,_dly3=0,_sr=ctx.sampleRate||44100;
 // [v3.9] 主带限状态与增益（与 Worklet 一致）
 var _bp=new Float64Array(6),_bpF1=1.4e-4,_bpF2=0.114,_bpQ1=1.414,_bpQ2=1.414,_bpQ3=1.414,_makeup=4.0;
-var _p={ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:800,ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,master_gain:0.70,depth:1.0,nonlinear_mix:0.35,intermod:0.25,chaos_rate:0.015,crypto_inject:0.30,crypto_direct:0.25,spectral_saturate:0.40,formant_mix:0.15,subband_depth:0.20,hos_exponent:0.10,adversarial:0.10,fake_heart:0.01};
+var _p={ch1_type:2,ch1_gain:0.45,ch1_hp:60,ch1_q:0.7,ch2_type:2,ch2_gain:0.40,ch2_sub:0.25,ch2_lpf:800,ch3_type:2,ch3_gain:0.45,ch3_hp:20,ch3_phase:0,ch4_type:2,ch4_gain:0.40,ch4_modRate:0.3,master_gain:0.70,nonlinear_mix:0.35,intermod:0.25,chaos_rate:0.015,crypto_inject:0.30,crypto_direct:0.25,spectral_saturate:0.40,formant_mix:0.15,subband_depth:0.20,hos_exponent:0.10,adversarial:0.10,fake_heart:0.01};
 _spn._updateParams=function(np){for(var k in np){var v=np[k];if(k in _p&&typeof v==="number"&&isFinite(v))_p[k]=v}};
-// [v3.7] 按需填充crypto缓冲区
+// [v3.9] 按需填充crypto缓冲区
 function _r(){
 if(_ci>=16384){
 try{
@@ -472,16 +474,17 @@ return Math.max(-1,Math.min(1,out))
 }
 function _pn(){var w=_rn();_ps[0]=0.99886*_ps[0]+w*0.0555179;_ps[1]=0.99332*_ps[1]+w*0.0750759;_ps[2]=0.96900*_ps[2]+w*0.1538520;_ps[3]=0.86650*_ps[3]+w*0.3104856;_ps[4]=0.55000*_ps[4]+w*0.5329522;_ps[5]=-0.7616*_ps[5]-w*0.0168980;var p=(_ps[0]+_ps[1]+_ps[2]+_ps[3]+_ps[4]+_ps[5]+_ps[6]+w*0.5362)*0.11;_ps[6]=w*0.115926;return Math.max(-1,Math.min(1,p))}
 function _wn(){var mod=0.5+0.5*Math.sin(_st[4]*40+_st[5]*30+_dl[(_di-5)&511]*10);if(_wp<=0){if(_r()<0.02){_wv=_rn()*(0.3+_r()*0.7);_wp=Math.floor(30+_r()*150)}else{_wv=0;_wp=1+Math.floor(_r()*15)}}_wp--;var base=_rn();return Math.max(-1,Math.min(1,base*mod*0.6+_wv*0.3+_rn()*0.1))}
-function _sat(signal){var ss=_p.spectral_saturate;if(ss<0.01)return signal;_sc++;if(_sc>=64){_sc=0;_sfLp=400+_r()*1200;_sfHp=1+_r()*79;_cLp=Math.exp(-2*Math.PI*_sfLp/_sr);_cHp=Math.exp(-2*Math.PI*_sfHp/_sr);
-// [v3.8] 同步刷新频段控制系数
+function _sat(signal){var ss=_p.spectral_saturate;_sc++;if(_sc>=64){_sc=0;_sfLp=400+_r()*1200;_sfHp=1+_r()*79;_cLp=Math.exp(-2*Math.PI*_sfLp/_sr);_cHp=Math.exp(-2*Math.PI*_sfHp/_sr);
+// [v3.9] 同步刷新频段控制系数
 var _h1=Math.min(800,Math.max(1,_p.ch1_hp||60)),_Q1=Math.min(10,Math.max(0.1,_p.ch1_q||0.7)),_l2=Math.min(800,Math.max(20,_p.ch2_lpf||800)),_h3=Math.min(800,Math.max(1,_p.ch3_hp||20));
 var _h1e=Math.min(_h1,_l2*0.9);
 _bpF1=2*Math.sin(Math.PI*_h1e/_sr);_bpQ1=1/_Q1;_bpF2=2*Math.sin(Math.PI*_l2/_sr);_f3=2*Math.sin(Math.PI*_h3/_sr);
 _dly3=Math.min(32767,Math.round(Math.min(500,Math.max(0,_p.ch3_phase||0))/1000*_sr))}
+if(ss<0.01)return signal;
 _sl[0]=_sl[0]*_cLp+signal*(1-_cLp);_sl[1]=_sl[1]*_cLp+_sl[0]*(1-_cLp);var lp=_sl[1];var hpSig=signal-lp;_sh[0]=_sh[0]*_cHp+hpSig*(1-_cHp);_sh[1]=_sh[1]*_cHp+_sh[0]*(1-_cHp);var bandpass=hpSig-_sh[1];return signal*(1-ss)+bandpass*(1+ss*2)}
-// [v3.9] 主带限：1Hz 高通 + 800Hz 4 阶低通
+// [v3.9] 主带限：ch1 主高通 + ch2 主低通（4 阶）
 function _band(x){var st=_bp;st[0]+=_bpF1*st[1];var hp=x-st[0]-_bpQ1*st[1];st[1]+=_bpF1*hp;st[2]+=_bpF2*st[3];var l1=hp-st[2]-_bpQ2*st[3];st[3]+=_bpF2*l1;st[4]+=_bpF2*st[5];var l2=st[2]-st[4]-_bpQ3*st[5];st[5]+=_bpF2*l2;return st[4]}
-_spn.onaudioprocess=function(e){
+_spn.onaudioprocess=function(e){try{
 var out=e.outputBuffer,len=out.length;
 var ch0=out.getChannelData(0),ch1=len>1?out.getChannelData(1):ch0;
 for(var i=0;i<ch0.length;i++){
@@ -517,6 +520,7 @@ sample=Math.max(-0.95,Math.min(0.95,_band(sample)*_makeup));
 if(_samp%1000<5)sample+=0.00012*Math.sin(_samp*0.0005);
 ch0[i]=sample;if(len>1)ch1[i]=sample;_samp++
 }
+}catch(err){var _ob=e.outputBuffer;for(var _c=0;_c<_ob.numberOfChannels;_c++){var _d=_ob.getChannelData(_c);for(var _i=0;_i<_d.length;_i++)_d[_i]=0}}
 };
 return _spn
 }
@@ -527,11 +531,11 @@ if(_initPromise)return _initPromise;
 _initPromise=initAudioOnce().finally(()=>{_initPromise=null});
 return _initPromise
 }
-// [v3.8] 初始化串行化：页面加载与双击“启动”并发时不再创建两个 AudioContext
+// [v3.9] 初始化串行化：页面加载与双击“启动”并发时不再创建两个 AudioContext
 async function initAudioOnce(){
 try{
 audioCtx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:"playback"});
-// [v3.7] 记录创建时间，用于Android PWA健康检测
+// [v3.9] 记录创建时间，用于Android PWA健康检测
 audioCtx._createdAt=Date.now();
 masterGain=audioCtx.createGain();masterGain.gain.value=0;masterGain.connect(audioCtx.destination);
 const blob=new Blob([processorCode],{type:"application/javascript"});
@@ -540,7 +544,7 @@ try{
 await audioCtx.audioWorklet.addModule(url);
 URL.revokeObjectURL(url);
 }catch(e){
-// [v3.7] Blob URL失败，备用方案：Base64 Data URI（兼容Edgar等浏览器）
+// [v3.9] Blob URL失败，备用方案：Base64 Data URI（兼容Edgar等浏览器）
 URL.revokeObjectURL(url);
 log('W','Blob URL加载Worklet失败，尝试Data URI方式');
 try{
@@ -549,7 +553,7 @@ const dataUrl='data:application/javascript;base64,'+b64;
 await audioCtx.audioWorklet.addModule(dataUrl);
 log('I','Data URI方式加载Worklet成功');
 }catch(e2){
-// [v3.7] AudioWorklet不可用 → ScriptProcessorNode降级引擎（完整算法）
+// [v3.9] AudioWorklet不可用 → ScriptProcessorNode降级引擎（完整算法）
 log('W','AudioWorklet加载失败，启用ScriptProcessorNode降级引擎');
 try{
 noiseNode=_createSPNNoise(audioCtx);
@@ -563,7 +567,7 @@ log('E','SPN降级也失败，请使用Chrome/Edge最新版');
 statusDetail.textContent='请使用Chrome/Edge最新版';
 throw new Error('Both AudioWorklet and ScriptProcessorNode failed');
 }
-return; // [v3.7] 防止fallthrough到下方的AudioWorkletNode
+return; // [v3.9] 防止fallthrough到下方的AudioWorkletNode
 }
 }
 // 只有AudioWorklet成功才会执行到这里
@@ -572,26 +576,24 @@ noiseNode.connect(masterGain);
 workletReady=true;isInit=true;
 log('I','音频上下文创建成功');
 log('I','✓ 浏览器使用 AudioWorklet 引擎 (高效模式)');
-statusDetail.textContent="音频就绪|v3.7抗中断";
-// [v3.7] 添加resume冷却+onstatechange防抖，防止close→statechange循环
-audioCtx._lastResumeTime=0;
-audioCtx._resumeCooldownMs=3000;
+statusDetail.textContent="音频就绪|v3.9抗中断";
+// [v3.9] onstatechange 防抖，防止 close→statechange 循环
 audioCtx._lastStateChange=0;
 audioCtx.onstatechange=async()=>{
 if(audioCtx._bpnmdResuming||_rebuildingCtx)return;
-// [v3.7] 防抖：100ms内忽略重复状态变化
+// [v3.9] 防抖：100ms内忽略重复状态变化
 const _now=Date.now();
 if(_now-audioCtx._lastStateChange<100)return;
 audioCtx._lastStateChange=_now;
 if(isPlaying)log('W','音频状态变化: '+audioCtx.state);
 if(audioCtx.state==="closed"&&isPlaying){
-// [v3.7] close后2秒内不重复重建
+// [v3.9] close后2秒内不重复重建
 if(audioCtx._lastCloseTime&&(_now-audioCtx._lastCloseTime<2000))return;
 audioCtx._lastCloseTime=_now;
 ensureAudioContext();return
 }
 if((audioCtx.state==="interrupted"||audioCtx.state==="suspended")&&isPlaying){
-// [v3.7] 如果5秒内反复中断，说明浏览器强制挂起，直接重建
+// [v3.9] 如果5秒内反复中断，说明浏览器强制挂起，直接重建
 const now=Date.now();
 if(audioCtx._lastInterruptTime&&(now-audioCtx._lastInterruptTime<5000)){
 log('R','音频反复中断，强制重建');
@@ -637,11 +639,11 @@ p.ch2_sub=(drifted.ch2.sub/100)*0.4;
 p.ch3_gain=(drifted.ch3.vol/100)*0.6;
 p.ch4_gain=(drifted.ch4.vol/100)*0.5;
 p.ch4_modRate=(drifted.ch4.modRate/100)*0.5;
-// [v3.8] 把此前只存在于 UI/漂移里的频段参数真正送进音频引擎
+// [v3.9] 把此前只存在于 UI/漂移里的频段参数真正送进音频引擎
 p.ch1_hp=drifted.ch1.hp;p.ch1_q=drifted.ch1.q;
 p.ch2_lpf=drifted.ch2.lpf;
 p.ch3_hp=drifted.ch3.hp;p.ch3_phase=drifted.ch3.phaseDelay;
-// [v3.4] 增益下限保护：防止随机漂移到0%导致无声
+// [v3.9] 增益下限保护：防止随机漂移到0%导致无声
 p.master_gain=Math.max(0.12, baseParams.global.gain/100);
 p.crypto_inject=0.10+baseParams.global.depth/100*0.30;
 p.crypto_direct=0.08+baseParams.global.depth/100*0.25;
@@ -654,7 +656,7 @@ p.subband_depth=0.1+baseParams.global.depth/100*0.2;
 p.hos_exponent=0.05+baseParams.global.depth/100*0.15;
 p.adversarial=0.02+baseParams.global.depth/100*0.10;
 p.fake_heart=0.005+baseParams.global.depth/100*0.01;
-// [v3.7] 兼容AudioWorklet(.port)和ScriptProcessorNode(._updateParams)
+// [v3.9] 兼容AudioWorklet(.port)和ScriptProcessorNode(._updateParams)
 if(noiseNode.port){try{noiseNode.port.postMessage({type:"params",params:p})}catch(e){}}
 else if(noiseNode._updateParams){noiseNode._updateParams(p)}
 }
@@ -663,9 +665,9 @@ let currentDriftId=0;
 function startDrift(){
 stopDrift();currentDriftId++;
 const _driftId=currentDriftId;
-// [v3.3] 复用_crBuf，避免每次分配Uint32Array
+// [v3.9] 复用_crBuf，避免每次分配Uint32Array
 const _crBuf=new Uint32Array(1);
-const _cr=()=>{crypto.getRandomValues(_crBuf);return _crBuf[0]/4294967296};
+const _cr=()=>{try{crypto.getRandomValues(_crBuf);return _crBuf[0]/4294967296}catch(e){return Math.random()}};
 let metaDrift={
 ch1_vol:{r:40,b:0},
 ch2_vol:{r:40,b:0},
@@ -676,7 +678,7 @@ gain:{r:20,b:0},speed:{r:60,b:0}
 function driftUpdate(){
 if(!isPlaying)return;
 if(audioCtx){_ensureCtxLight();if(!isPlaying)return;if(_driftId!==currentDriftId)return}
-// [v3.8] 每个漂移周期读取当前“抗学习/突变”值，用户中途调参立即生效
+// [v3.9] 每个漂移周期读取当前“抗学习/突变”值，用户中途调参立即生效
 const depth=baseParams.global.depth/100,mutateProb=baseParams.global.mutate/100;
 for(let k in metaDrift){
 let m=metaDrift[k];
@@ -710,12 +712,12 @@ drifted.ch4.vol=clamp(drifted.ch4.vol,0,100);
 drifted.ch4.modRate+=(_cr()-0.5)*md.ch4_mod.r*depth;
 drifted.ch4.modRate=clamp(drifted.ch4.modRate,0,100);
 let gainOff=(_cr()-0.5)*md.gain.r*depth;
-// [v3.4] 增益下限保护：clamp下界改为12而非0，确保不会无声
+// [v3.9] 增益下限保护：clamp下界改为12而非0，确保不会无声
 let newGain=clamp(lastValid.globalGain+gainOff,12,100);
 baseParams.global.gain=newGain;
 globalGain.value=Math.round(newGain);
 sendWorkletParams();
-// [v3.7] DOM节流：参数每次都发，DOM每3次刷新1次
+// [v3.9] DOM节流：参数每次都发，DOM每3次刷新1次
 _updateCounter++;
 if(_updateCounter % 3 === 1){
 const MUT_P=[0.20,0.16,0.14,0.12];
@@ -738,9 +740,9 @@ driftTimer=setTimeout(driftUpdate,400)
 }
 async function startEngine(){
 if(isPlaying)return;
-// [v3.8] 上下文已 closed 时必须真正重建：initAudio 的 isInit 守卫会直接返回，导致重新启动无声
-if(audioCtx&&audioCtx.state==="closed"){isInit=false;workletReady=false;noiseNode=null;masterGain=null;audioCtx=null}
-// [v3.7] 处理所有AudioContext状态：closed/未初始化时重建
+// [v3.9] 上下文已 closed 时必须真正重建：initAudio 的 isInit 守卫会直接返回，导致重新启动无声
+if(audioCtx&&audioCtx.state==="closed"){isInit=false;workletReady=false;noiseNode=null;masterGain=null;audioCtx=null;_resetHealthState()}
+// [v3.9] 处理所有AudioContext状态：closed/未初始化时重建
 if(!isInit||!audioCtx){
 await initAudio();if(!isInit)return
 }
@@ -756,14 +758,14 @@ proceedStart()
 }
 function proceedStart(){
 if(isPlaying)return;
-// [v3.7] 修复：Worklet未就绪时禁止启动，防止无声死循环
+// [v3.9] 修复：Worklet未就绪时禁止启动，防止无声死循环
 if(!workletReady){
 log('E','音频引擎未就绪(Worklet加载失败)');
 statusDetail.textContent='引擎未就绪';
 return;
 }
 syncDriftedFromInputs();sendWorkletParams();
-// [v3.7] 修复stopEngine断开音频图后忘记重连的bug
+// [v3.9] 修复stopEngine断开音频图后忘记重连的bug
 if(audioCtx&&noiseNode&&masterGain){
 try{noiseNode.connect(masterGain)}catch(e){}
 try{masterGain.connect(audioCtx.destination)}catch(e){}
@@ -771,7 +773,7 @@ masterGain.gain.setTargetAtTime(Math.max(0.10, baseParams.global.gain/100*0.85),
 }
 isPlaying=true;
 _silentFailCount=0;
-// [v3.8] 移动端健康检测此前只在 ensureAudioContext 里启动，正常启动路径根本不会执行
+// [v3.9] 移动端健康检测此前只在 ensureAudioContext 里启动，正常启动路径根本不会执行
 if(_isMobile&&!_healthTimer){_startHealthCheck();if(audioCtx)audioCtx._healthTimerStarted=true}
 if(!keepWorker||!window._keepChannel)initKeepalive();
 log('I','掩蔽已启动');
@@ -779,12 +781,12 @@ try{sessionStorage.setItem("bpnmd_active","1")}catch(e){}
 showKeepaliveNotification(true);
 statusBadge.classList.add("active");
 statusText.textContent="掩蔽中";
-statusDetail.textContent="*4Ch|v3.7抗中断";
+statusDetail.textContent="*4Ch|v3.9抗中断";
 toggleLabel.textContent="停止";
 mainToggle.classList.add("active");
 mainToggle.querySelector(".icon-btn").textContent="■";
 startDrift();
-qualityDisp.textContent="*4Ch v3.7 Crypto Anti-AI"
+qualityDisp.textContent="*4Ch v3.9 Crypto Anti-AI"
 }
 function stopEngine(){
 if(!isPlaying)return;
@@ -793,7 +795,7 @@ log('I','掩蔽已停止');
 try{sessionStorage.removeItem("bpnmd_active")}catch(e){}
 showKeepaliveNotification(false);
 stopDrift();
-// [v3.8] 先淡出再断开，避免 stop 时爆音；若 150ms 内重新启动则取消断开
+// [v3.9] 先淡出再断开，避免 stop 时爆音；若 150ms 内重新启动则取消断开
 const _mg=masterGain,_nn=noiseNode;
 if(_mg&&audioCtx){
 _mg.gain.setTargetAtTime(0,audioCtx.currentTime,0.1);
@@ -803,7 +805,7 @@ if(keepWorker){keepWorker.terminate();keepWorker=null}
 if(window._keepChannel){window._keepChannel.close();window._keepChannel=null}
 if(window._keepInterval){clearInterval(window._keepInterval);window._keepInterval=null}
 if(window._netKeepaliveTimer){clearInterval(window._netKeepaliveTimer);window._netKeepaliveTimer=null}
-// [v3.7] 修复：stop时清理健康检测定时器和AnalyserNode
+// [v3.9] 修复：stop时清理健康检测定时器和AnalyserNode
 if(_healthTimer){clearInterval(_healthTimer);_healthTimer=null}
 if(audioCtx)audioCtx._healthTimerStarted=false;
 if(_healthAnalyser){try{_healthAnalyser.disconnect()}catch(e){}}
@@ -819,9 +821,11 @@ mainToggle.querySelector(".icon-btn").textContent="▶"
 }
 function togglePlay(){if(isPlaying){log('I','用户点击: 停止');stopEngine()}else{log('I','用户点击: 启动');startEngine()}}
 function onInputChange(){syncDriftedFromInputs();if(isPlaying)sendWorkletParams();statusDetail.textContent=isPlaying?"Synced":"Updated"}
-// [v3.7] 音频健康检测：单例AnalyserNode复用，防止24h后内存泄漏
+// [v3.9] 音频健康检测：单例AnalyserNode复用，防止24h后内存泄漏
 let _healthAnalyser=null,_healthBuf=null,_healthSink=null,_healthSrc=null,_healthPrimed=false;
-// [v3.7] 连续静音重建失败计数，防止死循环
+// 重建 AudioContext 后旧的 Analyser 属于旧上下文，必须整体丢弃，否则会读到全 0 并误判静音
+function _resetHealthState(){_healthAnalyser=null;_healthBuf=null;_healthSink=null;_healthSrc=null;_healthPrimed=false}
+// [v3.9] 连续静音重建失败计数，防止死循环
 let _silentFailCount=0;
 async function _checkAudioHealth(){
 if(!audioCtx||!noiseNode||!isPlaying)return;
@@ -830,13 +834,13 @@ if(!_healthAnalyser){
 _healthAnalyser=audioCtx.createAnalyser();
 _healthAnalyser.fftSize=256;
 _healthBuf=new Uint8Array(_healthAnalyser.frequencyBinCount);
-// [v3.8] Analyser 若不在通往 destination 的链路上可能不被拉动：接一个 0 增益汇点，常驻连接
+// [v3.9] Analyser 若不在通往 destination 的链路上可能不被拉动：接一个 0 增益汇点，常驻连接
 _healthSink=audioCtx.createGain();_healthSink.gain.value=0;
 _healthAnalyser.connect(_healthSink);_healthSink.connect(audioCtx.destination);
 }
-if(_healthSrc!==noiseNode){try{noiseNode.connect(_healthAnalyser)}catch(e){}_healthSrc=noiseNode;_healthPrimed=false}
+if(_healthSrc!==noiseNode){try{noiseNode.connect(_healthAnalyser);_healthSrc=noiseNode;_healthPrimed=false}catch(e){}}
 _healthAnalyser.getByteFrequencyData(_healthBuf);
-// [v3.8] 首次连接后立刻读取必为 0，先跳过一轮，避免误判静音并永久关闭自动恢复
+// [v3.9] 首次连接后立刻读取必为 0，先跳过一轮，避免误判静音并永久关闭自动恢复
 if(!_healthPrimed){_healthPrimed=true;return}
 const sum=_healthBuf.reduce((a,b)=>a+b,0);
 if(sum<5&&_isMobile){
@@ -855,18 +859,18 @@ log('I','健康检测正常 信号='+sum);
 }
 }catch(e){}
 }
-// [v3.7] 启动周期性音频健康检测（每30秒）+ Worklet端口存活检测（每5分钟）
+// [v3.9] 启动周期性音频健康检测（每30秒）+ Worklet端口存活检测（每5分钟）
 function _startHealthCheck(){
 if(_healthTimer)clearInterval(_healthTimer);
 let _healthCheckCount=0;
-// [v3.7] 多维度健康检测状态
+// [v3.9] 多维度健康检测状态
 let _lastCtxTime=0;
 let _lastPerfTime=performance.now();
 let _timeCtxSameCount=0;
 _healthTimer=setInterval(()=>{
 if(!isPlaying||!audioCtx||!noiseNode){return;}
 _healthCheckCount++;
-// [v3.7] 检测1：AudioContext时间戳（音频线程是否卡死）
+// [v3.9] 检测1：AudioContext时间戳（音频线程是否卡死）
 try{
 var _nowCtx=audioCtx.currentTime;
 if(_nowCtx===_lastCtxTime&&_lastCtxTime>0){
@@ -878,7 +882,7 @@ _timeCtxSameCount=0;
 }
 }else{_timeCtxSameCount=0;_lastCtxTime=_nowCtx}
 }catch(e){}
-// [v3.7] 检测2：Performance API（JS主线程是否卡顿）
+// [v3.9] 检测2：Performance API（JS主线程是否卡顿）
 try{
 var _nowPerf=performance.now();
 var _elapsed=_nowPerf-_lastPerfTime;
@@ -888,11 +892,11 @@ ensureAudioContext();
 }
 _lastPerfTime=_nowPerf;
 }catch(e){}
-// [v3.7] 检测3：setInterval时间差法（是否被浏览器节流）
+// [v3.9] 检测3：setInterval时间差法（是否被浏览器节流）
 if(_elapsed>35000&&_elapsed<60000){
 log('W','setInterval被节流(实际'+Math.round(_elapsed/1000)+'s>30s)');
 }
-// [v3.7] Worklet端口存活检测：每10次健康检查（5分钟）检测一次
+// [v3.9] Worklet端口存活检测：每10次健康检查（5分钟）检测一次
 if(_healthCheckCount%10===0){
 try{
 if(noiseNode.port){
@@ -942,19 +946,18 @@ resetBtn.addEventListener("click",resetToDefaults);
 async function init(){
 CH_KEYS.forEach(k=>{setChType(k,CH_DEFAULT[k])});
 syncDriftedFromInputs();
-// [v3.7] await initAudio()确保音频初始化完成再尝试自动恢复
+// [v3.9] await initAudio()确保音频初始化完成再尝试自动恢复
 log('I','浏览器: '+(navigator.userAgent.match(/Edg\/|Chrome\/|Firefox\/|Safari\/|OPR\//)||['未知'])[0].trim()||'未知');
 try{var _tr=new Uint32Array(1);crypto.getRandomValues(_tr);log('I','随机源: crypto.getRandomValues (硬件熵)');}catch(e){log('I','随机源: 混沌混合Math.random (软件PRNG)');}
 log('I','正在初始化音频引擎(将尝试AudioWorklet→SPN降级)...');
 await initAudio();
 initKeepalive();
-// [v3.7] 增强visibilitychange：Android前台强制重建音频图
+// [v3.9] 增强visibilitychange：Android前台强制重建音频图
 document.addEventListener("visibilitychange",()=>{
 if(!document.hidden){
-// [v3.7] 回到前台：停止后台保活HEAD fetch
+// [v3.9] 回到前台：停止后台保活HEAD fetch
 if(window._netKeepaliveTimer){clearInterval(window._netKeepaliveTimer);window._netKeepaliveTimer=null}
-if(audioCtx)audioCtx._lastResumeTime=0;
-// [v3.5] Android前台恢复：强制重建音频图以防止僵尸状态
+// [v3.9] Android前台恢复：强制重建音频图以防止僵尸状态
 if(_isMobile&&isPlaying&&audioCtx){
 const now=Date.now();
 if(!audioCtx._lastRecreate||(now-audioCtx._lastRecreate)>10000){
@@ -969,8 +972,8 @@ log('I','从后台回到前台，音频状态已检查');
 statusDetail.textContent="前台恢复";
 }else{
 log('I','进入后台模式，保活机制启动');
-// [v3.7] 进入后台：启动HEAD fetch每30秒保活
-if(!window._netKeepaliveTimer){
+// [v3.9] 进入后台：仅在播放时启动 HEAD fetch 保活，避免待机时每 30 秒打一次网络
+if(isPlaying&&!window._netKeepaliveTimer){
 window._netKeepaliveTimer=setInterval(()=>{
 fetch(location.href,{method:"HEAD",cache:"no-store"}).catch(()=>{});
 if(navigator.serviceWorker&&swRegistration&&navigator.serviceWorker.controller){
@@ -978,11 +981,11 @@ navigator.serviceWorker.controller.postMessage("keepalive-ping")}
 },30000);
 }
 }});
-statusDetail.textContent="*4Ch v3.7 Anti-AI";
+statusDetail.textContent="*4Ch v3.9 Anti-AI";
 try{
 if(sessionStorage.getItem("bpnmd_active")==="1"){
 statusDetail.textContent="Restoring...";
-// [v3.7] 自适应自启动：20次重试×2秒间隔，带超时提示
+// [v3.9] 自适应自启动：20次重试×2秒间隔，带超时提示
 const tryRestore=(retries,waited)=>{
 if(audioCtx&&audioCtx.state==="running"&&!isPlaying){
 startEngine();
@@ -1002,7 +1005,7 @@ window._restoreStart=Date.now();
 setTimeout(()=>tryRestore(20),2000);
 }
 }catch(e){}
-// [v3.8] 日志面板渲染/切换：双击标题与“📋日志”按钮共用一份实现
+// [v3.9] 日志面板渲染/切换：双击标题与“📋日志”按钮共用一份实现
 function _toggleLogPanel(){
 const _p=$('logPanel');if(!_p)return;
 if(_p.style.display==='none'||!_p.style.display){
@@ -1056,10 +1059,10 @@ async function showKeepaliveNotification(show){
 if(show){
 try{
 if(Notification.permission==="granted"&&swRegistration){
-await swRegistration.showNotification("生物防护",{body:"v3.7 抗中断+防泄漏优化版",tag:"bpnmd",silent:true})
+await swRegistration.showNotification("生物防护",{body:"v3.9 抗中断+防泄漏优化版",tag:"bpnmd",silent:true})
 }else if(Notification.permission==="default"){
 const perm=await Notification.requestPermission();
-if(perm==="granted"&&swRegistration){await swRegistration.showNotification("生物防护",{body:"v3.7 抗中断+防泄漏优化版",tag:"bpnmd",silent:true})}
+if(perm==="granted"&&swRegistration){await swRegistration.showNotification("生物防护",{body:"v3.9 抗中断+防泄漏优化版",tag:"bpnmd",silent:true})}
 }
 }catch(e){}
 try{if(navigator.wakeLock){
